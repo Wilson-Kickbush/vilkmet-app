@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id        String   @id @default(uuid())
+  nombre    String
+  whatsapp  String
+  email     String?
+  fechaAlta DateTime @default(now())
+
+  quotes    Quote[]
+}
+
+model Quote {
+  id              String   @id @default(uuid())
+  leadId          String
+  linea           String   // Ej: Herrero, Modena, A40
+  tipologia       String   // Ej: Corrediza, Abrir
+  ancho           Float
+  alto            Float
+  color           String
+  acristalamiento String
+  precioFinal     Float
+  fechaCreacion   DateTime @default(now())
+
+  lead            Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model SystemParameter {
+  id          String   @id @default(uuid())
+  clave       String   @unique
+  valor       Float
+  descripcion String?
+  fechaUpdate DateTime @updatedAt
+}
