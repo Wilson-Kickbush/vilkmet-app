@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
 export function Navbar() {
@@ -23,9 +23,12 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Button asChild className="hidden sm:inline-flex bg-accent hover:bg-accent/90 text-white shadow-lg shadow-accent/20">
-            <Link href="#cotizador">Obtener Presupuesto</Link>
-          </Button>
+          <Link 
+            href="#cotizador" 
+            className={buttonVariants({ className: "hidden sm:inline-flex bg-accent hover:bg-accent/90 text-white shadow-lg shadow-accent/20" })}
+          >
+            Obtener Presupuesto
+          </Link>
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-6 w-6 text-primary" />
             <span className="sr-only">Toggle menu</span>
