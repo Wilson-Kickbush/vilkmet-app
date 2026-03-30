@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL || "file:./dev.db" } } });
+const prisma = new PrismaClient({ accelerateUrl: process.env.DATABASE_URL || "prisma://dummy.com/?api_key=123" } as any);
 
 export async function POST(req: NextRequest) {
   try {

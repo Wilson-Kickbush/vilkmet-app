@@ -4,7 +4,7 @@ import { es } from "date-fns/locale";
 import { Phone, Mail, Clock, LayoutTemplate } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL || "file:./dev.db" } } });
+const prisma = new PrismaClient({ accelerateUrl: process.env.DATABASE_URL || "prisma://dummy.com/?api_key=123" } as any);
 
 // Revalidate on every request since it's an admin dashboard
 export const dynamic = "force-dynamic";

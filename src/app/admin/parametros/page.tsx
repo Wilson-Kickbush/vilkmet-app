@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { ParametrosForm } from "./ParametrosForm";
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL || "file:./dev.db" } } });
+const prisma = new PrismaClient({ accelerateUrl: process.env.DATABASE_URL || "prisma://dummy.com/?api_key=123" } as any);
 export const dynamic = "force-dynamic";
 
 export default async function ParametrosPage() {
