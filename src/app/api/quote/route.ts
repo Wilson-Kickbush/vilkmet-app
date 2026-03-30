@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
     // Obtenemos todos los parámetros para cálculos
     const params = await prisma.systemParameter.findMany();
     const getParam = (key: string, defaultValue: number) => {
-      const param = params.find(p => p.clave === key);
+      const param = params.find((p: { clave: string; valor: number }) => p.clave === key);
       return param ? param.valor : defaultValue;
     };
 
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Calcular costo vidrio
-    let costVidrioM2 = vidrio === "dvh" ? 45000 : 15000; // Pesos ARS aprox
+    const costVidrioM2 = vidrio === "dvh" ? 45000 : 15000; // Pesos ARS aprox
     const area = parseFloat(ancho) * parseFloat(alto);
     const totalVidrio = area * costVidrioM2;
 
