@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight, ChevronLeft, Send, CheckCircle2 } from "lucide-react";
-import * as motion from "framer-motion/client";
+
 
 export function CotizadorDynamic() {
   const [step, setStep] = useState(1);
@@ -95,7 +95,7 @@ export function CotizadorDynamic() {
       <div className="hidden lg:flex flex-col sticky top-24">
         <h3 className="text-lg font-heading font-semibold text-primary mb-4">Simulador en Tiempo Real</h3>
         <SimuladorVisual 
-          tipologia={formData.tipologia as any} 
+          tipologia={formData.tipologia as "corrediza" | "abrir" | "fijo"} 
           ancho={Number(formData.ancho)} 
           alto={Number(formData.alto)} 
           colorHex={coloresMap[formData.color]}
@@ -127,7 +127,7 @@ export function CotizadorDynamic() {
                 <h3 className="text-2xl font-heading text-primary">1. Tecnología del Perfil</h3>
                 <div className="space-y-4">
                   <Label>Selecciona la Línea de Aluminio</Label>
-                  <Select value={formData.linea} onValueChange={(v) => handleChange("linea", v)}>
+                  <Select value={formData.linea} onValueChange={(v) => handleChange("linea", v as string)}>
                     <SelectTrigger className="h-12"><SelectValue placeholder="Línea" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Herrero">Línea Herrero (Económica)</SelectItem>
@@ -184,7 +184,7 @@ export function CotizadorDynamic() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label>Color del Aluminio</Label>
-                    <Select value={formData.color} onValueChange={(v) => handleChange("color", v)}>
+                    <Select value={formData.color} onValueChange={(v) => handleChange("color", v as string)}>
                       <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="blanco">Blanco Aluar</SelectItem>
@@ -196,7 +196,7 @@ export function CotizadorDynamic() {
                   </div>
                   <div className="space-y-2">
                     <Label>Tipo de Vidrio</Label>
-                    <Select value={formData.vidrio} onValueChange={(v) => handleChange("vidrio", v)}>
+                    <Select value={formData.vidrio} onValueChange={(v) => handleChange("vidrio", v as string)}>
                       <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="float">Float Simple 4mm</SelectItem>
@@ -256,7 +256,7 @@ export function CotizadorDynamic() {
       <div className="lg:hidden mt-8">
         <h4 className="text-sm font-semibold text-center mb-2">Previsualización</h4>
         <SimuladorVisual 
-          tipologia={formData.tipologia as any} 
+          tipologia={formData.tipologia as "corrediza" | "abrir" | "fijo"} 
           ancho={Number(formData.ancho)} 
           alto={Number(formData.alto)} 
           colorHex={coloresMap[formData.color]}
