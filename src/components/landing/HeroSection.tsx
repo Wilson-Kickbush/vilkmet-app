@@ -26,7 +26,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-lg leading-8 text-muted-foreground"
           >
-            Años de experiencia transformando espacios en refugios eficientes. Perfiles Aluar y accesorios importados para máxima durabilidad técnica y estética premium.
+            Años de experiencia transformando espacios y refaccionando inmuebles. Perfiles Aluar y accesorios importados para máxima durabilidad técnica y estética premium.
           </motion.p>
           
           <motion.div 
