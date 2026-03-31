@@ -29,36 +29,43 @@ export async function POST(req: NextRequest) {
     const aluCostPerKg = getParam("costo_kg_aluar", 8.5); // USD 8.5/kg por defecto
 
     // 2. MATEMATICA DE COSTOS
-    // Simplificación de cálculo de peso por metro (simulado según línea)
-    let kgsMetrosLineales = 0;
-    const perimetro = (parseFloat(ancho) + parseFloat(alto)) * 2; // en metros
+    // Las medidas vienen en MILÍMETROS → convertir a metros
+    const anchoM = parseFloat(ancho) / 1000;
+    const altoM  = parseFloat(alto)  / 1000;
+    const perimetroM = (anchoM + altoM) * 2; // metros lineales
+    const areaM2     = anchoM * altoM;        // metros cuadrados
 
+    // Kg de aluminio según línea (kg por metro lineal de perfil)
+    let kgPorMetro = 2.0;
     switch (linea) {
-      case "Herrero": kgsMetrosLineales = perimetro * 1.5; break; // 1.5kg por metro
-      case "Módena": kgsMetrosLineales = perimetro * 2.2; break; // 2.2kg por metro
-      case "A40": kgsMetrosLineales = perimetro * 3.5; break; // 3.5kg por metro
-      case "A40 RPT": kgsMetrosLineales = perimetro * 4.2; break; 
-      default: kgsMetrosLineales = perimetro * 2.0;
+      case "Herrero": kgPorMetro = 1.2; break; // perfil liviano
+      case "Módena":  kgPorMetro = 1.8; break; // perfil medio
+      case "A40":     kgPorMetro = 2.8; break; // perfil pesado
+      case "A40 RPT": kgPorMetro = 3.4; break; // perfil RPT con barrera térmica
     }
+    const totalKgAlu = perimetroM * kgPorMetro;
 
-    // Calcular costo vidrio
-    const costVidrioM2 = vidrio === "dvh" ? 45000 : 15000; // Pesos ARS aprox
-    const area = parseFloat(ancho) * parseFloat(alto);
-    const totalVidrio = area * costVidrioM2;
+    // Costo aluminio en USD
+    const costoAluUSD = totalKgAlu * aluCostPerKg;
 
-    // Supongamos que el Alu Cost está en USD. Precio Aluminio * Tipo de Cambio
-    const tipoCambio = getParam("tipo_cambio_blue", 1000); // 1000 ARS/USD
-    const costoAluminioBase = (kgsMetrosLineales * aluCostPerKg) * tipoCambio;
+    // Tipo de cambio (ARS por USD)
+    const tipoCambio = getParam("tipo_cambio_blue", 1400);
 
-    // Color (Recargo si es Anodizado o Negro)
-    let colorMultiplier = 1.0;
-    if (color === "negro" || color === "anodizado") colorMultiplier = 1.15;
+    // Color: recargo si es anodizado o negro
+    const colorMultiplier = (color === "negro" || color === "anodizado") ? 1.15 : 1.0;
+    const costoAluARS = costoAluUSD * tipoCambio * colorMultiplier;
 
-    // Total Costo Directo
-    const costoDirecto = (costoAluminioBase * colorMultiplier) + totalVidrio;
+    // Costo vidrio en USD/m² → convertir a ARS
+    // DVH ~35 USD/m², simple ~12 USD/m² (valores de referencia industria argentina)
+    const costoVidrioUSDm2 = vidrio === "dvh" ? 35 : 12;
+    const costoVidrioARS   = areaM2 * costoVidrioUSDm2 * tipoCambio;
 
-    // Agregar Mano de Obra y Rentabilidad
-    const precioFinal = costoDirecto * (1 + (laborMargin / 100)) * (1 + (profitMargin / 100));
+    // Costo directo total en ARS
+    const costoDirecto = costoAluARS + costoVidrioARS;
+
+    // Aplicar mano de obra y margen de rentabilidad
+    const precioFinal = costoDirecto * (1 + laborMargin / 100) * (1 + profitMargin / 100);
+
 
     // 3. GUARDAR EL LEAD Y LA COTIZACIÓN EN PRISMA
     const lead = await prisma.lead.create({
