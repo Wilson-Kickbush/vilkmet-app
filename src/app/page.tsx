@@ -1,3 +1,4 @@
+"use client";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { EducationSection } from "@/components/landing/EducationSection";
