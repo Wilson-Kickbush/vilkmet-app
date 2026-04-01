@@ -258,7 +258,7 @@ export function CotizadorDynamic() {
                           </div>
                           
                           <div className="relative z-[50] overflow-visible">
-                            <Select value={formData.linea} onValueChange={(v) => setFormData({...formData, linea: v})}>
+                            <Select value={formData.linea} onValueChange={(v) => v && setFormData({...formData, linea: v})}>
                               <SelectTrigger className="h-28 text-2xl font-black rounded-[2.5rem] border-2 border-slate-100 bg-white hover:border-[#1A3A52] transition-all focus:ring-0 px-12 shadow-sm text-[#1A3A52]">
                                 <SelectValue />
                               </SelectTrigger>
