@@ -161,7 +161,7 @@ export function CotizadorDynamic() {
             )}
           </div>
           <SimuladorVisual 
-            tipologia={formData.tipologia as any} 
+            tipologia={formData.tipologia as "corrediza" | "abrir" | "fijo"} 
             ancho={Number(formData.ancho)} 
             alto={Number(formData.alto)} 
             colorHex={coloresMap[formData.color]}
