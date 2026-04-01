@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { EducationSection } from "@/components/landing/EducationSection";
@@ -69,24 +68,29 @@ export default function Home() {
               </ul>
             </div>
 
-            {/* 3. Navegación Rápida */}
+            {/* 3. Garantía y Respaldo (Estratégico) */}
             <div className="space-y-6">
-              <h4 className="text-[#E85D04] font-black uppercase tracking-widest text-xs">Accesos</h4>
-              <div className="grid grid-cols-1 gap-3">
-                <Link href="#lineas" className="text-white/60 hover:text-white text-sm transition-colors w-fit">Líneas de Producto</Link>
-                <Link href="#galeria" className="text-white/60 hover:text-white text-sm transition-colors w-fit">Portafolio</Link>
-                <Link href="#cotizador" className="text-white/60 hover:text-white text-sm transition-colors w-fit font-bold">Cotizador Online</Link>
+              <h4 className="text-[#E85D04] font-black uppercase tracking-widest text-xs">Garantía y Respaldo</h4>
+              <div className="space-y-4">
+                <p className="text-white/50 text-xs leading-relaxed">
+                  Para su tranquilidad, cada proyecto se formaliza mediante un <span className="text-white/80 font-bold">Contrato de Locación de Obra</span>. 
+                  Otorgamos una <span className="text-white/80 font-bold">Garantía Contractual de 2 años</span> sobre materiales y cerramientos, superando el plazo legal y bajo normativas de Defensa del Consumidor.
+                </p>
+                <div className="flex gap-3">
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/10 text-[10px] uppercase font-bold tracking-tighter">Perfiles Aluar</div>
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/10 text-[10px] uppercase font-bold tracking-tighter">Herrajes Premium</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
             <p className="text-[10px] text-white/30 uppercase tracking-[0.2em]">
-              © {new Date().getFullYear()} VILKMET - Aberturas de Autor. Todos los derechos reservados.
+              © {new Date().getFullYear()} VILKMET | Ingeniería en Aberturas de Autor. Todos los derechos reservados.
             </p>
-            <div className="flex gap-6 text-[10px] text-white/30 uppercase tracking-widest font-bold">
-              <span className="hover:text-[#E85D04] cursor-pointer transition-colors">Privacidad</span>
-              <span className="hover:text-[#E85D04] cursor-pointer transition-colors">Términos</span>
+            <div className="flex gap-8 text-[10px] text-white/30 uppercase tracking-widest font-bold">
+              <span className="hover:text-[#E85D04] cursor-pointer transition-colors">Defensa del Consumidor</span>
+              <span className="hover:text-[#E85D04] cursor-pointer transition-colors">Términos y condiciones</span>
             </div>
           </div>
         </div>

@@ -38,6 +38,7 @@ export function Navbar() {
   ];
 
   return (
+    <>
     <header
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-500 ease-in-out",
@@ -164,25 +165,26 @@ export function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* 5. BOTÓN FLOTANTE DE WHATSAPP GLOBAL (Restaurado) */}
-        <motion.a
-          href="https://wa.me/5491150960796"
-          target="_blank"
-          rel="noreferrer"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 1, type: "spring" }}
-          className="fixed bottom-8 right-8 z-[60] flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_40px_rgba(37,211,102,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(37,211,102,0.6)] transition-all duration-300 group pointer-events-auto"
-          aria-label="Contactar por WhatsApp"
-        >
-          <svg className="h-8 w-8 fill-current" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.483 8.413-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.308 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" />
-          </svg>
-          <span className="absolute -left-32 top-1/2 -translate-y-1/2 bg-[#1A3A52] text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none font-bold uppercase tracking-widest shadow-xl">
-            ¡Chateá con Ventas!
-          </span>
-        </motion.a>
     </header>
+
+    {/* 5. BOTÓN FLOTANTE DE WHATSAPP GLOBAL (Verdaderamente Fijo) */}
+    <motion.a
+      href="https://wa.me/5491150960796"
+      target="_blank"
+      rel="noreferrer"
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay: 1, type: "spring" }}
+      className="fixed bottom-8 right-8 z-[100] flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_40px_rgba(37,211,102,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(37,211,102,0.6)] transition-all duration-300 group pointer-events-auto"
+      aria-label="Contactar por WhatsApp"
+    >
+      <svg className="h-8 w-8 fill-current" viewBox="0 0 24 24">
+        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.483 8.413-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.308 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" />
+      </svg>
+      <span className="absolute -left-32 top-1/2 -translate-y-1/2 bg-[#1A3A52] text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none font-bold uppercase tracking-widest shadow-xl">
+        ¡Chateá con Ventas!
+      </span>
+    </motion.a>
+    </>
   );
 }
