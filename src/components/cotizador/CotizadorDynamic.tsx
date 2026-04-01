@@ -467,7 +467,7 @@ export function CotizadorDynamic() {
                        ].map((p) => (
                          <button 
                           key={p.id}
-                          onClick={() => setPaymentMode(p.id as any)}
+                          onClick={() => setPaymentMode(p.id as "contado" | "cuotas3" | "cuotas6")}
                           className={`flex items-center justify-between p-8 rounded-[2.2rem] border-2 transition-all duration-500 ${paymentMode === p.id ? 'border-[#E85D04] bg-[#E85D04]/15 shadow-2xl ring-1 ring-[#E85D04]/40' : 'border-white/5 bg-white/5 opacity-60 hover:opacity-100 hover:bg-white/10'}`}
                          >
                             <div className="flex items-center gap-5 text-left">
