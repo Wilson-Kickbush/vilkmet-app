@@ -127,23 +127,24 @@ export function VilkmetLogo({
         x="82"
         y="32"
         fontFamily="Arial, sans-serif"
-        fontSize="20"
-        fontWeight="700"
-        letterSpacing="5"
+        fontSize="22"
+        fontWeight="800"
+        letterSpacing="4"
         fill={primary}
       >
         VILKMET
       </text>
-      {/* Tagline */}
+      {/* Tagline Simplificado */}
       <text
         x="82"
-        y="47"
+        y="48"
         fontFamily="Arial, sans-serif"
-        fontSize="6"
-        letterSpacing="0.5"
-        fill={theme === "dark" ? "rgba(255,255,255,0.55)" : "#6B7280"}
+        fontSize="8"
+        fontWeight="600"
+        letterSpacing="1.5"
+        fill={theme === "dark" ? "rgba(255,255,255,0.7)" : "#6B7280"}
       >
-        Aberturas que protegen y embellecen tu hogar
+        ABERTURAS DE AUTOR
       </text>
     </svg>
   );
