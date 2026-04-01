@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
+    ],
+  },
+  // Los headers de seguridad (CSP, X-Frame-Options, etc.) se aplican
+  // globalmente vía src/middleware.ts para mayor control por ruta.
 };
 
 export default nextConfig;

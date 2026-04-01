@@ -49,84 +49,110 @@
 
 :root {
   --background: #FFFFFF;
-  --foreground: #2D2D2D;
+  --foreground: #1A1A1A;
   --card: #FFFFFF;
-  --card-foreground: #2D2D2D;
+  --card-foreground: #1A1A1A;
   --popover: #FFFFFF;
-  --popover-foreground: #2D2D2D;
+  --popover-foreground: #1A1A1A;
   --primary: #1A3A52;
   --primary-foreground: #FFFFFF;
-  --secondary: #F5F5F5;
-  --secondary-foreground: #2D2D2D;
-  --muted: #F5F5F5;
-  --muted-foreground: #888888;
+  --secondary: #F0F4F7;
+  --secondary-foreground: #1A1A1A;
+  --muted: #F0F4F7;
+  --muted-foreground: #4A5568; /* WCAG AA: contraste 4.7:1 sobre blanco */
   --accent: #E85D04;
   --accent-foreground: #FFFFFF;
-  --destructive: #ef4444;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
+  --destructive: #DC2626;
+  --border: #DDE3E9;
+  --input: #DDE3E9;
   --ring: #1A3A52;
   --chart-1: #1A3A52;
   --chart-2: #E85D04;
-  --chart-3: #2D2D2D;
-  --chart-4: #888888;
-  --chart-5: #F5F5F5;
+  --chart-3: #2D7D46;
+  --chart-4: #7C3AED;
+  --chart-5: #F0F4F7;
   --radius: 0.5rem;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #2D2D2D;
+  --sidebar-foreground: #1A1A1A;
   --sidebar-primary: #1A3A52;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F5F5F5;
-  --sidebar-accent-foreground: #2D2D2D;
-  --sidebar-border: #e5e5e5;
+  --sidebar-accent: #F0F4F7;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #DDE3E9;
   --sidebar-ring: #1A3A52;
 }
 
 .dark {
-  --background: #2D2D2D;
-  --foreground: #F5F5F5;
-  --card: #1f1f1f;
-  --card-foreground: #F5F5F5;
-  --popover: #1f1f1f;
-  --popover-foreground: #F5F5F5;
-  --primary: #FFFFFF;
-  --primary-foreground: #1A3A52;
-  --secondary: #3d3d3d;
-  --secondary-foreground: #F5F5F5;
-  --muted: #3d3d3d;
-  --muted-foreground: #a3a3a3;
+  --background: #111827;
+  --foreground: #F9FAFB;
+  --card: #1F2937;
+  --card-foreground: #F9FAFB;
+  --popover: #1F2937;
+  --popover-foreground: #F9FAFB;
+  --primary: #93C5FD;
+  --primary-foreground: #0F172A;
+  --secondary: #374151;
+  --secondary-foreground: #F9FAFB;
+  --muted: #374151;
+  --muted-foreground: #9CA3AF;
   --accent: #E85D04;
   --accent-foreground: #FFFFFF;
-  --destructive: #ef4444;
-  --border: #3d3d3d;
-  --input: #3d3d3d;
-  --ring: #F5F5F5;
-  --chart-1: #1A3A52;
+  --destructive: #EF4444;
+  --border: #374151;
+  --input: #374151;
+  --ring: #93C5FD;
+  --chart-1: #60A5FA;
   --chart-2: #E85D04;
-  --chart-3: #FFFFFF;
-  --chart-4: #a3a3a3;
-  --chart-5: #3d3d3d;
-  --sidebar: #2D2D2D;
-  --sidebar-foreground: #F5F5F5;
+  --chart-3: #34D399;
+  --chart-4: #A78BFA;
+  --chart-5: #374151;
+  --sidebar: #1F2937;
+  --sidebar-foreground: #F9FAFB;
   --sidebar-primary: #1A3A52;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #3d3d3d;
-  --sidebar-accent-foreground: #F5F5F5;
-  --sidebar-border: #3d3d3d;
-  --sidebar-ring: #F5F5F5;
+  --sidebar-accent: #374151;
+  --sidebar-accent-foreground: #F9FAFB;
+  --sidebar-border: #374151;
+  --sidebar-ring: #93C5FD;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
   }
   h1, h2, h3, h4, h5, h6, .font-heading {
     @apply font-heading tracking-tight;
+  }
+
+  /* Scrollbar personalizado */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+}
+
+/* ============================================================
+   PRINT STYLES — PDF Export del presupuesto admin
+   ============================================================ */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; color: black; font-size: 11pt; }
+  .print-page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+  }
+  a[href]::after { content: ""; }
+  @page {
+    margin: 20mm;
+    size: A4;
   }
 }

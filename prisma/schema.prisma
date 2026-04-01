@@ -7,6 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Lead {
@@ -20,18 +21,41 @@ model Lead {
 }
 
 model Quote {
-  id              String   @id @default(uuid())
+  id              String      @id @default(uuid())
   leadId          String
-  linea           String   // Ej: Herrero, Modena, A40
-  tipologia       String   // Ej: Corrediza, Abrir
+  // Legacy single-item fields (kept for backward compatibility)
+  linea           String      @default("")
+  tipologia       String      @default("")
+  ancho           Float       @default(0)
+  alto            Float       @default(0)
+  color           String      @default("")
+  acristalamiento String      @default("")
+  precioFinal     Float
+  // New fields
+  status          String      @default("nuevo") // "nuevo" | "contactado" | "presupuestado" | "cerrado"
+  notasCliente    String?
+  descuento       Float       @default(0)       // Porcentaje de descuento aplicado por el admin
+  fechaCreacion   DateTime    @default(now())
+
+  lead            Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  items           QuoteItem[]
+}
+
+// Cada ítem del carrito multi-producto
+model QuoteItem {
+  id              String  @id @default(uuid())
+  quoteId         String
+  tipo            String  // "ventana" | "puerta"
+  linea           String
+  tipologia       String
   ancho           Float
   alto            Float
   color           String
   acristalamiento String
-  precioFinal     Float
-  fechaCreacion   DateTime @default(now())
+  cantidad        Int     @default(1)
+  subtotal        Float
 
-  lead            Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  quote           Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 }
 
 model SystemParameter {
@@ -41,3 +65,16 @@ model SystemParameter {
   descripcion String?
   fechaUpdate DateTime @updatedAt
 }
+
+// Módulo de Contabilidad: Ingresos y Egresos
+model Transaction {
+  id          String   @id @default(uuid())
+  tipo        String   // "ingreso" | "egreso"
+  categoria   String   // "aluminio_ferro" | "aluminio_aluoest" | "vidrios" | "accesorios" | "internet" | "luz" | "alquiler" | "personal" | "comisiones" | "seña" | "pago_final" | "otro"
+  descripcion String
+  monto       Float
+  fecha       DateTime @default(now())
+  mes         Int      // 1-12, para filtrado rápido
+  anio        Int      // Año
+}
+
