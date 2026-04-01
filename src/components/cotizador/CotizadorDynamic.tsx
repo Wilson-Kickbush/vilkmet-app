@@ -41,21 +41,18 @@ export function CotizadorDynamic() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   
-  // Project State
   const [projectItems, setProjectItems] = useState<ProjectItem[]>([]);
   const [paymentMode, setPaymentMode] = useState<"contado" | "lista" | "cuotas3" | "cuotas6">("contado");
 
-  // Current Item Form State
   const [formData, setFormData] = useState({
     linea: "Módena",
     tipologia: "corrediza",
     ancho: "1500",
     alto: "1200",
     color: "blanco",
-    vidrio: "dvh"
+    vidrio: "float4"
   });
 
-  // Client Data
   const [clientData, setClientData] = useState({
     nombre: "",
     whatsapp: "",
@@ -69,7 +66,6 @@ export function CotizadorDynamic() {
     bronce: "#8B5A2B"
   };
 
-  // Cálculo Local Estimado
   const calculateLocalPrice = () => {
     const a = Number(formData.ancho) / 1000;
     const h = Number(formData.alto) / 1000;
@@ -80,7 +76,12 @@ export function CotizadorDynamic() {
     if (formData.linea === "Herrero") kgM = 1.2;
     if (formData.linea.includes("A40")) kgM = 2.8;
 
-    const baseCostUSD = (mLin * kgM * 8.5) + (m2 * (formData.vidrio === "dvh" ? 35 : 12));
+    let glassCost = 12;
+    if (formData.vidrio === "float5") glassCost = 16;
+    if (formData.vidrio === "float6") glassCost = 22;
+    if (formData.vidrio === "dvh") glassCost = 35;
+
+    const baseCostUSD = (mLin * kgM * 8.5) + (m2 * glassCost);
     const finalARS = baseCostUSD * 1400 * 1.2 * 1.4;
     return Math.round(finalARS);
   };
@@ -142,168 +143,156 @@ export function CotizadorDynamic() {
     return (
       <div className="text-center py-20 animate-in fade-in zoom-in duration-700 max-w-2xl mx-auto">
         <CheckCircle2 className="h-24 w-24 text-green-500 mx-auto mb-8 animate-bounce" />
-        <h3 className="text-4xl font-heading font-black text-[#1A3A52] mb-6">¡PROYECTO ENVIADO!</h3>
+        <h3 className="text-4xl font-heading font-black text-[#1A3A52] mb-6 uppercase tracking-tighter">¡PROYECTO RECIBIDO!</h3>
         <p className="text-xl text-muted-foreground mb-10 font-medium">
-          Hola <span className="text-primary">{clientData.nombre}</span>, tu solicitud de <span className="font-bold underline decoration-[#E85D04]">{projectItems.length} aberturas</span> ha sido recibida. 
-          Un asesor técnico de <span className="font-bold text-[#1A3A52]">VILKMET</span> te enviará el cronograma de medición por WhatsApp.
+          Hola <span className="text-primary font-black">{clientData.nombre}</span>, tu solicitud de <span className="font-bold underline decoration-[#E85D04] tracking-tight">{projectItems.length} aberturas de autor</span> ha sido enviada con éxito. 
+          Un asesor técnico de <span className="font-bold text-[#1A3A52]">VILKMET</span> te contactará a la brevedad.
         </p>
-        <div className="bg-[#1A3A52] text-white p-12 rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(26,58,82,0.3)] border border-white/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-[#E85D04]/20 rounded-full blur-3xl -translate-y-20 translate-x-10"></div>
-          <span className="block text-xs uppercase tracking-[0.4em] text-white/40 mb-4 font-black">Inversión Final Proyecto ({getFinancingLabel().label})</span>
-          <span className="text-7xl font-black tracking-tighter">
+        <div className="bg-[#1A3A52] text-white p-14 rounded-[4rem] shadow-[0_45px_70px_-15px_rgba(26,58,82,0.4)] border border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#E85D04]/20 rounded-full blur-[100px] -translate-y-20 translate-x-20"></div>
+          <span className="block text-[10px] uppercase tracking-[0.5em] text-white/40 mb-6 font-black">Inversión Final Proyecto ({getFinancingLabel().label})</span>
+          <span className="text-8xl font-black tracking-tighter">
             ${getFinancingLabel().total.toLocaleString("es-AR")}
           </span>
         </div>
-        <Button onClick={() => window.location.reload()} variant="link" className="mt-12 text-primary uppercase font-black tracking-[0.2em] text-xs hover:text-[#E85D04] transition-colors">Volver al inicio</Button>
+        <Button onClick={() => window.location.reload()} variant="link" className="mt-16 text-primary uppercase font-black tracking-[0.3em] text-[10px] hover:text-[#E85D04] transition-colors">Iniciar nueva obra</Button>
       </div>
     );
   }
 
-  // VISTA: ARMADO DE CADA PIEZA
   if (view === "builder") {
     return (
-      <div className="relative group/console">
-        {/* CONSOLA MAESTRA UNIFICADA */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-[3rem] border border-slate-200/60 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)] overflow-visible p-2 md:p-4">
+      <div className="relative group/console max-w-7xl mx-auto pb-20">
+        <div className="bg-white/80 backdrop-blur-xl rounded-[4rem] border border-slate-200/60 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)] overflow-visible p-4">
           <div className="grid lg:grid-cols-12 gap-0 overflow-visible">
             
-            {/* LADO IZQUIERDO: VISUALIZACIÓN TÉCNICA */}
-            <div className="lg:col-span-12 xl:col-span-5 p-8 lg:p-12 bg-slate-50/50 rounded-[2.5rem] relative overflow-hidden border border-slate-100">
-              <div className="absolute top-8 left-8 flex items-center gap-3 z-10">
-                <div className="h-2 w-2 bg-[#E85D04] rounded-full animate-pulse"></div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Render en Tiempo Real</h3>
+            <div className="lg:col-span-12 xl:col-span-7 p-12 lg:p-20 bg-slate-50/50 rounded-[3.5rem] relative overflow-hidden border border-slate-100 flex flex-col justify-between min-h-[750px]">
+              <div className="flex items-center gap-4 z-10">
+                <div className="h-4 w-4 bg-[#E85D04] rounded-full animate-pulse shadow-[0_0_15px_#E85D04]"></div>
+                <h3 className="text-[11px] font-black uppercase tracking-[0.6em] text-[#1A3A52]/60">Ingeniería Realidad Aumentada</h3>
               </div>
               
-              <div className="h-full flex flex-col justify-center py-10">
-                <div className="relative group/sim">
-                   <div className="absolute inset-0 bg-[#1A3A52]/5 rounded-3xl blur-3xl scale-90 group-hover/sim:scale-110 transition-transform duration-700"></div>
+              <div className="flex-1 flex flex-col justify-center py-10">
+                <div className="relative group/sim scale-110 md:scale-135 transition-transform duration-1000 ease-out">
+                   <div className="absolute inset-0 bg-[#1A3A52]/5 rounded-[5rem] blur-[140px] scale-90 group-hover/sim:scale-110 transition-transform duration-1000"></div>
                    <SimuladorVisual 
                     tipologia={formData.tipologia as "corrediza" | "abrir" | "fijo"} 
                     ancho={Number(formData.ancho)} 
                     alto={Number(formData.alto)} 
-                    colorHex={coloresMap[formData.color]}
+                    colorHex={coloresMap[formData.color] || "#FFFFFF"}
                   />
                 </div>
-                
-                {/* HUD DE DATOS */}
-                <div className="mt-12 grid grid-cols-2 gap-4">
-                  <div className="bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-white shadow-sm group hover:border-[#1A3A52]/20 transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                       <Layers className="h-3 w-3 text-[#E85D04]" />
-                       <span className="text-[9px] uppercase font-black text-slate-400 tracking-widest">Perfilaría</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                <div className="bg-white/95 backdrop-blur-md p-8 rounded-[2rem] border border-white shadow-2xl">
+                    <div className="flex items-center gap-4 mb-4">
+                       <Layers className="h-5 w-5 text-[#E85D04]" />
+                       <span className="text-[11px] uppercase font-black text-slate-700 tracking-widest">Perfilaría</span>
                     </div>
-                    <p className="text-sm font-black text-[#1A3A52]">{formData.linea}</p>
-                  </div>
-                  <div className="bg-[#1A3A52] p-5 rounded-2xl border border-white/10 shadow-xl group hover:bg-[#1A3A52]/90 transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                       <Wallet className="h-3 w-3 text-[#E85D04]" />
-                       <span className="text-[9px] uppercase font-black text-white/30 tracking-widest">Estimado</span>
+                    <p className="text-xl font-black text-[#1A3A52] tracking-tight">{formData.linea}</p>
+                </div>
+                <div className="bg-white/95 backdrop-blur-md p-8 rounded-[2rem] border border-white shadow-2xl">
+                    <div className="flex items-center gap-4 mb-4">
+                       <Maximize2 className="h-5 w-5 text-[#E85D04]" />
+                       <span className="text-[11px] uppercase font-black text-slate-700 tracking-widest">Dimensión</span>
                     </div>
-                    <p className="text-sm font-black text-white">${calculateLocalPrice().toLocaleString("es-AR")}</p>
-                  </div>
+                    <p className="text-xl font-black text-[#1A3A52] tracking-tight">{formData.ancho} x {formData.alto} mm</p>
+                </div>
+                <div className="bg-[#1A3A52] p-8 rounded-[2rem] border border-white/10 shadow-2xl ring-1 ring-white/20">
+                    <div className="flex items-center gap-4 mb-4">
+                       <Wallet className="h-5 w-5 text-[#E85D04]" />
+                       <span className="text-[11px] uppercase font-black text-white/40 tracking-widest">Estimado</span>
+                    </div>
+                    <p className="text-xl font-black text-white tracking-tight">${calculateLocalPrice().toLocaleString("es-AR")}</p>
                 </div>
               </div>
 
               {projectItems.length > 0 && (
                 <button 
                   onClick={() => setView("project")}
-                  className="absolute bottom-8 right-8 bg-[#1A3A52] text-white px-6 h-12 rounded-full text-[10px] font-black tracking-widest uppercase flex items-center gap-3 hover:bg-[#E85D04] hover:scale-105 transition-all shadow-xl"
+                  className="absolute bottom-12 right-12 bg-[#1A3A52] text-white px-12 h-20 rounded-[2.5rem] text-sm font-black tracking-[0.2em] uppercase flex items-center gap-5 hover:bg-[#E85D04] hover:scale-105 transition-all shadow-[0_30px_60px_-10px_rgba(26,58,82,0.5)] z-20 border-2 border-white/20 group/btn"
                 >
-                  Ver Proyecto ({projectItems.length}) <ChevronRight className="h-3 w-3" />
+                  Ver Proyecto ({projectItems.length}) <ArrowRight className="h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
                 </button>
               )}
             </div>
 
-            {/* LADO DERECHO: PANEL DE CONTROL ARQUITECTÓNICO */}
-            <div className="lg:col-span-12 xl:col-span-7 p-8 lg:p-12 overflow-visible">
-              <div className="max-w-2xl mx-auto h-full flex flex-col overflow-visible">
+            <div className="lg:col-span-12 xl:col-span-5 p-12 lg:p-16 overflow-visible">
+              <div className="max-w-xl mx-auto h-full flex flex-col overflow-visible">
                 
-                {/* STEPPER ELITE */}
-                <nav className="flex justify-between items-center mb-16 relative">
-                   <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-slate-100 -z-10"></div>
+                <nav className="flex justify-between items-center mb-20 relative px-2">
+                   <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-slate-100 -z-10"></div>
                    {[
-                    { id: 1, label: "Línea", icon: Layers },
-                    { id: 2, label: "Apertura", icon: Layout },
-                    { id: 3, label: "Cotas", icon: Maximize2 },
-                    { id: 4, label: "Detalle", icon: Settings2 }
+                    { id: 1, label: "SISTEMA", icon: Layers },
+                    { id: 2, label: "APERTURA", icon: Layout },
+                    { id: 3, label: "MEDIDAS", icon: Maximize2 },
+                    { id: 4, label: "VIDRIO", icon: Settings2 }
                    ].map((s) => (
                     <div key={s.id} className="relative flex flex-col items-center">
                       <button 
                         onClick={() => s.id < step && setStep(s.id)}
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 border ${step >= s.id ? 'bg-[#1A3A52] text-white border-[#1A3A52] shadow-lg shadow-[#1A3A52]/20' : 'bg-white text-slate-300 border-slate-100 hover:border-slate-300'}`}
+                        className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-500 border-2 ${step >= s.id ? 'bg-[#1A3A52] text-white border-[#1A3A52] shadow-xl shadow-[#1A3A52]/30' : 'bg-white text-slate-200 border-slate-100 hover:border-slate-300'}`}
                       >
-                        <s.icon className={`h-5 w-5 ${step === s.id ? 'animate-pulse' : ''}`} />
+                        <s.icon className={`h-7 w-7 ${step === s.id ? 'animate-pulse' : ''}`} />
                       </button>
-                      <span className={`absolute -bottom-7 text-[9px] font-black uppercase tracking-widest transition-colors ${step === s.id ? 'text-[#1A3A52]' : 'text-slate-300'}`}>{s.label}</span>
+                      <span className={`absolute -bottom-10 text-[10px] font-black uppercase tracking-[0.3em] transition-colors ${step === s.id ? 'text-[#1A3A52]' : 'text-slate-300'}`}>{s.label}</span>
                     </div>
                   ))}
                 </nav>
 
-                {/* CONTENIDO DE PASOS CON OVERFLOW VISIBLE */}
-                <div className="flex-1 overflow-visible min-h-[380px]">
+                <div className="flex-1 overflow-visible min-h-[480px]">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={step}
-                      initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.98, y: -10 }}
-                      className="space-y-10 overflow-visible"
+                      initial={{ opacity: 0, scale: 0.98, x: 30 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.98, x: -30 }}
+                      className="space-y-14 overflow-visible"
                     >
                       {step === 1 && (
-                        <div className="space-y-8 overflow-visible">
-                          <div>
-                            <h3 className="text-4xl font-heading font-black text-[#1A3A52] tracking-tight leading-tight">Ingeniería del <br/><span className="text-[#E85D04]">Perfil de Aluminio</span></h3>
-                            <p className="text-slate-400 font-medium mt-4">Selecciona el sistema que definirá la durabilidad de tu obra.</p>
+                        <div className="space-y-10 overflow-visible">
+                          <div className="space-y-4">
+                            <h3 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none">Línea <br/><span className="text-[#E85D04]">Técnica</span></h3>
+                            <p className="text-slate-400 font-bold uppercase text-[11px] tracking-[0.4em]">Perfiles Certificados por ALUAR</p>
                           </div>
                           
                           <div className="relative z-[50] overflow-visible">
                             <Select value={formData.linea} onValueChange={(v) => setFormData({...formData, linea: v})}>
-                              <SelectTrigger className="h-20 text-lg font-bold rounded-[1.5rem] border-2 border-slate-100 bg-white hover:border-[#1A3A52] transition-colors focus:ring-0 px-8">
+                              <SelectTrigger className="h-28 text-2xl font-black rounded-[2.5rem] border-2 border-slate-100 bg-white hover:border-[#1A3A52] transition-all focus:ring-0 px-12 shadow-sm text-[#1A3A52]">
                                 <SelectValue />
                               </SelectTrigger>
-                              {/* PORTAL FORCE FIX - Removed invalid position prop */}
-                              <SelectContent sideOffset={8} className="rounded-2xl border-slate-200 shadow-2xl p-2 min-w-[300px]">
-                                <SelectItem value="Herrero" className="h-14 font-bold rounded-xl focus:bg-slate-50 cursor-pointer">Línea Herrero - Perfil Liviano</SelectItem>
-                                <SelectItem value="Módena" className="h-14 font-bold rounded-xl focus:bg-slate-50 cursor-pointer">Línea Módena - Tecnología Media</SelectItem>
-                                <SelectItem value="A40" className="h-14 font-bold rounded-xl focus:bg-slate-50 cursor-pointer">Línea A40 - Premium Hermética</SelectItem>
-                                <SelectItem value="A40 RPT" className="h-14 font-bold rounded-xl focus:bg-slate-50 cursor-pointer">Línea A40 RPT - Rotura Térmica</SelectItem>
+                              <SelectContent sideOffset={12} className="rounded-[2.5rem] border-slate-200 shadow-2xl p-6 min-w-[350px]">
+                                <SelectItem value="Herrero" className="h-20 font-black rounded-3xl focus:bg-slate-50 cursor-pointer px-8 text-lg">Línea Herrero (Estándar)</SelectItem>
+                                <SelectItem value="Módena" className="h-20 font-black rounded-3xl focus:bg-slate-50 cursor-pointer px-8 text-lg">Línea Módena (Alta Gama)</SelectItem>
+                                <SelectItem value="A40" className="h-20 font-black rounded-3xl focus:bg-slate-50 cursor-pointer px-8 text-lg">Línea A40 (Premium)</SelectItem>
+                                <SelectItem value="A40 RPT" className="h-20 font-black rounded-3xl focus:bg-slate-50 cursor-pointer px-8 text-lg">Línea A40 RPT (Térmica)</SelectItem>
                               </SelectContent>
                             </Select>
-                          </div>
-                          
-                          <div className="bg-[#E85D04]/5 p-6 rounded-3xl border border-[#E85D04]/20 flex items-start gap-4">
-                            <Info className="h-6 w-6 text-[#E85D04] shrink-0" />
-                            <p className="text-xs text-[#E85D04]/80 font-bold leading-relaxed">
-                              Utilizamos exclusivamente perfiles extrudados por <strong>ALUAR</strong>, garantizando aleaciones certificadas 6063 T6.
-                            </p>
                           </div>
                         </div>
                       )}
 
                       {step === 2 && (
-                        <div className="space-y-8">
-                          <div>
-                            <h3 className="text-4xl font-heading font-black text-[#1A3A52] tracking-tight">Arquitectura de <br/><span className="text-[#E85D04]">Movimiento</span></h3>
-                            <p className="text-slate-400 font-medium mt-2">¿Cómo deseas que interactúe tu abertura con el espacio?</p>
-                          </div>
+                        <div className="space-y-12">
+                          <h3 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none">Diseño de <br/><span className="text-[#E85D04]">Apertura</span></h3>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="grid grid-cols-1 gap-5">
                             {[
-                                { id: "corrediza", label: "Corrediza", desc: "Deslizamiento Dual", icon: Layers },
-                                { id: "abrir", label: "De Abrir", desc: "Apertura 180º", icon: Layout },
-                                { id: "fijo", label: "Paño Fijo", desc: "Vistas Únicas", icon: Maximize2 }
+                                { id: "corrediza", label: "Sistema Corredizo", desc: "Suavidad milimétrica", icon: Layers },
+                                { id: "abrir", label: "Puerta de Abrir", desc: "Hermeticidad Total", icon: Layout },
+                                { id: "fijo", label: "Paño Fijo", desc: "Diseño Estático", icon: Maximize2 }
                             ].map((tipo) => (
                               <button 
                                 key={tipo.id} 
                                 onClick={() => setFormData({...formData, tipologia: tipo.id})}
-                                className={`group/card flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 transition-all duration-500 relative overflow-hidden ${formData.tipologia === tipo.id ? 'border-[#E85D04] bg-[#E85D04]/5 shadow-xl shadow-orange-500/10' : 'border-slate-50 bg-slate-50/50 text-slate-400 hover:border-slate-200 hover:bg-white'}`}
+                                className={`flex items-center gap-8 p-10 rounded-[2.5rem] border-2 transition-all duration-500 relative overflow-hidden group ${formData.tipologia === tipo.id ? 'border-[#E85D04] bg-[#E85D04]/5 shadow-[0_20px_40px_-15px_rgba(232,93,4,0.15)]' : 'border-slate-50 bg-slate-50/50 text-slate-400 hover:border-slate-200 hover:bg-white'}`}
                               >
-                                {formData.tipologia === tipo.id && (
-                                   <div className="absolute top-4 right-4 h-2 w-2 bg-[#E85D04] rounded-full"></div>
-                                )}
-                                <tipo.icon className={`h-10 w-10 mb-4 transition-transform duration-500 group-hover/card:scale-110 ${formData.tipologia === tipo.id ? 'text-[#E85D04]' : 'text-slate-300'}`} />
-                                <span className={`text-sm font-black uppercase tracking-widest ${formData.tipologia === tipo.id ? 'text-[#1A3A52]' : ''}`}>{tipo.label}</span>
-                                <span className="text-[10px] font-bold opacity-50 mt-1 uppercase tracking-tight">{tipo.desc}</span>
+                                <tipo.icon className={`h-12 w-12 ${formData.tipologia === tipo.id ? 'text-[#E85D04]' : 'text-slate-300'}`} />
+                                <div className="text-left space-y-1">
+                                  <span className={`block text-xl font-black uppercase tracking-tighter ${formData.tipologia === tipo.id ? 'text-[#1A3A52]' : ''}`}>{tipo.label}</span>
+                                  <span className={`text-[11px] font-black uppercase tracking-widest opacity-60 ${formData.tipologia === tipo.id ? 'text-[#1A3A52]/60' : ''}`}>{tipo.desc}</span>
+                                </div>
                               </button>
                             ))}
                           </div>
@@ -311,35 +300,26 @@ export function CotizadorDynamic() {
                       )}
 
                       {step === 3 && (
-                        <div className="space-y-10">
-                          <div>
-                            <h3 className="text-4xl font-heading font-black text-[#1A3A52] tracking-tight">Dimensiones de <br/><span className="text-[#E85D04]">Ingeniería</span></h3>
-                            <p className="text-slate-400 font-medium mt-2">Introduce las cotas de tu vano en milímetros.</p>
-                          </div>
+                        <div className="space-y-14">
+                          <h3 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none">Ingeniería <br/><span className="text-[#E85D04]">Milimétrica</span></h3>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center px-1">
-                                <Label className="font-black text-slate-400 uppercase text-[10px] tracking-[0.3em]">Ancho (MM)</Label>
-                                <span className="text-[10px] font-black text-primary font-mono">{formData.ancho}mm</span>
-                              </div>
+                          <div className="space-y-10">
+                            <div className="space-y-5">
+                              <Label className="font-black text-slate-600 uppercase text-[12px] tracking-[0.5em] pl-4">Ancho Nominal (MM)</Label>
                               <Input 
                                 type="number" 
                                 value={formData.ancho} 
                                 onChange={(e) => setFormData({...formData, ancho: e.target.value})} 
-                                className="h-20 text-3xl font-black rounded-[1.5rem] border-2 border-slate-100 focus:border-[#E85D04] transition-all px-8 bg-white" 
+                                className="h-28 text-6xl font-black rounded-[3rem] border-2 border-slate-100 focus:border-[#E85D04] transition-all px-14 bg-white shadow-inner text-[#1A3A52]" 
                               />
                             </div>
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center px-1">
-                                <Label className="font-black text-slate-400 uppercase text-[10px] tracking-[0.3em]">Alto (MM)</Label>
-                                <span className="text-[10px] font-black text-primary font-mono">{formData.alto}mm</span>
-                              </div>
+                            <div className="space-y-5">
+                              <Label className="font-black text-slate-600 uppercase text-[12px] tracking-[0.5em] pl-4">Alto Nominal (MM)</Label>
                               <Input 
                                 type="number" 
                                 value={formData.alto} 
                                 onChange={(e) => setFormData({...formData, alto: e.target.value})} 
-                                className="h-20 text-3xl font-black rounded-[1.5rem] border-2 border-slate-100 focus:border-[#E85D04] transition-all px-8 bg-white" 
+                                className="h-28 text-6xl font-black rounded-[3rem] border-2 border-slate-100 focus:border-[#E85D04] transition-all px-14 bg-white shadow-inner text-[#1A3A52]" 
                               />
                             </div>
                           </div>
@@ -347,47 +327,28 @@ export function CotizadorDynamic() {
                       )}
 
                       {step === 4 && (
-                        <div className="space-y-10">
-                          <div>
-                            <h3 className="text-4xl font-heading font-black text-[#1A3A52] tracking-tight">Estoma de <br/><span className="text-[#E85D04]">Autor</span></h3>
-                            <p className="text-slate-400 font-medium mt-2">Detalles que marcan la diferencia en el acabado.</p>
-                          </div>
+                        <div className="space-y-12">
+                          <h3 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none">Composición <br/><span className="text-[#E85D04]">del Cristal</span></h3>
                           
-                          <div className="grid grid-cols-1 gap-6">
-                            <div className="space-y-4">
-                               <Label className="font-black text-slate-400 uppercase text-[10px] tracking-[0.3em] pl-1">Acabado del Aluminio</Label>
-                               <div className="flex flex-wrap gap-3">
-                                  {["blanco", "negro", "anodizado", "bronce"].map((c) => (
-                                    <button 
-                                      key={c}
-                                      onClick={() => setFormData({...formData, color: c})}
-                                      className={`px-6 h-12 rounded-full border-2 text-[10px] font-black uppercase tracking-widest transition-all ${formData.color === c ? 'bg-[#1A3A52] border-[#1A3A52] text-white' : 'bg-white border-slate-100 text-slate-400'}`}
-                                    >
-                                      {c}
-                                    </button>
-                                  ))}
-                               </div>
-                            </div>
-                            
-                            <div className="space-y-4">
-                               <Label className="font-black text-slate-400 uppercase text-[10px] tracking-[0.3em] pl-1">Sistema de Acristalamiento</Label>
-                               <div className="grid md:grid-cols-2 gap-4">
-                                  <button 
-                                    onClick={() => setFormData({...formData, vidrio: "float"})}
-                                    className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.vidrio === "float" ? 'border-[#E85D04] bg-[#E85D04]/5' : 'border-slate-50 bg-white'}`}
-                                  >
-                                    <p className="font-black text-sm text-[#1A3A52] uppercase">Float Simple</p>
-                                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Cristal 4mm / 6mm</p>
-                                  </button>
-                                  <button 
-                                    onClick={() => setFormData({...formData, vidrio: "dvh"})}
-                                    className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.vidrio === "dvh" ? 'border-[#E85D04] bg-[#E85D04]/5' : 'border-slate-50 bg-white'}`}
-                                  >
-                                    <p className="font-black text-sm text-[#1A3A52] uppercase text-sky-800">DVH Elite</p>
-                                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Aislamiento Térmico 4+12+4</p>
-                                  </button>
-                               </div>
-                            </div>
+                          <div className="grid grid-cols-1 gap-5">
+                              {[
+                                { id: "float4", label: "Float Incoloro 4mm", desc: "Espesor Estándar", cat: "F4" },
+                                { id: "float5", label: "Float Incoloro 5mm", desc: "Rigidez Media", cat: "F5" },
+                                { id: "float6", label: "Float Incoloro 6mm", desc: "Alta Resistencia", cat: "F6" },
+                                { id: "dvh", label: "DVH (4+12+4)", desc: "Aislamiento Termoacústico", cat: "ELITE" }
+                              ].map((v) => (
+                                <button 
+                                  key={v.id}
+                                  onClick={() => setFormData({...formData, vidrio: v.id})}
+                                  className={`flex items-center justify-between p-8 rounded-[2.5rem] border-2 text-left transition-all group ${formData.vidrio === v.id ? 'border-[#E85D04] bg-[#E85D04]/5' : 'border-slate-50 bg-white hover:border-slate-200'}`}
+                                >
+                                  <div className="space-y-1">
+                                    <p className={`font-black text-xl uppercase tracking-tighter ${formData.vidrio === v.id ? 'text-[#1A3A52]' : 'text-slate-400 group-hover:text-slate-600'}`}>{v.label}</p>
+                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest opacity-60">{v.desc}</p>
+                                  </div>
+                                  <span className={`text-[10px] font-black px-6 py-2 rounded-full border ${formData.vidrio === v.id ? 'bg-[#E85D04] text-white border-[#E85D04] shadow-lg shadow-orange-500/20' : 'bg-slate-50 text-slate-300 border-slate-100'}`}>{v.cat}</span>
+                                </button>
+                              ))}
                           </div>
                         </div>
                       )}
@@ -395,32 +356,33 @@ export function CotizadorDynamic() {
                   </AnimatePresence>
                 </div>
 
-                {/* BOTONES DE ACCIÓN CTA */}
-                <div className="pt-10 flex flex-col md:flex-row gap-4">
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => setStep(Math.max(1, step - 1))} 
-                    disabled={step === 1} 
-                    className="h-16 px-10 font-black text-[10px] uppercase tracking-[0.2em] rounded-[1.5rem] hover:bg-slate-50"
-                  >
-                    Retroceder
-                  </Button>
-                  
-                  {step < 4 ? (
+                <div className="pt-14 flex flex-col gap-6">
+                  <div className="flex gap-4">
                     <Button 
-                      onClick={() => setStep(step + 1)} 
-                      className="flex-1 h-16 bg-[#1A3A52] hover:bg-[#1C3E5B] text-white font-black text-xs uppercase tracking-[0.3em] rounded-[1.5rem] shadow-xl shadow-[#1A3A52]/20 transform transition active:scale-[0.98]"
+                        variant="ghost" 
+                        onClick={() => setStep(Math.max(1, step - 1))} 
+                        disabled={step === 1} 
+                        className="h-24 px-10 font-black text-[12px] uppercase tracking-[0.4em] rounded-[3rem] hover:bg-slate-50 flex-1 border-2 border-slate-100 text-slate-400"
                     >
-                      Siguiente Parámetro <ArrowRight className="ml-3 h-4 w-4" />
+                        Retroceder
                     </Button>
-                  ) : (
-                    <Button 
-                      onClick={addItemToProject} 
-                      className="flex-1 h-16 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xs uppercase tracking-[0.3em] rounded-[1.5rem] shadow-2xl shadow-orange-500/30 transform transition active:scale-[0.98] animate-in slide-in-from-right-4"
-                    >
-                      Añadir a mi Obra <Plus className="ml-3 h-5 w-5" />
-                    </Button>
-                  )}
+                    
+                    {step < 4 ? (
+                        <Button 
+                        onClick={() => setStep(step + 1)} 
+                        className="flex-[2.5] h-24 bg-[#1A3A52] hover:bg-[#1C3E5B] text-white font-black text-xs uppercase tracking-[0.4em] rounded-[3rem] shadow-[0_20px_50px_-10px_rgba(26,58,82,0.4)] transform transition active:scale-[0.98] group/next"
+                        >
+                        Siguiente <ArrowRight className="ml-5 h-6 w-6 group-hover/next:translate-x-2 transition-transform" />
+                        </Button>
+                    ) : (
+                        <Button 
+                        onClick={addItemToProject} 
+                        className="flex-[2.5] h-24 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xs uppercase tracking-[0.4em] rounded-[3rem] shadow-[0_25px_60px_-10px_rgba(232,93,4,0.5)] transform transition active:scale-[0.98] group/add"
+                        >
+                        Añadir a la Obra <Plus className="ml-5 h-7 w-7 group-add:rotate-90 transition-transform" />
+                        </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -431,180 +393,198 @@ export function CotizadorDynamic() {
     );
   }
 
-  // VISTA: PROYECTO CONSOLIDADO (CARRITO)
   if (view === "project") {
     return (
-      <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
-          <div>
-            <h3 className="text-3xl font-heading font-black text-[#1A3A52]">Resumen de Obra</h3>
-            <p className="text-slate-500 font-medium">Has configurado {projectItems.length} aberturas para tu presupuesto.</p>
+      <div className="space-y-16 animate-in fade-in slide-in-from-bottom-12 duration-1000 max-w-7xl mx-auto pb-20">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 pb-12 border-b border-slate-100">
+          <div className="space-y-4">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.7em] text-[#E85D04]">Estado del Proyecto</h3>
+            <h2 className="text-7xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none">Mi Obra <br/><span className="text-[#E85D04] italic">Vilkmet.</span></h2>
           </div>
-          <Button onClick={() => setView("builder")} variant="outline" className="rounded-2xl border-[#1A3A52] text-[#1A3A52] font-black h-14 px-8">
-            <Plus className="mr-2 h-5 w-5" /> AGREGAR OTRA
+          <Button onClick={() => setView("builder")} className="h-20 px-12 rounded-[2.5rem] border-4 border-[#1A3A52] bg-transparent text-[#1A3A52] font-black uppercase text-xs tracking-[0.3em] hover:bg-[#1A3A52] hover:text-white transition-all shadow-xl">
+            <Plus className="mr-5 h-6 w-6" /> AGREGAR OTRA ABERTURA
           </Button>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
-          {/* LISTA DE ITEMS */}
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid lg:grid-cols-12 gap-16">
+          <div className="lg:col-span-12 xl:col-span-8 space-y-8">
             {projectItems.map((item) => (
-              <div key={item.id} className="bg-white border border-slate-100 p-6 rounded-3xl flex items-center gap-6 group hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
-                <div className="h-20 w-20 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0">
-                  <div className={`border-2 border-slate-200 rounded-sm`} style={{ width: 40, height: 40 * (item.alto/item.ancho) }}></div>
+              <motion.div 
+                layout
+                key={item.id} 
+                className="bg-white border border-slate-100 p-10 rounded-[3.5rem] flex flex-col md:flex-row items-center gap-12 group hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-700"
+              >
+                <div className="h-32 w-32 bg-slate-50/50 rounded-3xl flex items-center justify-center p-6 shrink-0 group-hover:rotate-3 transition-transform">
+                  <div className={`border-4 border-[#1A3A52]/20 rounded-lg bg-white shadow-inner flex items-center justify-center`} style={{ width: 65, height: 65 * (item.alto/item.ancho) }}>
+                      <span className="text-[9px] font-black text-slate-300">VILK-{item.id.slice(0,3).toUpperCase()}</span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-black text-[#1A3A52] uppercase text-sm tracking-tight">{item.linea} - {item.tipologia}</h4>
-                  <p className="text-xs text-slate-400 font-bold mb-2 uppercase">{item.ancho}x{item.alto}mm | {item.vidrio.toUpperCase()} | {item.color}</p>
-                  <p className="text-primary font-black text-lg">${item.subtotal.toLocaleString("es-AR")}</p>
+                <div className="flex-1 text-center md:text-left space-y-4">
+                  <h4 className="font-black text-3xl text-[#1A3A52] uppercase tracking-tighter leading-none">{item.linea} · {item.tipologia}</h4>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                    <span className="px-5 py-2 bg-slate-50 text-[10px] font-black text-slate-500 rounded-full tracking-widest uppercase border border-slate-100">{item.ancho}x{item.alto}mm</span>
+                    <span className="px-5 py-2 bg-slate-50 text-[10px] font-black text-slate-500 rounded-full tracking-widest uppercase border border-slate-100">{item.vidrio.replace('float', 'F')}mm</span>
+                    <span className="px-5 py-2 bg-slate-50 text-[10px] font-black text-slate-500 rounded-full tracking-widest uppercase border border-slate-100">{item.color}</span>
+                  </div>
+                  <p className="text-4xl font-black text-[#1A3A52] tracking-tighter pt-2">${item.subtotal.toLocaleString("es-AR")}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)} className="text-slate-300 hover:text-red-500 transition-colors h-12 w-12 rounded-xl">
-                  <Trash2 className="h-5 w-5" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => removeItem(item.id)} 
+                  className="h-16 w-16 rounded-2xl text-slate-200 hover:text-red-500 hover:bg-red-50 transition-all"
+                >
+                  <Trash2 className="h-8 w-8" />
                 </Button>
-              </div>
+              </motion.div>
             ))}
+
+            {projectItems.length === 0 && (
+              <div className="text-center py-32 bg-slate-50 rounded-[4rem] border-4 border-dashed border-slate-200 space-y-6">
+                <Layers className="h-16 w-16 text-slate-200 mx-auto" />
+                <p className="text-slate-400 font-black uppercase text-sm tracking-widest">No hay piezas cargadas en la obra</p>
+                <Button onClick={() => setView("builder")} variant="link" className="text-[#E85D04] font-black uppercase text-xs tracking-widest">Iniciar configuración</Button>
+              </div>
+            )}
           </div>
 
-          {/* TOTALES Y FINANCIACIÓN */}
-          <Card className="rounded-[2.5rem] border-none bg-[#1A3A52] text-white p-2 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E85D04]/10 rounded-full -translate-y-16 translate-x-16 blur-2xl"></div>
-            <CardContent className="p-8 space-y-8">
-              <h4 className="text-xs font-black uppercase tracking-[0.3em] text-white/40">Inversión Estimada</h4>
-              
-              <div className="space-y-4">
-                <button 
-                  onClick={() => setPaymentMode("contado")}
-                  className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${paymentMode === "contado" ? 'border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]' : 'border-white/10 text-white/60 hover:bg-white/5'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Wallet className="h-5 w-5" />
-                    <div className="text-left">
-                      <p className="text-xs font-black uppercase tracking-widest">Contado</p>
-                      <p className="text-[10px] opacity-70">Transferencia o Efectivo</p>
+          <div className="lg:col-span-12 xl:col-span-4 translate-y-0 xl:-translate-y-20">
+            <Card className="rounded-[4rem] border-none bg-[#1A3A52] text-white p-2 shadow-[0_60px_120px_-30px_rgba(26,58,82,0.6)] relative overflow-hidden group/card">
+               <div className="absolute top-10 right-10 w-48 h-48 bg-[#E85D04]/30 rounded-full blur-[90px] animate-pulse"></div>
+               <CardContent className="p-12 space-y-12">
+                 <div className="space-y-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.5em] text-white/30">Subtotal Inversión</span>
+                    <h3 className="text-6xl font-black tracking-tighter leading-none">${getFinancingLabel().total.toLocaleString("es-AR")}</h3>
+                 </div>
+
+                 <div className="space-y-5">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 pl-3">Plan de Financiación de Obra</Label>
+                    <div className="grid grid-cols-1 gap-4">
+                       {[
+                         { id: "contado", label: "Efectivo / Transferencia", desc: "Beneficio Contado -10%", icon: Wallet, tag: "AHORRO" },
+                         { id: "cuotas3", label: "3 Cuotas Fijas", desc: "Plan Financiero Vilkmet", icon: CreditCard, tag: "+15%" },
+                         { id: "cuotas6", label: "6 Cuotas Fijas", desc: "Plan Visa/Master Vilkmet", icon: CreditCard, tag: "+30%" }
+                       ].map((p) => (
+                         <button 
+                          key={p.id}
+                          onClick={() => setPaymentMode(p.id as any)}
+                          className={`flex items-center justify-between p-8 rounded-[2.2rem] border-2 transition-all duration-500 ${paymentMode === p.id ? 'border-[#E85D04] bg-[#E85D04]/15 shadow-2xl ring-1 ring-[#E85D04]/40' : 'border-white/5 bg-white/5 opacity-60 hover:opacity-100 hover:bg-white/10'}`}
+                         >
+                            <div className="flex items-center gap-5 text-left">
+                              <p.icon className={`h-7 w-7 ${paymentMode === p.id ? 'text-[#E85D04]' : 'text-white/30'}`} />
+                              <div>
+                                <p className="text-sm font-black uppercase tracking-tighter">{p.label}</p>
+                                <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">{p.desc}</p>
+                              </div>
+                            </div>
+                            <span className={`text-[10px] font-black px-4 py-1 rounded-full ${paymentMode === p.id ? 'bg-[#E85D04] text-white' : 'bg-white/10 text-white/30'}`}>{p.tag}</span>
+                         </button>
+                       ))}
                     </div>
-                  </div>
-                  <span className="text-xs font-black">-10%</span>
-                </button>
+                 </div>
 
-                <button 
-                  onClick={() => setPaymentMode("cuotas3")}
-                  className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${paymentMode === "cuotas3" ? 'border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]' : 'border-white/10 text-white/60 hover:bg-white/5'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5" />
-                    <div className="text-left">
-                      <p className="text-xs font-black uppercase tracking-widest">3 Cuotas</p>
-                      <p className="text-[10px] opacity-70">Tarjetas Selectas</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black">+15%</span>
-                </button>
-
-                <button 
-                  onClick={() => setPaymentMode("cuotas6")}
-                  className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${paymentMode === "cuotas6" ? 'border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04]' : 'border-white/10 text-white/60 hover:bg-white/5'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5" />
-                    <div className="text-left">
-                      <p className="text-xs font-black uppercase tracking-widest">6 Cuotas</p>
-                      <p className="text-[10px] opacity-70">Visa / Master / Cabal</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black">+30%</span>
-                </button>
-              </div>
-
-              <div className="pt-6 border-t border-white/10">
-                <div className="flex justify-between items-end mb-4">
-                  <span className="text-xs uppercase font-bold text-white/40">Total a Pagar</span>
-                  {getFinancingLabel().cuota && (
-                    <span className="text-xs font-bold text-[#E85D04]">
-                      {projectItems.length > 0 ? paymentMode.replace('cuotas', '') : 0} cuotas de ${getFinancingLabel().cuota?.toLocaleString("es-AR")}
-                    </span>
-                  )}
-                </div>
-                <div className="text-4xl font-black">${getFinancingLabel().total.toLocaleString("es-AR")}</div>
-              </div>
-
-              <Button 
-                disabled={projectItems.length === 0} 
-                onClick={() => setView("checkout")}
-                className="w-full h-16 bg-[#E85D04] hover:bg-[#E85D04]/90 text-white font-black rounded-2xl uppercase tracking-widest text-xs"
-              >
-                Continuar al Cierre <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
+                 <div className="pt-10 border-t border-white/10 space-y-10">
+                    {getFinancingLabel().cuota && (
+                      <div className="flex justify-between items-center text-[#E85D04]">
+                         <span className="text-[11px] font-black uppercase tracking-[0.4em] leading-none text-white/40">Valor de <br/>Cuota Fija</span>
+                         <span className="text-3xl font-black tracking-tighter">${getFinancingLabel().cuota?.toLocaleString("es-AR")}</span>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      disabled={projectItems.length === 0}
+                      onClick={() => setView("checkout")}
+                      className="w-full h-24 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-sm uppercase tracking-[0.5em] rounded-[2.5rem] shadow-[0_30px_60px_-10px_rgba(232,93,4,0.4)] transform transition active:scale-[0.98]"
+                    >
+                      Formalizar Obra
+                    </Button>
+                 </div>
+               </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
   }
 
-  // VISTA: CIERRE Y LEAD
   return (
-    <div className="max-w-xl mx-auto py-10 animate-in fade-in slide-in-from-bottom-6">
-      <div className="text-center mb-10">
-        <h3 className="text-4xl font-heading font-black text-[#1A3A52] mb-4">Finalizar Proyecto</h3>
-        <p className="text-slate-500 font-medium">Completa tus datos para enviarte el presupuesto digital detallado.</p>
+    <div className="max-w-4xl mx-auto py-24 animate-in fade-in slide-in-from-bottom-20 duration-1000">
+      <div className="text-center mb-20 space-y-6">
+         <h3 className="text-[11px] font-black uppercase tracking-[0.7em] text-[#1A3A52]/40">Verificación y Contacto Final</h3>
+         <h2 className="text-7xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none lg:text-8xl">Cierre de <br/><span className="text-[#E85D04] italic">Vínculo.</span></h2>
+         <p className="text-slate-500 font-bold max-w-xl mx-auto text-xl leading-relaxed uppercase tracking-tight">Tu proyecto está configurado con éxito. <br/>Ingresa tus datos de obra para la validación final.</p>
       </div>
 
-      <Card className="rounded-[3rem] border border-slate-100 shadow-2xl p-2 bg-white">
-        <CardContent className="p-10">
-          <form onSubmit={handleSubmitFinal} className="space-y-6">
-            <div className="space-y-2">
-              <Label className="font-bold text-[10px] uppercase tracking-widest text-slate-400 pl-2">Nombre Completo</Label>
-              <Input 
+      <div className="bg-white rounded-[5rem] border border-slate-100 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] p-6 md:p-12">
+        <form onSubmit={handleSubmitFinal} className="grid md:grid-cols-2 gap-12 md:gap-20 p-10 lg:p-14">
+          <div className="space-y-12">
+            <div className="space-y-5">
+               <Label className="font-black text-[12px] uppercase tracking-[0.5em] text-slate-500 pl-4">Titular Responsable</Label>
+               <Input 
                 required 
                 value={clientData.nombre} 
                 onChange={(e) => setClientData({...clientData, nombre: e.target.value})} 
-                className="h-14 rounded-2xl border-slate-100 font-bold"
-                placeholder="Juan Pérez"
-              />
+                className="h-24 rounded-[3rem] border-2 border-slate-100 bg-slate-50/30 px-12 text-2xl font-black placeholder:text-slate-300 focus:bg-white transition-all shadow-inner text-[#1A3A52]"
+                placeholder="Nombre y Apellido"
+               />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-[10px] uppercase tracking-widest text-slate-400 pl-2">WhatsApp de Obra</Label>
-              <Input 
+            <div className="space-y-5">
+               <Label className="font-black text-[12px] uppercase tracking-[0.5em] text-slate-500 pl-4">Canal WhatsApp de Obra</Label>
+               <Input 
                 required 
                 value={clientData.whatsapp} 
                 onChange={(e) => setClientData({...clientData, whatsapp: e.target.value})} 
-                className="h-14 rounded-2xl border-slate-100 font-bold"
-                placeholder="Ej: 11 5555 5555"
-              />
+                className="h-24 rounded-[3rem] border-2 border-slate-100 bg-slate-50/30 px-12 text-2xl font-black placeholder:text-slate-300 focus:bg-white transition-all shadow-inner text-[#1A3A52]"
+                placeholder="+54 9..."
+               />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-[10px] uppercase tracking-widest text-slate-400 pl-2">Email (Opcional)</Label>
-              <Input 
+            <div className="space-y-5">
+               <Label className="font-black text-[12px] uppercase tracking-[0.5em] text-slate-500 pl-4">Archivo de Proyecto (Mail)</Label>
+               <Input 
                 type="email" 
                 value={clientData.email} 
                 onChange={(e) => setClientData({...clientData, email: e.target.value})} 
-                className="h-14 rounded-2xl border-slate-100 font-bold"
-                placeholder="juan@correo.com"
-              />
+                className="h-24 rounded-[3rem] border-2 border-slate-100 bg-slate-50/30 px-12 text-2xl font-black placeholder:text-slate-300 focus:bg-white transition-all shadow-inner text-[#1A3A52]"
+                placeholder="tu@email.com"
+               />
             </div>
+          </div>
 
-            <div className="bg-slate-50 p-6 rounded-3xl mt-8">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-black uppercase text-slate-400">Items en Presupuesto</span>
-                <span className="text-sm font-black text-[#1A3A52]">{projectItems.length}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black uppercase text-slate-400">Total {getFinancingLabel().label}</span>
-                <span className="text-lg font-black text-[#E85D04]">${getFinancingLabel().total.toLocaleString("es-AR")}</span>
-              </div>
-            </div>
+          <div className="space-y-16">
+             <div className="bg-[#1A3A52] p-12 rounded-[4rem] text-white relative overflow-hidden shadow-2xl ring-1 ring-white/10">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32 rotate-45"></div>
+               <div className="relative space-y-10">
+                  <div className="flex justify-between items-center border-b border-white/10 pb-8">
+                    <span className="text-[11px] font-black uppercase tracking-[0.5em] text-white/30">Configuración</span>
+                    <span className="text-2xl font-black uppercase tracking-tighter">{projectItems.length} Aberturas</span>
+                  </div>
+                  <div className="space-y-3">
+                    <span className="text-[11px] font-black uppercase tracking-[0.5em] text-white/30">Inversión Final {getFinancingLabel().label}</span>
+                    <p className="text-6xl font-black text-[#E85D04] tracking-tighter">${getFinancingLabel().total.toLocaleString("es-AR")}</p>
+                  </div>
+               </div>
+             </div>
 
-            <div className="flex gap-4 pt-6">
-              <Button type="button" variant="ghost" onClick={() => setView("project")} className="h-14 px-6 font-bold rounded-2xl">
-                Revisar Proyecto
-              </Button>
-              <Button type="submit" disabled={loading} className="flex-1 h-14 bg-[#1A3A52] hover:bg-[#1A3A52]/90 text-white font-black rounded-2xl uppercase tracking-widest text-xs shadow-xl shadow-slate-900/10">
-                {loading ? "Enviando..." : "Confirmar Presupuesto"} <Send className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+             <div className="flex flex-col gap-6">
+                <Button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full h-28 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xl uppercase tracking-[0.5em] rounded-[3rem] shadow-[0_30px_70px_-15px_rgba(232,93,4,0.6)] transform hover:scale-[1.03] active:scale-[0.98] transition-all"
+                >
+                  {loading ? "BLOQUEANDO..." : "SOLICITAR OBRA"} <Send className="ml-6 h-7 w-7" />
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={() => setView("project")}
+                  className="h-20 font-black uppercase text-[11px] tracking-[0.4em] text-slate-400 hover:text-[#1A3A52] transition-colors"
+                >
+                  Revisar memoria técnica
+                </Button>
+             </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
