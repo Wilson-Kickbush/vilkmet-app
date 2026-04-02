@@ -508,81 +508,114 @@ export function CotizadorDynamic() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-24 animate-in fade-in slide-in-from-bottom-20 duration-1000">
-      <div className="text-center mb-20 space-y-6">
-         <h3 className="text-[11px] font-black uppercase tracking-[0.7em] text-[#1A3A52]/40">Verificación y Contacto Final</h3>
-         <h2 className="text-7xl font-heading font-black text-[#1A3A52] tracking-tighter leading-none lg:text-8xl">Cierre de <br/><span className="text-[#E85D04] italic">Vínculo.</span></h2>
-         <p className="text-slate-500 font-bold max-w-xl mx-auto text-xl leading-relaxed uppercase tracking-tight">Tu proyecto está configurado con éxito. <br/>Ingresa tus datos de obra para la validación final.</p>
+    <div className="max-w-5xl mx-auto py-24 animate-in fade-in slide-in-from-bottom-20 duration-1000">
+      <div className="text-center mb-16 space-y-4">
+         <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-[#E85D04]">Formalización de Cotización</h3>
+         <h2 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-tight lg:text-7xl">Solicitud de <br/><span className="text-[#E85D04] italic">Presupuesto.</span></h2>
+         <p className="text-slate-500 font-bold max-w-2xl mx-auto text-lg leading-relaxed uppercase tracking-tight">Tu proyecto ha sido configurado con éxito. <br/>Ingresa tus datos para recibir la memoria técnica oficial.</p>
       </div>
 
-      <div className="bg-white rounded-[5rem] border border-slate-100 shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] p-6 md:p-12">
-        <form onSubmit={handleSubmitFinal} className="grid md:grid-cols-2 gap-12 md:gap-20 p-10 lg:p-14">
-          <div className="space-y-12">
-            <div className="space-y-5">
-               <Label className="font-black text-[12px] uppercase tracking-[0.5em] text-slate-500 pl-4">Titular Responsable</Label>
+      <div className="bg-white rounded-[4rem] border border-slate-100 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.12)] p-4 md:p-8">
+        <form onSubmit={handleSubmitFinal} className="grid lg:grid-cols-12 gap-8 p-4 lg:p-8">
+          
+          {/* LADO IZQUIERDO: FORMULARIO NÍTIDO */}
+          <div className="lg:col-span-12 xl:col-span-7 space-y-10 lg:pr-8">
+            <div className="space-y-4">
+               <Label className="font-bold text-[12px] uppercase tracking-[0.2em] text-slate-700 pl-2">Titular Responsable</Label>
                <Input 
                 required 
                 value={clientData.nombre} 
                 onChange={(e) => setClientData({...clientData, nombre: e.target.value})} 
-                className="h-24 rounded-[3rem] border-2 border-slate-100 bg-slate-50/30 px-12 text-2xl font-black placeholder:text-slate-300 focus:bg-white transition-all shadow-inner text-[#1A3A52]"
+                className="h-20 rounded-[2rem] border-2 border-slate-100 bg-slate-50/20 px-8 text-xl font-bold placeholder:text-slate-300 focus:border-[#1A3A52] focus:bg-white transition-all shadow-sm text-[#1A3A52]"
                 placeholder="Nombre y Apellido"
                />
             </div>
-            <div className="space-y-5">
-               <Label className="font-black text-[12px] uppercase tracking-[0.5em] text-slate-500 pl-4">Canal WhatsApp de Obra</Label>
+            <div className="space-y-4">
+               <Label className="font-bold text-[12px] uppercase tracking-[0.2em] text-slate-700 pl-2">Canal WhatsApp de Obra</Label>
                <Input 
                 required 
                 value={clientData.whatsapp} 
                 onChange={(e) => setClientData({...clientData, whatsapp: e.target.value})} 
-                className="h-24 rounded-[3rem] border-2 border-slate-100 bg-slate-50/30 px-12 text-2xl font-black placeholder:text-slate-300 focus:bg-white transition-all shadow-inner text-[#1A3A52]"
-                placeholder="+54 9..."
+                className="h-20 rounded-[2rem] border-2 border-slate-100 bg-slate-50/20 px-8 text-xl font-bold placeholder:text-slate-300 focus:border-[#1A3A52] focus:bg-white transition-all shadow-sm text-[#1A3A52]"
+                placeholder="Ej: +54 9 11..."
                />
             </div>
-            <div className="space-y-5">
-               <Label className="font-black text-[12px] uppercase tracking-[0.5em] text-slate-500 pl-4">Archivo de Proyecto (Mail)</Label>
+            <div className="space-y-4">
+               <Label className="font-bold text-[12px] uppercase tracking-[0.2em] text-slate-700 pl-2">Correo Electrónico de Archivo</Label>
                <Input 
                 type="email" 
                 value={clientData.email} 
                 onChange={(e) => setClientData({...clientData, email: e.target.value})} 
-                className="h-24 rounded-[3rem] border-2 border-slate-100 bg-slate-50/30 px-12 text-2xl font-black placeholder:text-slate-300 focus:bg-white transition-all shadow-inner text-[#1A3A52]"
+                className="h-20 rounded-[2rem] border-2 border-slate-100 bg-slate-50/20 px-8 text-xl font-bold placeholder:text-slate-300 focus:border-[#1A3A52] focus:bg-white transition-all shadow-sm text-[#1A3A52]"
                 placeholder="tu@email.com"
                />
             </div>
+
+            <div className="pt-8">
+                <Button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full h-24 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-lg uppercase tracking-[0.3em] rounded-[2.5rem] shadow-[0_25px_50px_-10px_rgba(232,93,4,0.4)] transform hover:translate-y-[-2px] active:scale-[0.98] transition-all"
+                >
+                    {loading ? "PROCESANDO..." : "SOLICITAR PRESUPUESTO"} <Send className="ml-5 h-6 w-6" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="link" 
+                    onClick={() => setView("project")}
+                    className="w-full mt-6 font-bold uppercase text-[10px] tracking-[0.2em] text-slate-400 hover:text-[#1A3A52]"
+                >
+                    Volver a Revisar Aberturas
+                </Button>
+            </div>
           </div>
 
-          <div className="space-y-16">
-             <div className="bg-[#1A3A52] p-12 rounded-[4rem] text-white relative overflow-hidden shadow-2xl ring-1 ring-white/10">
-               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32 rotate-45"></div>
-               <div className="relative space-y-10">
-                  <div className="flex justify-between items-center border-b border-white/10 pb-8">
-                    <span className="text-[11px] font-black uppercase tracking-[0.5em] text-white/30">Configuración</span>
-                    <span className="text-2xl font-black uppercase tracking-tighter">{projectItems.length} Aberturas</span>
+          {/* LADO DERECHO: CARD DE RESUMEN (SOBRIO Y SIN DESBORDES) */}
+          <div className="lg:col-span-12 xl:col-span-5">
+             <div className="bg-[#1A3A52] p-10 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl h-full flex flex-col justify-between">
+               <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-24 translate-x-24"></div>
+               
+               <div className="relative space-y-12">
+                  <div className="flex justify-between items-start border-b border-white/10 pb-8">
+                    <div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 block mb-2">Composición</span>
+                        <span className="text-3xl font-black uppercase tracking-tight">{projectItems.length} Elementos</span>
+                    </div>
+                    <Layers className="h-8 w-8 text-[#E85D04]/60" />
                   </div>
-                  <div className="space-y-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.5em] text-white/30">Inversión Final {getFinancingLabel().label}</span>
-                    <p className="text-6xl font-black text-[#E85D04] tracking-tighter">${getFinancingLabel().total.toLocaleString("es-AR")}</p>
+                  
+                  <div className="space-y-6">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 block">Configuración Técnica</span>
+                    <div className="space-y-3">
+                        {projectItems.slice(0, 3).map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs font-bold opacity-60">
+                                <span>{item.linea} {item.tipologia}</span>
+                                <span>${item.subtotal.toLocaleString("es-AR")}</span>
+                            </div>
+                        ))}
+                        {projectItems.length > 3 && (
+                            <div className="text-[10px] font-black opacity-30 uppercase">+ {projectItems.length - 3} elementos adicionales</div>
+                        )}
+                    </div>
+                  </div>
+               </div>
+
+               <div className="relative pt-12 mt-12 border-t border-white/20">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 block mb-4">Total {getFinancingLabel().label}</span>
+                  <div className="flex flex-col gap-1">
+                      <p className="text-5xl font-black text-[#E85D04] tracking-tighter break-all">
+                        ${getFinancingLabel().total.toLocaleString("es-AR")}
+                      </p>
+                      {getFinancingLabel().cuota && (
+                        <p className="text-sm font-bold text-white/60 mt-2">
+                           {paymentMode.replace('cuotas', '')} cuotas fijas de ${getFinancingLabel().cuota?.toLocaleString("es-AR")}
+                        </p>
+                      )}
                   </div>
                </div>
              </div>
-
-             <div className="flex flex-col gap-6">
-                <Button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full h-28 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xl uppercase tracking-[0.5em] rounded-[3rem] shadow-[0_30px_70px_-15px_rgba(232,93,4,0.6)] transform hover:scale-[1.03] active:scale-[0.98] transition-all"
-                >
-                  {loading ? "BLOQUEANDO..." : "SOLICITAR OBRA"} <Send className="ml-6 h-7 w-7" />
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  onClick={() => setView("project")}
-                  className="h-20 font-black uppercase text-[11px] tracking-[0.4em] text-slate-400 hover:text-[#1A3A52] transition-colors"
-                >
-                  Revisar memoria técnica
-                </Button>
-             </div>
           </div>
+
         </form>
       </div>
     </div>
