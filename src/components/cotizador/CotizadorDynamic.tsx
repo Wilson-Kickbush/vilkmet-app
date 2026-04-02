@@ -168,8 +168,8 @@ export function CotizadorDynamic() {
                 <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A3A52]/80">Configuración Arquitectónica</h3>
               </div>
               
-              <div className="flex-1 flex flex-col justify-center py-2">
-                <div className="relative group/sim scale-110 sm:scale-125 md:scale-[1.7] transition-transform duration-1000 origin-center">
+              <div className="flex-1 flex flex-col justify-center py-12">
+                <div className="relative group/sim scale-110 sm:scale-125 md:scale-[1.5] transition-transform duration-1000 origin-center">
                    <SimuladorVisual 
                     tipologia={formData.tipologia as "corrediza" | "abrir" | "fijo"} 
                     ancho={Number(formData.ancho)} 
