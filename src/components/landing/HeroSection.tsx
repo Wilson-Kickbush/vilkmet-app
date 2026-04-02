@@ -26,7 +26,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-[#1A3A52] pt-12 pb-20 sm:pt-16 sm:pb-32">
+    <section className="relative min-h-[80vh] flex items-center overflow-hidden bg-[#1A3A52] pt-4 pb-16 sm:pt-8 sm:pb-24">
       {/* Background Architectural Effects */}
       <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
         <div 
@@ -46,17 +46,17 @@ export function HeroSection() {
           className="mx-auto max-w-5xl text-center"
         >
           {/* Headline Monumental y Directo */}
-          <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-[5.5rem] tracking-tight leading-[0.95] mb-8 uppercase">
-            ABERTURAS A MEDIDA PARA <br />
-            <span className="text-[#E85D04]">INMUEBLES DE CATEGORÍA.</span>
+          <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-[5.5rem] tracking-tight leading-[0.95] mb-6 uppercase">
+            ABERTURAS A MEDIDA <br />
+            <span className="text-[#E85D04] text-4xl sm:text-[4.6rem]">PARA INMUEBLES DE CATEGORÍA.</span>
           </motion.h1>
 
           {/* Subheader: Autoridad Técnica */}
-          <motion.p variants={itemVariants} className="mt-8 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-4xl mx-auto font-medium">
-             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos un <span className="text-white font-black italic underline decoration-[#E85D04] decoration-2">plan exacto de aberturas de aluminio premium</span> para garantizar estética y aislamiento acústico.
+          <motion.p variants={itemVariants} className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-4xl mx-auto font-medium">
+             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos un <span className="text-white font-black italic">plan exacto de aberturas de aluminio ALUAR certificado</span> para garantizar estética y aislamiento acústico.
           </motion.p>
           
-          <motion.div variants={itemVariants} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+          <motion.div variants={itemVariants} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
               <Link 
                 href="/#sistema-cotizador" 
                 className="group relative flex items-center justify-center gap-4 bg-[#E85D04] hover:bg-[#F96D0C] text-white px-8 sm:px-12 py-6 rounded-2xl font-black uppercase text-xs sm:text-sm tracking-[0.2em] transition-all duration-300 shadow-2xl shadow-orange-500/40 hover:-translate-y-1 active:scale-95"

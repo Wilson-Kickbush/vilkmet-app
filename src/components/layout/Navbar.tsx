@@ -70,7 +70,7 @@ export function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="relative px-5 py-2 text-sm font-bold text-white/80 hover:text-white transition-colors group"
+                  className="relative px-5 py-2 text-[13px] font-black uppercase tracking-[0.2em] text-white/80 hover:text-white transition-colors group"
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-5 right-5 h-0.5 bg-[#E85D04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
