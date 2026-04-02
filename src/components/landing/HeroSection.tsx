@@ -1,7 +1,7 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldCheck, Zap, Headphones, Home, Scaling } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -47,21 +47,22 @@ export function HeroSection() {
           animate="visible"
           className="mx-auto max-w-4xl text-center"
         >
-          {/* Subheader / Tagline */}
+          {/* Tagline de Autoridad y Empatía */}
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
             <Zap className="h-4 w-4 text-[#E85D04]" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Liderazgo en Ingeniería Térmica</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Su Inversión, Salvaguardada por Expertos</span>
           </motion.div>
 
-          {/* Main Title Architecture */}
+          {/* Headline StoryBrand: Opción 2 (Éxito) */}
           <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-8xl tracking-tight leading-[0.9] mb-8">
-            INGENIERIA EN ALUMINIO.<br />
-            <span className="text-[#E85D04] italic">ABERTURAS DE AUTOR.</span>
+            EL SILENCIO Y LA ELEGANCIA<br />
+            <span className="text-[#E85D04] italic">QUE SU HOGAR MERECE.</span>
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="mt-8 text-xl leading-relaxed text-blue-100/70 max-w-2xl mx-auto font-medium">
-             Consolide su proyecto con perfiles <span className="text-white font-bold">Aluar</span> de alta gama. 
-             Precisión milimétrica y aislamiento acústico para inmuebles de categoría.
+          {/* Subheader: Identificación del Villano (Ruido/Filtraciones) y Guía */}
+          <motion.p variants={itemVariants} className="mt-8 text-xl leading-relaxed text-blue-100/70 max-w-3xl mx-auto font-medium">
+             ¿Cansado del ruido de la calle y las filtraciones? No arruine su obra con aberturas genéricas. 
+             Proteja su inmueble con aluminio de alta gama a su medida para disfrutar de un hogar <span className="text-white font-bold italic">verdaderamente premium.</span>
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -72,34 +73,34 @@ export function HeroSection() {
                 "h-16 px-10 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-2xl shadow-orange-500/20 active:scale-95 transition-all flex items-center"
               )}
             >
-              INICIAR PRESUPUESTO ONLINE <ArrowRight className="ml-3 h-4 w-4" />
+              CALCULE SU PRESUPUESTO EN 2 MINUTOS <ArrowRight className="ml-3 h-4 w-4" />
             </Link>
             <Link href="#galeria" className="text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors group">
-              VER GALERÍA TÉCNICA <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform ml-2">→</span>
+              VER INSTALACIONES REALES <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform ml-2">→</span>
             </Link>
           </motion.div>
 
-          {/* Trust Indicators / Glassmorphism Cards */}
+          {/* Concrete Benefits (Heath Brothers: Concrete is better than Abstract) */}
           <motion.div variants={itemVariants} className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors">
-                <CheckCircle2 className="h-8 w-8 text-[#E85D04]" />
+                <Headphones className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
-                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Calidad Certificada</h4>
-                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Extrusión 100% Primera Calidad</p>
+                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Aislamiento Absoluto</h4>
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Dígale adiós al ruido exterior</p>
                 </div>
              </div>
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors">
-                <ShieldCheck className="h-8 w-8 text-[#E85D04]" />
+                <Home className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
-                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Garantía Real</h4>
-                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">2 años de respaldo estructural</p>
+                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Valorización del Inmueble</h4>
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Blinde su inversión inmobiliaria</p>
                 </div>
              </div>
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors sm:col-span-2 lg:col-span-1">
-                <Zap className="h-8 w-8 text-[#E85D04]" />
+                <Scaling className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
-                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Entrega Prime</h4>
-                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Logística propia y montaje</p>
+                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Plan Exacto 4 Pasos</h4>
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Sin errores de cálculo ni demoras</p>
                 </div>
              </div>
           </motion.div>
