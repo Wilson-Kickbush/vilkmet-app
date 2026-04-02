@@ -2,6 +2,11 @@ import { createServerClient } from "@supabase/ssr"
 import { type NextRequest, NextResponse } from "next/server"
 
 export const updateSession = async (request: NextRequest) => {
+  // 0. EXCEPCIÓN DE RESCATE: Permitir diagnóstico sin bloqueos
+  if (request.nextUrl.pathname.includes("/admin/debug")) {
+    return NextResponse.next();
+  }
+
   // Respuesta inicial
   let response = NextResponse.next({
     request: {
