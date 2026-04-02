@@ -48,107 +48,106 @@ export function PortfolioSection() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 }
+      transition: { staggerChildren: 0.1 }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
       y: 0, 
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut" }
+      transition: { duration: 0.5 }
     }
   };
 
   return (
-    <section id="galeria" className="py-32 bg-[#F8FAFC] overflow-hidden">
+    <section id="galeria" className="py-24 bg-[#F8FAFC]">
       <div className="container mx-auto px-6 lg:px-8">
-        {/* Header de Exhibición */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-[2px] w-12 bg-[#E85D04]" />
-              <span className="text-xs font-black uppercase tracking-[0.3em] text-[#E85D04]">Exhibición Técnica</span>
+        {/* Header Elegante y Ordenado */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-16">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-[1px] w-8 bg-[#E85D04]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#E85D04]">Exhibición Técnica</span>
             </div>
-            <h2 className="text-6xl md:text-8xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[0.85]">
-              INSTALACIONES <br />
-              REALES <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1A3A52]/20 to-[#1A3A52]/60">VILKMET.</span>
+            <h2 className="text-4xl md:text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-tight">
+              Instalaciones Reales <span className="text-[#E85D04]">VILKMET.</span>
             </h2>
           </div>
-          <p className="text-base md:text-lg text-slate-500 font-medium max-w-sm border-l-2 border-slate-200 pl-8 leading-relaxed italic">
-            &ldquo;Cada captura es testimonio de nuestra precisión, plomo y escuadra garantizada por contrato.&rdquo;
+          <p className="text-sm md:text-base text-slate-500 font-medium max-w-xs border-l border-slate-200 pl-6 leading-relaxed italic">
+            &ldquo;Cada captura es testimonio de nuestra precisión, plomo y escuadra garantizada.&rdquo;
           </p>
         </div>
         
-        {/* Bento Grid Exhibit */}
+        {/* Bento Grid Refinado */}
         <motion.div 
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 auto-rows-[350px]"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]"
         >
           {projects.map((project, i) => (
             <motion.div 
               key={i} 
               variants={itemVariants}
-              className={`group relative overflow-hidden rounded-[3rem] bg-white border border-slate-100 shadow-sm hover:shadow-3xl transition-all duration-700 ${project.span}`}
+              className={`group relative overflow-hidden rounded-3xl bg-slate-100 border border-slate-200/50 transition-all duration-500 ${project.span}`}
             >
-              {/* Imagen con Optimización de Nitidez */}
+              {/* Imagen */}
               <img 
                 src={project.src} 
                 alt={project.title} 
-                className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-1000 group-hover:scale-105 will-change-transform"
+                className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
               />
               
-              {/* Overlay Gradiente */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1A3A52] via-[#1A3A52]/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
+              {/* Overlay suave para legibilidad */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A3A52]/90 via-[#1A3A52]/20 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-300" />
 
-              {/* Badge si es obra real */}
+              {/* Badge Obra Destacada */}
               {project.badge && (
-                <div className="absolute top-6 left-6 px-4 py-1.5 bg-[#E85D04] rounded-full flex items-center gap-2 shadow-lg shadow-orange-500/20">
-                  <Camera className="h-3 w-3 text-white" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white">{project.badge}</span>
+                <div className="absolute top-4 left-4 px-3 py-1 bg-[#E85D04] rounded-lg shadow-lg">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-white">{project.badge}</span>
                 </div>
               )}
 
-              {/* Contenido flotante */}
-              <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <div className="flex items-center gap-2 mb-3 text-white/50">
+              {/* Contenido Texto con Distribución Mejorada */}
+              <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end min-h-[50%]">
+                <div className="flex items-center gap-2 mb-2 text-white/70">
                   <MapPin className="h-3 w-3 text-[#E85D04]" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">{project.location}</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest leading-none">{project.location}</span>
                 </div>
-                <h3 className="text-2xl font-heading font-black text-white mb-2 leading-tight">
+                <h3 className="text-xl font-heading font-black text-white mb-1 leading-tight tracking-tight">
                   {project.title}
                 </h3>
-                <p className="text-xs text-white/60 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                <p className="text-[11px] text-white/50 font-bold uppercase tracking-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {project.desc}
                 </p>
                 
-                <div className="mt-6 flex items-center gap-2 text-[#E85D04] font-black text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-200">
-                  Ver Detalles Técnicos <MousePointer2 className="h-3 w-3" />
+                <div className="mt-4 flex items-center gap-2 text-[#E85D04] font-black text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  FICHA TÉCNICA <MousePointer2 className="h-3 w-3" />
                 </div>
               </div>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* CTA Inferior para cierre de brecha narrativa */}
+        {/* CTA con Diseño Sobrio */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="mt-20 flex flex-col items-center justify-center p-12 rounded-[5rem] bg-[#1A3A52] text-center relative overflow-hidden"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="mt-16 flex flex-col items-center gap-6"
         >
-          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[400px] h-[400px] bg-[#E85D04]/10 rounded-full blur-[100px]" />
-          <h4 className="text-3xl text-white font-heading font-black mb-6">¿Desea una obra con este nivel de terminación?</h4>
+          <div className="h-px w-24 bg-slate-200" />
           <Link 
             href="/#cotizador" 
-            className="px-12 h-16 bg-[#E85D04] hover:bg-[#F96D0C] text-white rounded-full flex items-center justify-center font-black uppercase text-xs tracking-widest transition-all shadow-xl shadow-orange-500/20 active:scale-95"
+            className="flex items-center gap-4 text-[#1A3A52] hover:text-[#E85D04] transition-colors"
           >
-            SÍ, QUIERO MI PRESUPUESTO PERSONALIZADO
+            <span className="text-xs font-black uppercase tracking-[0.3em]">Iniciar nueva cotización</span>
+            <div className="h-10 w-10 rounded-full border border-slate-200 flex items-center justify-center hover:border-[#E85D04] transition-colors">
+              <Camera className="h-4 w-4" />
+            </div>
           </Link>
         </motion.div>
       </div>
