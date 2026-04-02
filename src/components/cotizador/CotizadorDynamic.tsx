@@ -10,7 +10,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Send, 
   CheckCircle2, 
-  Plus, 
   Trash2, 
   CreditCard, 
   Wallet, 
@@ -327,7 +326,14 @@ export function CotizadorDynamic() {
                 </div>
 
                 <div className="pt-10 flex gap-4">
-                  <Button variant="ghost" onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1} className="h-16 px-8 font-bold uppercase rounded-2xl border-2 border-slate-100 flex-1">Atrás</Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setStep(Math.max(1, step - 1))} 
+                    disabled={step === 1} 
+                    className="h-16 px-8 font-black uppercase rounded-2xl border-2 border-slate-200 bg-slate-100/50 text-[#1A3A52] hover:bg-slate-200 flex-1 transition-all"
+                  >
+                    Atrás
+                  </Button>
                   <Button 
                     onClick={() => step < 4 ? setStep(step + 1) : addItemToProject()} 
                     className={`h-16 px-10 font-black uppercase text-xs tracking-wider rounded-2xl flex-2 shadow-xl ${step === 4 ? 'bg-[#E85D04] hover:bg-[#F96D0C]' : 'bg-[#1A3A52] hover:bg-[#2A4A62]'}`}

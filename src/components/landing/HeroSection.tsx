@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Calculator, Headphones, Home, Scaling, Zap } from "lucide-react";
+import { ArrowRight, Calculator, Headphones, Home, Scaling } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -26,7 +26,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-[#1A3A52] pt-20 pb-20 sm:pt-32 sm:pb-32">
+    <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-[#1A3A52] pt-12 pb-20 sm:pt-16 sm:pb-32">
       {/* Background Architectural Effects */}
       <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
         <div 
@@ -43,24 +43,17 @@ export function HeroSection() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="mx-auto max-w-4xl text-center"
+          className="mx-auto max-w-5xl text-center"
         >
-          {/* Tagline de Autoridad y Empatía */}
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
-            <Zap className="h-4 w-4 text-[#E85D04]" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Su Inversión, Salvaguardada por Expertos</span>
-          </motion.div>
-
-          {/* Headline StoryBrand: Opción 2 (Éxito) */}
-          <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-8xl tracking-tight leading-[0.9] mb-8">
-            EL SILENCIO Y LA ELEGANCIA<br />
-            <span className="text-[#E85D04] italic">QUE SU HOGAR MERECE.</span>
+          {/* Headline Monumental y Directo */}
+          <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-[5.5rem] tracking-tight leading-[0.95] mb-8 uppercase">
+            ABERTURAS A MEDIDA PARA <br />
+            <span className="text-[#E85D04]">INMUEBLES DE CATEGORÍA.</span>
           </motion.h1>
 
-          {/* Subheader: Identificación del Villano (Ruido/Filtraciones) y Guía */}
-          <motion.p variants={itemVariants} className="mt-8 text-xl leading-relaxed text-blue-100/70 max-w-3xl mx-auto font-medium">
-             ¿Cansado del ruido de la calle y las filtraciones? No arruine su obra con aberturas genéricas. 
-             Proteja su inmueble con aluminio de alta gama a su medida para disfrutar de un hogar <span className="text-white font-bold italic">verdaderamente premium.</span>
+          {/* Subheader: Autoridad Técnica */}
+          <motion.p variants={itemVariants} className="mt-8 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-4xl mx-auto font-medium">
+             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos un <span className="text-white font-black italic underline decoration-[#E85D04] decoration-2">plan exacto de aberturas de aluminio premium</span> para garantizar estética y aislamiento acústico.
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
