@@ -25,17 +25,17 @@ export default function Home() {
             <div className="max-w-4xl mx-auto text-center mb-20">
               <div className="flex items-center justify-center gap-3 mb-8">
                 <div className="h-[1px] w-12 bg-[#E85D04]" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#E85D04]">Gestión de Obra</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#E85D04]">Cotizador a Medida</span>
                 <div className="h-[1px] w-12 bg-[#E85D04]" />
               </div>
               
-              <h2 className="text-5xl md:text-7xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[0.9] mb-8">
-                CONSOLA DE <br />
-                <span className="text-[#E85D04]">INGENIERÍA VILKMET.</span>
+              <h2 className="text-5xl md:text-8xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[0.85] mb-8 uppercase">
+                PROTEJA SU <br />
+                <span className="text-[#E85D04]">INVERSIÓN.</span>
               </h2>
               
               <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
-                Configure sus aberturas con precisión milimétrica y obtenga un presupuesto técnico <span className="text-[#1A3A52] font-bold">blindado contra errores constructivos.</span>
+                Evite los costosos errores de cálculo en su obra. Configure sus aberturas aquí y obtenga un <span className="text-[#1A3A52] font-bold italic">plan de inversión exacto</span>, sin sorpresas ni sobrecostos ocultos.
               </p>
             </div>
             
