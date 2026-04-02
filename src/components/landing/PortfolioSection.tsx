@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Camera, MapPin, MousePointer2 } from "lucide-react";
+import Link from "next/link";
 
 export function PortfolioSection() {
   const projects = [
@@ -66,18 +67,18 @@ export function PortfolioSection() {
       <div className="container mx-auto px-6 lg:px-8">
         {/* Header de Exhibición */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-[2px] w-12 bg-[#E85D04]" />
               <span className="text-xs font-black uppercase tracking-[0.3em] text-[#E85D04]">Exhibición Técnica</span>
             </div>
-            <h2 className="text-5xl md:text-7xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[0.9]">
+            <h2 className="text-6xl md:text-8xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[0.85]">
               INSTALACIONES <br />
-              REALES <span className="text-[#E85D04]/20">VILKMET.</span>
+              REALES <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1A3A52]/20 to-[#1A3A52]/60">VILKMET.</span>
             </h2>
           </div>
-          <p className="text-lg text-slate-500 font-medium max-w-sm border-l-2 border-slate-200 pl-8">
-            Cada captura es testimonio de nuestra precisión, plomo y escuadra garantizada por contrato.
+          <p className="text-base md:text-lg text-slate-500 font-medium max-w-sm border-l-2 border-slate-200 pl-8 leading-relaxed italic">
+            &ldquo;Cada captura es testimonio de nuestra precisión, plomo y escuadra garantizada por contrato.&rdquo;
           </p>
         </div>
         
@@ -87,19 +88,20 @@ export function PortfolioSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 auto-rows-[350px]"
         >
           {projects.map((project, i) => (
             <motion.div 
               key={i} 
               variants={itemVariants}
-              className={`group relative overflow-hidden rounded-[2.5rem] bg-white border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 ${project.span}`}
+              className={`group relative overflow-hidden rounded-[3rem] bg-white border border-slate-100 shadow-sm hover:shadow-3xl transition-all duration-700 ${project.span}`}
             >
-              {/* Imagen con Hover Efecto */}
+              {/* Imagen con Optimización de Nitidez */}
               <img 
                 src={project.src} 
                 alt={project.title} 
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-1000 group-hover:scale-105 will-change-transform"
+                loading="lazy"
               />
               
               {/* Overlay Gradiente */}
@@ -142,12 +144,12 @@ export function PortfolioSection() {
         >
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[400px] h-[400px] bg-[#E85D04]/10 rounded-full blur-[100px]" />
           <h4 className="text-3xl text-white font-heading font-black mb-6">¿Desea una obra con este nivel de terminación?</h4>
-          <a 
+          <Link 
             href="/#cotizador" 
             className="px-12 h-16 bg-[#E85D04] hover:bg-[#F96D0C] text-white rounded-full flex items-center justify-center font-black uppercase text-xs tracking-widest transition-all shadow-xl shadow-orange-500/20 active:scale-95"
           >
             SÍ, QUIERO MI PRESUPUESTO PERSONALIZADO
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>
