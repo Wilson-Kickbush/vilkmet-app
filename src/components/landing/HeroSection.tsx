@@ -1,9 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export function HeroSection() {
   const containerVariants = {
@@ -22,7 +23,7 @@ export function HeroSection() {
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.8, ease: "easeOut" }
+      transition: { duration: 0.8 }
     }
   };
 
@@ -64,11 +65,15 @@ export function HeroSection() {
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Button size="lg" asChild className="h-16 px-10 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-2xl shadow-orange-500/20 active:scale-95 transition-all">
-              <Link href="#cotizador">
-                INICIAR PRESUPUESTO ONLINE <ArrowRight className="ml-3 h-4 w-4" />
-              </Link>
-            </Button>
+            <Link 
+              href="#cotizador" 
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "h-16 px-10 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-2xl shadow-orange-500/20 active:scale-95 transition-all flex items-center"
+              )}
+            >
+              INICIAR PRESUPUESTO ONLINE <ArrowRight className="ml-3 h-4 w-4" />
+            </Link>
             <Link href="#proyectos" className="text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors group">
               VER GALERÍA TÉCNICA <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform ml-2">→</span>
             </Link>
@@ -79,22 +84,22 @@ export function HeroSection() {
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors">
                 <CheckCircle2 className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
-                  <h4 className="text-white font-black text-[10px] uppercase tracking-widest mb-1">Calidad Certificada</h4>
-                  <p className="text-white/40 text-[9px] font-bold uppercase tracking-tight">Extrusión 100% Primera Calidad</p>
+                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Calidad Certificada</h4>
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Extrusión 100% Primera Calidad</p>
                 </div>
              </div>
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors">
                 <ShieldCheck className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
-                  <h4 className="text-white font-black text-[10px] uppercase tracking-widest mb-1">Garantía Real</h4>
-                  <p className="text-white/40 text-[9px] font-bold uppercase tracking-tight">2 años de respaldo estructural</p>
+                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Garantía Real</h4>
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">2 años de respaldo estructural</p>
                 </div>
              </div>
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors sm:col-span-2 lg:col-span-1">
                 <Zap className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
-                  <h4 className="text-white font-black text-[10px] uppercase tracking-widest mb-1">Entrega Prime</h4>
-                  <p className="text-white/40 text-[9px] font-bold uppercase tracking-tight">Logística propia y montaje</p>
+                  <h4 className="text-white font-black text-[11px] uppercase tracking-widest mb-1">Entrega Prime</h4>
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Logística propia y montaje</p>
                 </div>
              </div>
           </motion.div>
