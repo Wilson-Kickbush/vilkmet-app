@@ -34,7 +34,7 @@ export function Navbar() {
   const navLinks = [
     { name: "Líneas de Producto", href: "/#lineas" },
     { name: "Portafolio", href: "/#galeria" },
-    { name: "Cotizador Online", href: "/#cotizador" },
+    { name: "Cotizador Online", href: "/#sistema-cotizador" },
   ];
 
   return (
