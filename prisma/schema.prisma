@@ -10,13 +10,15 @@ datasource db {
 }
 
 model Lead {
-  id        String   @id @default(uuid())
-  nombre    String
-  whatsapp  String
-  email     String?
-  fechaAlta DateTime @default(now())
+  id         String   @id @default(uuid())
+  nombre     String
+  whatsapp   String
+  email      String?
+  status     String   @default("NUEVO") // NUEVO | CONTACTADO | PRESUPUESTADO | VENDIDO | PERDIDO
+  adminNotes String?  // Para seguimiento interno de Wilson
+  fechaAlta  DateTime @default(now())
 
-  quotes    Quote[]
+  quotes     Quote[]
 }
 
 model Quote {

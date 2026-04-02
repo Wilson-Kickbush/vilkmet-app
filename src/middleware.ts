@@ -26,6 +26,8 @@ function getRateLimitResult(ip: string): { allowed: boolean; remaining: number }
   return { allowed: true, remaining: RATE_LIMIT_MAX - record.count };
 }
 
+import { updateSession } from "@/utils/supabase/middleware";
+
 // ============================================================
 // SECURITY HEADERS
 // ============================================================
@@ -47,15 +49,21 @@ const SECURITY_HEADERS = {
   ].join("; "),
 };
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+export async function middleware(request: NextRequest) {
+  // 1. Actualizar sesión de Auth y proteger rutas
+  const authResponse = await updateSession(request);
+  
+  // Si updateSession ya manejó una redirección, la respetamos
+  if (authResponse.status === 307 || authResponse.status === 308) {
+    return authResponse;
+  }
 
-  // Aplicar headers de seguridad a TODAS las rutas
+  // 2. Aplicar headers de seguridad a la respuesta actual
   Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
-    response.headers.set(key, value);
+    authResponse.headers.set(key, value);
   });
 
-  // Rate limiting solo en la API del cotizador público
+  // 3. Rate limiting solo en la API del cotizador público
   if (request.nextUrl.pathname === "/api/quote" && request.method === "POST") {
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -64,8 +72,8 @@ export function middleware(request: NextRequest) {
 
     const { allowed, remaining } = getRateLimitResult(ip);
 
-    response.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_MAX));
-    response.headers.set("X-RateLimit-Remaining", String(remaining));
+    authResponse.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_MAX));
+    authResponse.headers.set("X-RateLimit-Remaining", String(remaining));
 
     if (!allowed) {
       return new NextResponse(
@@ -85,7 +93,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return response;
+  return authResponse;
 }
 
 export const config = {
