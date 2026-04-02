@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SimuladorVisual } from "./SimuladorVisual";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,8 @@ import {
   Layout,
   Layers,
   ArrowRight,
-  DoorOpen
+  DoorOpen,
+  RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,12 +34,29 @@ interface ProjectItem {
   subtotal: number;
 }
 
+interface SystemParams {
+  margen_rentabilidad: number;
+  porcentaje_mano_obra: number;
+  gastos_administrativos: number;
+  costo_kg_aluar: number;
+  tipo_cambio_blue: number;
+}
+
 export function CotizadorDynamic() {
   const [view, setView] = useState<"builder" | "project" | "checkout">("builder");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   
+  // Parámetros dinámicos del sistema
+  const [params, setParams] = useState<SystemParams>({
+    margen_rentabilidad: 40,
+    porcentaje_mano_obra: 10,
+    gastos_administrativos: 5,
+    costo_kg_aluar: 10,
+    tipo_cambio_blue: 1425
+  });
+
   const [projectItems, setProjectItems] = useState<ProjectItem[]>([]);
   const [paymentMode, setPaymentMode] = useState<"contado" | "lista" | "cuotas3" | "cuotas6">("contado");
 
@@ -57,6 +75,20 @@ export function CotizadorDynamic() {
     email: ""
   });
 
+  // 1. CARGA DE PARÁMETROS REALES
+  useEffect(() => {
+    const fetchParams = async () => {
+      try {
+        const res = await fetch("/api/quote"); // Reutilizamos el endpoint para ver si podemos obtener params o fallar a default
+        // En una implementación ideal, tendríamos un endpoint /api/config.
+        // Por ahora, usamos los defaults que ya matchean el paso 3.
+      } catch (e) {
+        console.error("Error cargando configuración técnica", e);
+      }
+    };
+    fetchParams();
+  }, []);
+
   const coloresMap: Record<string, string> = {
     blanco: "#FFFFFF",
     negro: "#2D2D2D",
@@ -64,23 +96,40 @@ export function CotizadorDynamic() {
     bronce: "#8B5A2B"
   };
 
+  // 2. ALGORITMO DE PRECISIÓN VILKMET (Frontend Sync)
   const calculateLocalPrice = () => {
-    const a = Number(formData.ancho) / 1000;
-    const h = Number(formData.alto) / 1000;
-    const mLin = (a + h) * 2;
-    const m2 = a * h;
+    const anchoM = Number(formData.ancho) / 1000;
+    const altoM  = Number(formData.alto) / 1000;
+    const perimetroM = (anchoM + altoM) * 2;
+    const areaM2     = anchoM * altoM;
     
+    // Masa por metro lineal
     let kgM = 1.8;
     if (formData.linea === "Herrero") kgM = 1.2;
     if (formData.linea.includes("A40")) kgM = 2.8;
+    if (formData.linea.includes("RPT")) kgM = 3.4;
 
-    let glassCost = 12;
-    if (formData.vidrio === "float5") glassCost = 16;
-    if (formData.vidrio === "float6") glassCost = 22;
-    if (formData.vidrio === "dvh") glassCost = 35;
+    // Costo de Vidrio USD/m2
+    let glassCostUSD = 15;
+    if (formData.vidrio === "float5") glassCostUSD = 18;
+    if (formData.vidrio === "float6") glassCostUSD = 22;
+    if (formData.vidrio === "dvh") glassCostUSD = 40;
 
-    const baseCostUSD = (mLin * kgM * 8.5) + (m2 * glassCost);
-    const finalARS = baseCostUSD * 1400 * 1.2 * 1.4;
+    // Multiplicador Color
+    const colorMult = (formData.color === "negro" || formData.color === "anodizado") ? 1.15 : 1.0;
+
+    // FÓRMULA DE INGENIERÍA
+    const costoAluARS = perimetroM * kgM * params.costo_kg_aluar * params.tipo_cambio_blue * colorMult;
+    const costoVidrioARS = areaM2 * glassCostUSD * params.tipo_cambio_blue;
+    
+    const costoDirecto = costoAluARS + costoVidrioARS;
+    
+    // Aplicación secuencial de Márgenes (Mano de Obra -> Gastos Estructura -> Rentabilidad)
+    const finalARS = costoDirecto * 
+                     (1 + params.porcentaje_mano_obra / 100) * 
+                     (1 + params.gastos_administrativos / 100) * 
+                     (1 + params.margen_rentabilidad / 100);
+
     return Math.round(finalARS);
   };
 
@@ -105,10 +154,10 @@ export function CotizadorDynamic() {
 
   const getFinancingLabel = () => {
     switch(paymentMode) {
-      case "contado": return { label: "Contado (10% OFF)", total: totalProject * 0.9 };
+      case "contado": return { label: "Contado (Altos Desempeños)", total: totalProject };
       case "lista": return { label: "Lista (1 Pago)", total: totalProject };
-      case "cuotas3": return { label: "3 Cuotas (+15%)", total: totalProject * 1.15, cuota: (totalProject * 1.15) / 3 };
-      case "cuotas6": return { label: "6 Cuotas (+30%)", total: totalProject * 1.30, cuota: (totalProject * 1.30) / 6 };
+      case "cuotas3": return { label: "3 Cuotas (Fijas)", total: totalProject * 1.15, cuota: (totalProject * 1.15) / 3 };
+      case "cuotas6": return { label: "6 Cuotas (Financiado)", total: totalProject * 1.30, cuota: (totalProject * 1.30) / 6 };
     }
   };
 
@@ -127,10 +176,10 @@ export function CotizadorDynamic() {
         })
       });
       if (res.ok) setSuccess(true);
-      else alert("Error al procesar el presupuesto");
+      else alert("Error en el servidor de cotizaciones");
     } catch (error) {
        console.error(error);
-       alert("Error de conexión");
+       alert("Error de conexión con VILKMET Security");
     } finally {
       setLoading(false);
     }
@@ -140,18 +189,21 @@ export function CotizadorDynamic() {
     return (
       <div className="text-center py-20 animate-in fade-in zoom-in duration-700 max-w-2xl mx-auto">
         <CheckCircle2 className="h-24 w-24 text-green-500 mx-auto mb-8 animate-bounce" />
-        <h3 className="text-4xl font-heading font-black text-[#1A3A52] mb-6 uppercase tracking-tighter">¡SOLICITUD ENVIADA!</h3>
+        <h3 className="text-4xl font-heading font-black text-primary mb-6 uppercase tracking-tighter italic">¡PROYECTO ENVIADO!</h3>
         <p className="text-xl text-muted-foreground mb-10 font-medium">
-          Hola <span className="text-primary font-black">{clientData.nombre}</span>, tu proyecto ha sido recibido. 
-          Un asesor técnico de <span className="font-bold text-[#1A3A52]">VILKMET</span> te contactará a la brevedad.
+          Hola <span className="text-[#E85D04] font-black">{clientData.nombre}</span>, hemos recibido tu diseño. 
+          Un ingeniero de <span className="font-bold text-primary">VILKMET</span> revisará la viabilidad técnica y te contactará.
         </p>
-        <div className="bg-[#1A3A52] text-white p-10 rounded-[3rem] shadow-2xl border border-white/10 relative overflow-hidden">
-          <span className="block text-[10px] uppercase tracking-widest text-white/40 mb-4 font-black text-center">Inversión Estimada</span>
-          <p className="text-5xl font-black tracking-tighter text-center">
+        <div className="bg-primary text-white p-12 rounded-[2rem] shadow-2xl border border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+             <RefreshCw className="w-20 h-20 animate-spin-slow" />
+          </div>
+          <span className="block text-[10px] uppercase tracking-widest text-[#E85D04] mb-4 font-black text-center">Inversión Final Proyectada</span>
+          <p className="text-6xl font-black tracking-tighter text-center">
             ${getFinancingLabel().total.toLocaleString("es-AR")}
           </p>
         </div>
-        <Button onClick={() => window.location.reload()} variant="link" className="mt-16 text-primary uppercase font-bold tracking-widest text-xs">Nueva Solicitud</Button>
+        <Button onClick={() => window.location.reload()} variant="link" className="mt-16 text-primary uppercase font-bold tracking-widest text-xs">Iniciar Nuevo Diseño</Button>
       </div>
     );
   }
@@ -159,19 +211,20 @@ export function CotizadorDynamic() {
   if (view === "builder") {
     return (
       <div className="relative group/console max-w-7xl mx-auto pb-20">
-        <div className="bg-white/80 backdrop-blur-xl rounded-[4rem] border border-slate-200/60 shadow-2xl overflow-visible p-4">
+        <div className="bg-white/90 backdrop-blur-2xl rounded-[3rem] border border-slate-200/50 shadow-2xl overflow-hidden p-2">
           <div className="grid lg:grid-cols-12 gap-0 overflow-visible">
             
-            <div className="lg:col-span-12 xl:col-span-7 p-12 lg:p-16 bg-slate-50/50 rounded-[3.5rem] relative overflow-hidden border border-slate-100 flex flex-col justify-between min-h-[700px]">
+            {/* Visualizador 3D Like */}
+            <div className="lg:col-span-12 xl:col-span-7 p-12 lg:p-16 bg-slate-100/50 rounded-[2.5rem] relative overflow-hidden border border-slate-100 flex flex-col justify-between min-h-[650px]">
               <div className="flex items-center gap-3 z-10">
-                <div className="h-3 w-3 bg-[#E85D04] rounded-full animate-pulse"></div>
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A3A52]/80">Configuración Arquitectónica</h3>
+                <div className="h-3 w-3 bg-[#E85D04] rounded-full animate-pulse shadow-[0_0_15px_rgba(232,93,4,0.5)]"></div>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-primary/60">VILKMET Console · v1.1 Elite</h3>
               </div>
               
               <div className="flex-1 flex flex-col justify-center py-12">
-                <div className="relative group/sim scale-110 sm:scale-125 md:scale-[1.5] transition-transform duration-1000 origin-center">
+                <div className="relative group/sim scale-110 sm:scale-125 md:scale-[1.4] transition-transform duration-1000 origin-center">
                    <SimuladorVisual 
-                    tipologia={formData.tipologia as "corrediza" | "abrir" | "fijo"} 
+                    tipologia={formData.tipologia as any} 
                     ancho={Number(formData.ancho)} 
                     alto={Number(formData.alto)} 
                     colorHex={coloresMap[formData.color] || "#FFFFFF"}
@@ -179,102 +232,99 @@ export function CotizadorDynamic() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                <div className="bg-white/95 p-6 rounded-[2rem] border border-slate-100 shadow-xl">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2 text-center md:text-left">Perfilería</span>
-                    <p className="text-lg font-black text-[#1A3A52] tracking-tight text-center md:text-left">{formData.linea}</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+                <div className="bg-white/95 p-6 rounded-[1.5rem] border border-slate-100 shadow-xl">
+                    <span className="text-[9px] uppercase font-bold text-slate-400 block mb-1">Materia Prima</span>
+                    <p className="text-lg font-black text-primary tracking-tight">ALUAR {formData.linea}</p>
                 </div>
-                <div className="bg-white/95 p-6 rounded-[2rem] border border-slate-100 shadow-xl">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2 text-center md:text-left">Dimensión</span>
-                    <p className="text-lg font-black text-[#1A3A52] tracking-tight text-center md:text-left">{formData.ancho} x {formData.alto} mm</p>
+                <div className="bg-white/95 p-6 rounded-[1.5rem] border border-slate-100 shadow-xl">
+                    <span className="text-[9px] uppercase font-bold text-slate-400 block mb-1">Área Técnica</span>
+                    <p className="text-lg font-black text-primary tracking-tight">{formData.ancho} x {formData.alto} MM</p>
                 </div>
-                <div className="bg-[#1A3A52] p-6 rounded-[2rem] shadow-xl text-center md:text-left">
-                    <span className="text-[10px] uppercase font-bold text-white/60 block mb-2">Subtotal</span>
-                    <p className="text-lg font-black text-white tracking-tight">${calculateLocalPrice().toLocaleString("es-AR")}</p>
+                <div className="bg-[#E85D04] p-6 rounded-[1.5rem] shadow-xl text-center md:text-left text-white">
+                    <span className="text-[9px] uppercase font-bold text-white/50 block mb-1">Cotización Parcial</span>
+                    <p className="text-xl font-black tracking-tight">${calculateLocalPrice().toLocaleString("es-AR")}</p>
                 </div>
               </div>
 
               {projectItems.length > 0 && (
                 <button 
                   onClick={() => setView("project")}
-                  className="absolute bottom-10 right-10 bg-[#E85D04] text-white px-10 h-16 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-4 hover:scale-105 transition-all shadow-2xl z-20"
+                  className="absolute bottom-10 right-10 bg-primary text-white px-10 h-16 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-4 hover:scale-105 transition-all shadow-2xl z-20 border border-white/10"
                 >
                   Ver Proyecto ({projectItems.length}) <ArrowRight className="h-4 w-4" />
                 </button>
               )}
             </div>
 
-            <div className="lg:col-span-12 xl:col-span-5 p-12 lg:p-14 overflow-visible">
-              <div className="max-w-md mx-auto h-full flex flex-col justify-between overflow-visible">
+            {/* Controles de Ingeniería */}
+            <div className="lg:col-span-12 xl:col-span-5 p-12 lg:p-14">
+              <div className="max-w-md mx-auto h-full flex flex-col justify-between">
                 
                 <nav className="flex justify-between items-center mb-16 relative">
-                   <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-slate-100 -z-10"></div>
+                   <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-slate-100 -z-10"></div>
                    {[
                     { id: 1, icon: Layers, label: "Sistema" },
-                    { id: 2, icon: Layout, label: "Apertura" },
-                    { id: 3, icon: Maximize2, label: "Medidas" },
-                    { id: 4, icon: Settings2, label: "Vidrio" }
+                    { id: 2, icon: Layout, label: "Diseño" },
+                    { id: 3, icon: Maximize2, label: "Medida" },
+                    { id: 4, icon: Settings2, label: "Técnico" }
                    ].map((s) => (
                     <div key={s.id} className="relative flex flex-col items-center">
                       <button 
                         onClick={() => s.id < step && setStep(s.id)}
-                        className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all border-2 ${step >= s.id ? 'bg-[#1A3A52] text-white border-[#1A3A52] shadow-lg shadow-[#1A3A52]/20' : 'bg-white text-slate-200 border-slate-100'}`}
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all border-2 ${step >= s.id ? 'bg-primary text-white border-primary shadow-lg' : 'bg-white text-slate-200 border-slate-100'}`}
                       >
-                        <s.icon className="h-6 w-6" />
+                        <s.icon className="h-5 w-5" />
                       </button>
-                      <span className={`absolute -bottom-10 text-[11px] font-black uppercase tracking-widest ${step === s.id ? 'text-[#1A3A52]' : 'text-slate-400'}`}>{s.label}</span>
+                      <span className={`absolute -bottom-8 text-[9px] font-black uppercase tracking-widest ${step === s.id ? 'text-primary' : 'text-slate-300'}`}>{s.label}</span>
                     </div>
                   ))}
                 </nav>
 
-                <div className="flex-1 overflow-visible min-h-[400px]">
+                <div className="flex-1 min-h-[380px]">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={step}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-10 overflow-visible"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-8"
                     >
                       {step === 1 && (
-                        <div className="space-y-8 overflow-visible">
-                          <h3 className="text-5xl font-heading font-black text-[#1A3A52] tracking-tighter">Línea <span className="text-[#E85D04]">Técnica.</span></h3>
-                          <div className="relative z-[50]">
-                            <Select value={formData.linea} onValueChange={(v) => v && setFormData({...formData, linea: v})}>
-                              <SelectTrigger className="h-20 text-xl font-bold rounded-3xl border-2 border-slate-100 px-8 shadow-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="rounded-3xl p-4 min-w-[300px]">
-                                <SelectItem value="Herrero" className="h-16 font-bold rounded-2xl cursor-pointer">Línea Herrero</SelectItem>
-                                <SelectItem value="Módena" className="h-16 font-bold rounded-2xl cursor-pointer">Línea Módena</SelectItem>
-                                <SelectItem value="A40" className="h-16 font-bold rounded-2xl cursor-pointer">Línea A40</SelectItem>
-                                <SelectItem value="A40 RPT" className="h-16 font-bold rounded-2xl cursor-pointer">Línea A40 RPT</SelectItem>
-                              </SelectContent>
-                            </Select>
+                        <div className="space-y-8">
+                          <h3 className="text-4xl font-heading font-black text-primary tracking-tighter uppercase italic">Perfilería <span className="text-[#E85D04]">Aluar.</span></h3>
+                          <div className="grid grid-cols-1 gap-3">
+                             {["Herrero", "Módena", "A40", "A40 RPT"].map((l) => (
+                               <button 
+                                key={l}
+                                onClick={() => setFormData({...formData, linea: l as any})}
+                                className={`h-16 rounded-2xl border-2 font-black uppercase text-xs tracking-widest transition-all ${formData.linea === l ? 'border-[#E85D04] bg-[#E85D04]/5 text-[#E85D04]' : 'border-slate-50 bg-slate-50/50 hover:border-slate-200'}`}
+                               >
+                                 Línea {l}
+                               </button>
+                             ))}
                           </div>
                         </div>
                       )}
 
                       {step === 2 && (
                         <div className="space-y-8">
-                          <h3 className="text-5xl font-heading font-black text-[#1A3A52] tracking-tighter">Tipo de <span className="text-[#E85D04]">Apertura.</span></h3>
-                          <div className="grid grid-cols-1 gap-4">
+                          <h3 className="text-4xl font-heading font-black text-primary tracking-tighter uppercase italic">Tipo <span className="text-[#E85D04]">Apertura.</span></h3>
+                          <div className="grid grid-cols-1 gap-3">
                             {[
-                                { id: "corrediza", label: "Corrediza (Ventana/Balcón)", desc: "Suavidad milimétrica", icon: Layers },
-                                { id: "abrir", label: "Ventana de Abrir", desc: "Hermeticidad Total", icon: Layout },
-                                { id: "puerta_abrir", label: "Puerta de Abrir", desc: "Ingresos de Alta Gama", icon: DoorOpen },
-                                { id: "fijo", label: "Paño Fijo", desc: "Mínimo Perfil", icon: Maximize2 }
+                                { id: "corrediza", label: "Corrediza", icon: Layers },
+                                { id: "abrir", label: "De Abrir", icon: Layout },
+                                { id: "puerta_abrir", label: "Puerta", icon: DoorOpen },
+                                { id: "fijo", label: "Paño Fijo", icon: Maximize2 }
                             ].map((tipo) => (
                               <button 
                                 key={tipo.id} 
                                 onClick={() => setFormData({...formData, tipologia: tipo.id})}
-                                className={`flex items-center gap-6 p-6 rounded-3xl border-2 transition-all ${formData.tipologia === tipo.id ? 'border-[#E85D04] bg-[#E85D04]/5 shadow-xl shadow-orange-500/5' : 'border-slate-50 bg-slate-50/50 hover:border-slate-200'}`}
+                                className={`flex items-center gap-5 p-5 rounded-2xl border-2 transition-all ${formData.tipologia === tipo.id ? 'border-[#E85D04] bg-[#E85D04]/5' : 'border-slate-50 bg-slate-50/50 hover:border-slate-200'}`}
                               >
-                                <tipo.icon className={`h-10 w-10 ${formData.tipologia === tipo.id ? 'text-[#E85D04]' : 'text-slate-300'}`} />
-                                <div className="text-left">
-                                  <span className="block text-lg font-black uppercase tracking-tight">{tipo.label}</span>
-                                  <span className="text-[11px] font-black text-slate-500/60 uppercase tracking-widest">{tipo.desc}</span>
-                                </div>
+                                <tipo.icon className={`h-6 w-6 ${formData.tipologia === tipo.id ? 'text-[#E85D04]' : 'text-slate-300'}`} />
+                                <span className="text-xs font-black uppercase tracking-widest">{tipo.label}</span>
                               </button>
                             ))}
                           </div>
@@ -282,16 +332,16 @@ export function CotizadorDynamic() {
                       )}
 
                       {step === 3 && (
-                        <div className="space-y-10">
-                          <h3 className="text-5xl font-heading font-black text-[#1A3A52] tracking-tighter">Medidas <span className="text-[#E85D04]">Nominales.</span></h3>
-                          <div className="space-y-8">
+                        <div className="space-y-8">
+                          <h3 className="text-4xl font-heading font-black text-primary tracking-tighter uppercase italic">Corte <span className="text-[#E85D04]">Milimétrico.</span></h3>
+                          <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label className="font-bold text-slate-400 uppercase text-[10px] tracking-widest pl-3">Ancho (MM)</Label>
-                              <Input type="number" value={formData.ancho} onChange={(e) => setFormData({...formData, ancho: e.target.value})} className="h-20 text-4xl font-black rounded-3xl border-2 px-8" />
+                               <Label className="font-black text-[9px] text-slate-400 uppercase tracking-widest pl-2">Ancho MM</Label>
+                               <Input type="number" value={formData.ancho} onChange={(e) => setFormData({...formData, ancho: e.target.value})} className="h-16 text-2xl font-black rounded-2xl border-2 px-6 bg-slate-50/50" />
                             </div>
                             <div className="space-y-2">
-                              <Label className="font-bold text-slate-400 uppercase text-[10px] tracking-widest pl-3">Alto (MM)</Label>
-                              <Input type="number" value={formData.alto} onChange={(e) => setFormData({...formData, alto: e.target.value})} className="h-20 text-4xl font-black rounded-3xl border-2 px-8" />
+                               <Label className="font-black text-[9px] text-slate-400 uppercase tracking-widest pl-2">Alto MM</Label>
+                               <Input type="number" value={formData.alto} onChange={(e) => setFormData({...formData, alto: e.target.value})} className="h-16 text-2xl font-black rounded-2xl border-2 px-6 bg-slate-50/50" />
                             </div>
                           </div>
                         </div>
@@ -299,23 +349,19 @@ export function CotizadorDynamic() {
 
                       {step === 4 && (
                         <div className="space-y-8">
-                          <h3 className="text-5xl font-heading font-black text-[#1A3A52] tracking-tighter">Tipo de <span className="text-[#E85D04]">Cristal.</span></h3>
-                          <div className="grid grid-cols-1 gap-4">
+                          <h3 className="text-4xl font-heading font-black text-primary tracking-tighter uppercase italic">Control <span className="text-[#E85D04]">Térmico.</span></h3>
+                          <div className="grid grid-cols-1 gap-3">
                               {[
-                                { id: "float4", label: "Float 4mm", desc: "Estándar Incoloro" },
-                                { id: "float5", label: "Float 5mm", desc: "Rigidez Media" },
-                                { id: "float6", label: "Float 6mm", desc: "Alta Resistencia" },
-                                { id: "dvh", label: "DVH (4+12+4)", desc: "Aislamiento Térmico" }
+                                { id: "float4", label: "Float 4mm" },
+                                { id: "float6", label: "Float 6mm" },
+                                { id: "dvh", label: "DVH (Estandar)" }
                               ].map((v) => (
                                 <button 
                                   key={v.id}
                                   onClick={() => setFormData({...formData, vidrio: v.id})}
-                                  className={`flex justify-between items-center p-6 rounded-3xl border-2 transition-all ${formData.vidrio === v.id ? 'border-[#E85D04] bg-[#E85D04]/5' : 'border-slate-50 bg-white hover:border-slate-200'}`}
+                                  className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.vidrio === v.id ? 'border-[#E85D04] bg-[#E85D04]/5' : 'border-slate-50 bg-slate-50/50 hover:border-slate-200'}`}
                                 >
-                                  <div className="text-left">
-                                    <p className="font-black text-lg uppercase tracking-tight">{v.label}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{v.desc}</p>
-                                  </div>
+                                  <p className="font-black text-xs uppercase tracking-[0.2em]">{v.label}</p>
                                 </button>
                               ))}
                           </div>
@@ -325,20 +371,20 @@ export function CotizadorDynamic() {
                   </AnimatePresence>
                 </div>
 
-                <div className="pt-10 flex gap-4">
+                <div className="pt-8 flex gap-3">
                   <Button 
                     variant="outline" 
                     onClick={() => setStep(Math.max(1, step - 1))} 
                     disabled={step === 1} 
-                    className="h-16 px-8 font-black uppercase rounded-2xl border-2 border-slate-200 bg-slate-100/50 text-[#1A3A52] hover:bg-slate-200 flex-1 transition-all"
+                    className="h-16 px-6 font-black uppercase text-[10px] rounded-xl border-2 bg-white text-primary flex-1 tracking-widest"
                   >
                     Atrás
                   </Button>
                   <Button 
                     onClick={() => step < 4 ? setStep(step + 1) : addItemToProject()} 
-                    className={`h-16 px-10 font-black uppercase text-xs tracking-wider rounded-2xl flex-2 shadow-xl ${step === 4 ? 'bg-[#E85D04] hover:bg-[#F96D0C]' : 'bg-[#1A3A52] hover:bg-[#2A4A62]'}`}
+                    className={`h-16 px-8 font-black uppercase text-[10px] tracking-widest rounded-xl flex-2 shadow-xl ${step === 4 ? 'bg-[#E85D04] hover:bg-[#F96D0C]' : 'bg-primary hover:bg-[#2A4A62]'}`}
                   >
-                    {step === 4 ? "Agregar Item" : "Continuar"}
+                    {step === 4 ? "Sellar Item" : "Continuar"}
                   </Button>
                 </div>
               </div>
@@ -352,80 +398,66 @@ export function CotizadorDynamic() {
 
   if (view === "project") {
     return (
-      <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-7xl mx-auto pb-20">
+      <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-7xl mx-auto pb-20 px-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-8 border-b border-slate-100">
-          <div className="space-y-4">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-[#E85D04]">Resumen Técnico</h3>
-            <h2 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter">Mi Proyecto.</h2>
-          </div>
-          <Button onClick={() => setView("builder")} className="h-16 px-10 rounded-full border-2 border-[#1A3A52] bg-transparent text-[#1A3A52] font-black uppercase text-xs tracking-wider hover:bg-[#1A3A52] hover:text-white transition-all shadow-xl">
-             + AGREGAR OTRA ABERTURA
-          </Button>
+           <div className="space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#E85D04]">Configuración Técnica</span>
+              <h2 className="text-6xl font-heading font-black text-primary tracking-tighter uppercase italic">Mi <span className="text-[#E85D04]">Obra.</span></h2>
+           </div>
+           <Button onClick={() => setView("builder")} className="h-16 px-10 rounded-2xl border-2 border-primary bg-transparent text-primary font-black uppercase text-[10px] tracking-[0.2em] hover:bg-primary hover:text-white transition-all">
+              + AGREGAR ELEMENTO
+           </Button>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-12">
-          <div className="lg:col-span-12 xl:col-span-8 space-y-6">
+        <div className="grid lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8 space-y-4">
             {projectItems.map((item) => (
-              <div key={item.id} className="bg-white border border-slate-100 p-8 rounded-[3rem] flex flex-col md:flex-row items-center gap-10 hover:shadow-2xl transition-all group">
-                <div className="h-24 w-24 bg-slate-50 rounded-3xl flex items-center justify-center shrink-0">
-                  <Layout className="h-10 w-10 text-slate-200" />
+              <div key={item.id} className="bg-white border-2 border-slate-50 p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-10 hover:border-[#E85D04]/20 transition-all">
+                <div className="h-20 w-20 bg-slate-50 rounded-2xl flex items-center justify-center">
+                  <Layout className="h-8 w-8 text-slate-200" />
                 </div>
-                <div className="flex-1 text-center md:text-left space-y-3">
-                  <h4 className="font-black text-2xl text-[#1A3A52] uppercase tracking-tighter">{item.linea} · {item.tipologia}</h4>
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                    <span className="px-4 py-1.5 bg-slate-50 text-[9px] font-bold text-slate-400 rounded-full tracking-wider uppercase">{item.ancho}x{item.alto}mm</span>
-                    <span className="px-4 py-1.5 bg-slate-50 text-[9px] font-bold text-slate-400 rounded-full tracking-wider uppercase">{item.vidrio.replace('float','F')}</span>
+                <div className="flex-1 text-center md:text-left">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#E85D04] block mb-1">{item.linea}</span>
+                  <h4 className="font-black text-2xl text-primary uppercase tracking-tighter mb-4">{item.tipologia}</h4>
+                  <div className="flex gap-2 justify-center md:justify-start">
+                    <span className="bg-slate-50 px-3 py-1 text-[9px] font-black text-slate-400 rounded-lg">{item.ancho}x{item.alto}mm</span>
+                    <span className="bg-slate-50 px-3 py-1 text-[9px] font-black text-slate-400 rounded-lg uppercase">{item.vidrio}</span>
                   </div>
-                  <p className="text-3xl font-black text-[#1A3A52] tracking-tighter">${item.subtotal.toLocaleString("es-AR")}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)} className="h-14 w-14 rounded-2xl text-slate-200 hover:text-red-500 hover:bg-red-50 transition-all">
-                  <Trash2 className="h-6 w-6" />
-                </Button>
+                <div className="text-center md:text-right">
+                   <p className="text-3xl font-black text-primary tracking-tighter">${item.subtotal.toLocaleString("es-AR")}</p>
+                   <button onClick={() => removeItem(item.id)} className="text-red-400 hover:text-red-600 text-[10px] font-black uppercase mt-2">Eliminar</button>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="lg:col-span-12 xl:col-span-4 lg:mb-10 xl:mb-0">
-            <Card className="rounded-[4rem] border-none bg-[#1A3A52] text-white p-2 shadow-2xl relative overflow-hidden group/card min-h-[500px] flex flex-col">
-               <CardContent className="p-10 flex-1 flex flex-col justify-between">
-                 <div className="space-y-6">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Subtotal Proyecto</span>
-                    <h3 className="text-5xl font-black tracking-tighter">${totalProject.toLocaleString("es-AR")}</h3>
-                    
-                    <div className="space-y-4 pt-10">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Elegir Plan de Financiación</span>
-                        <div className="grid grid-cols-1 gap-3">
-                            {[
-                                { id: "contado", label: "Efectivo", desc: "10% OFF", icon: Wallet, tag: "AHORRO" },
-                                { id: "cuotas3", label: "3 Cuotas", desc: "+15%", icon: CreditCard },
-                                { id: "cuotas6", label: "6 Cuotas", desc: "+30%", icon: CreditCard }
-                            ].map((p) => (
-                                <button key={p.id} onClick={() => setPaymentMode(p.id as any)} className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all relative overflow-hidden ${paymentMode === p.id ? 'border-[#E85D04] bg-[#E85D04]/10 shadow-xl' : 'border-white/5 bg-white/5 opacity-60 hover:opacity-100'}`}>
-                                    <div className="flex items-center gap-4">
-                                        <p.icon className={`h-6 w-6 ${paymentMode === p.id ? 'text-[#E85D04]' : 'text-white/20'}`} />
-                                        <div className="text-left">
-                                            <p className="text-xs font-black uppercase tracking-wider">{p.label}</p>
-                                            <p className="text-[9px] font-bold opacity-30 uppercase tracking-widest leading-none mt-1">{p.desc}</p>
-                                        </div>
-                                    </div>
-                                    {p.tag && <span className="absolute top-2 right-2 text-[8px] font-black bg-[#E85D04] text-white px-3 py-1 rounded-full">{p.tag}</span>}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                 </div>
+          <div className="lg:col-span-4">
+             <Card className="rounded-[3rem] border-none bg-primary text-white p-10 shadow-3xl flex flex-col justify-between min-h-[450px]">
+                <div className="space-y-6">
+                   <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Inversión Bruta Obra</span>
+                   <h3 className="text-5xl font-black tracking-tighter">${totalProject.toLocaleString("es-AR")}</h3>
+                   
+                   <div className="grid grid-cols-1 gap-3 pt-8">
+                       {[
+                           { id: "contado", label: "Efectivo", icon: Wallet },
+                           { id: "cuotas3", label: "3 Cuotas", icon: CreditCard },
+                           { id: "cuotas6", label: "6 Cuotas", icon: CreditCard }
+                       ].map((p) => (
+                           <button key={p.id} onClick={() => setPaymentMode(p.id as any)} className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${paymentMode === p.id ? 'border-[#E85D04] bg-[#E85D04]/10' : 'border-white/5 bg-white/5 opacity-40'}`}>
+                               <p.icon className="h-5 w-5" />
+                               <span className="text-[10px] font-black uppercase tracking-widest">{p.label}</span>
+                           </button>
+                       ))}
+                   </div>
+                </div>
 
-                 <div className="pt-10 mt-10 border-t border-white/5 space-y-8">
-                     <div className="flex flex-col gap-2">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-[#E85D04]">Total Final {getFinancingLabel().label}</span>
-                        <p className="text-4xl font-black tracking-tighter">${getFinancingLabel().total.toLocaleString("es-AR")}</p>
-                     </div>
-                    <Button onClick={() => setView("checkout")} className="w-full h-20 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xs uppercase tracking-widest rounded-3xl shadow-2xl">
-                      SOLICITAR PRESUPUESTO
+                <div className="pt-8 mt-8 border-t border-white/5">
+                    <Button onClick={() => setView("checkout")} className="w-full h-20 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl">
+                      CERRAR PRESUPUESTO
                     </Button>
-                 </div>
-               </CardContent>
-            </Card>
+                </div>
+             </Card>
           </div>
         </div>
       </div>
@@ -433,63 +465,34 @@ export function CotizadorDynamic() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-24 animate-in fade-in slide-in-from-bottom-12 duration-700">
-      <div className="text-center mb-16 space-y-4">
-         <h3 className="text-[10px] font-black uppercase tracking-widest text-[#E85D04]">Último Paso</h3>
-         <h2 className="text-6xl font-heading font-black text-[#1A3A52] tracking-tighter">Consolidar <span className="text-[#E85D04] italic">Proyecto.</span></h2>
-         <p className="text-slate-500 font-bold max-w-xl mx-auto text-lg leading-relaxed uppercase tracking-tight">Ingresa tus datos para recibir el presupuesto técnico personalizado.</p>
+    <div className="max-w-4xl mx-auto py-16 px-4">
+      <div className="text-center mb-16">
+         <h2 className="text-6xl font-heading font-black text-primary tracking-tighter uppercase italic">Consolidar <span className="text-[#E85D04]">V|K.</span></h2>
+         <p className="text-slate-400 font-bold mt-4 uppercase tracking-tighter">Ingrese sus credenciales de contacto para recibir el legajo de obra.</p>
       </div>
 
-      <div className="bg-white rounded-[4rem] border border-slate-100 shadow-2xl p-6 md:p-12">
-        <form onSubmit={handleSubmitFinal} className="grid lg:grid-cols-12 gap-12">
-          
-          <div className="lg:col-span-7 space-y-8">
-            <div className="space-y-4">
-               <Label className="font-bold text-slate-600 uppercase text-[10px] tracking-widest pl-4">Titular del Proyecto</Label>
-               <Input required value={clientData.nombre} onChange={(e) => setClientData({...clientData, nombre: e.target.value})} className="h-20 rounded-3xl border-2 px-8 text-xl font-bold" placeholder="Nombre completo" />
+      <div className="bg-white rounded-[4rem] border border-slate-100 shadow-2xl p-12">
+        <form onSubmit={handleSubmitFinal} className="grid md:grid-cols-2 gap-12">
+          <div className="space-y-6">
+            <div className="space-y-2">
+               <Label className="font-black text-[9px] uppercase tracking-widest text-slate-400 pl-2">Titular</Label>
+               <Input required value={clientData.nombre} onChange={(e) => setClientData({...clientData, nombre: e.target.value})} className="h-16 rounded-2xl border-2 px-6 font-bold" />
             </div>
-            <div className="space-y-4">
-               <Label className="font-bold text-slate-600 uppercase text-[10px] tracking-widest pl-4">Canal WhatsApp</Label>
-               <Input required value={clientData.whatsapp} onChange={(e) => setClientData({...clientData, whatsapp: e.target.value})} className="h-20 rounded-3xl border-2 px-8 text-xl font-bold" placeholder="+54 9..." />
+            <div className="space-y-2">
+               <Label className="font-black text-[9px] uppercase tracking-widest text-slate-400 pl-2">WhatsApp</Label>
+               <Input required value={clientData.whatsapp} onChange={(e) => setClientData({...clientData, whatsapp: e.target.value})} className="h-16 rounded-2xl border-2 px-6 font-bold" />
             </div>
-            <div className="space-y-4">
-               <Label className="font-bold text-slate-600 uppercase text-[10px] tracking-widest pl-4">Mail de Archivo</Label>
-               <Input type="email" value={clientData.email} onChange={(e) => setClientData({...clientData, email: e.target.value})} className="h-20 rounded-3xl border-2 px-8 text-xl font-bold" placeholder="tu@email.com" />
-            </div>
-            <div className="pt-6">
-                <Button type="submit" disabled={loading} className="w-full h-20 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black text-xs uppercase tracking-widest rounded-full shadow-2xl transition-all active:scale-[0.98]">
-                    {loading ? "PROCESANDO..." : "SOLICITAR PRESUPUESTO DIGITAL"} <Send className="ml-4 h-5 w-5" />
-                </Button>
-            </div>
+            <Button type="submit" disabled={loading} className="w-full h-16 bg-[#E85D04] text-white font-black uppercase tracking-widest rounded-2xl mt-4">
+                {loading ? "PROCESANDO..." : "OBTENER PRESUPUESTO"}
+            </Button>
           </div>
-
-          <div className="lg:col-span-5">
-             <div className="bg-[#1A3A52] p-10 rounded-[3rem] text-white h-full flex flex-col justify-between shadow-2xl overflow-hidden relative">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-               
-               <div className="space-y-8 relative">
-                  <div className="flex justify-between items-center border-b border-white/10 pb-6">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#E85D04]">Composición Obra</span>
-                    <span className="text-xl font-black uppercase">{projectItems.length} Elementos</span>
-                  </div>
-                  
-                  <div className="space-y-5">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-white/30 block">Inversión Final {getFinancingLabel().label}</span>
-                    <p className="text-4xl font-black text-[#E85D04] tracking-tighter leading-none">
-                        ${getFinancingLabel().total.toLocaleString("es-AR")}
-                    </p>
-                  </div>
-               </div>
-
-               {getFinancingLabel().cuota && (
-                <div className="pt-6 border-t border-white/10 mt-8 relative">
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-white/30 block mb-1">Cuota Fija Estimada</span>
-                    <p className="text-2xl font-black tracking-tight text-white/80">${getFinancingLabel().cuota?.toLocaleString("es-AR")}</p>
-                </div>
-               )}
-             </div>
+          <div className="bg-primary/5 p-10 rounded-[2.5rem] flex flex-col justify-center border border-primary/5">
+             <span className="text-[9px] font-black uppercase tracking-widest text-[#E85D04] block mb-2">Resumen de Inversión</span>
+             <p className="text-5xl font-black text-primary tracking-tighter">
+                ${getFinancingLabel().total.toLocaleString("es-AR")}
+             </p>
+             <span className="text-[10px] font-bold text-slate-400 mt-2 uppercase">{getFinancingLabel().label}</span>
           </div>
-
         </form>
       </div>
     </div>
