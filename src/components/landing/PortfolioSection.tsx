@@ -132,24 +132,6 @@ export function PortfolioSection() {
             </motion.div>
           ))}
         </motion.div>
-
-        {/* CTA con Diseño Sobrio */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="mt-16 flex flex-col items-center gap-6"
-        >
-          <div className="h-px w-24 bg-slate-200" />
-          <Link 
-            href="/#cotizador" 
-            className="flex items-center gap-4 text-[#1A3A52] hover:text-[#E85D04] transition-colors"
-          >
-            <span className="text-xs font-black uppercase tracking-[0.3em]">Iniciar nueva cotización</span>
-            <div className="h-10 w-10 rounded-full border border-slate-200 flex items-center justify-center hover:border-[#E85D04] transition-colors">
-              <Camera className="h-4 w-4" />
-            </div>
-          </Link>
-        </motion.div>
       </div>
     </section>
   );

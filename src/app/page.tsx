@@ -17,12 +17,25 @@ export default function Home() {
         <EducationSection />
         <PortfolioSection />
         
-        <section id="cotizador" className="py-24 bg-secondary/50 scroll-mt-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center mb-12">
-              <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl font-heading">Cotizador Paramétrico Online</h2>
-              <p className="mt-2 text-lg text-muted-foreground">
-                Selecciona tu línea, ingresa las medidas y obtén un presupuesto preliminar instantáneo.
+        <section id="cotizador" className="py-32 bg-white scroll-mt-24 relative overflow-hidden">
+          {/* Sutil efecto de fondo arquitectónico */}
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+          
+          <div className="container mx-auto px-6 lg:px-8 relative z-10">
+            <div className="max-w-4xl mx-auto text-center mb-20">
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <div className="h-[1px] w-12 bg-[#E85D04]" />
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#E85D04]">Gestión de Obra</span>
+                <div className="h-[1px] w-12 bg-[#E85D04]" />
+              </div>
+              
+              <h2 className="text-5xl md:text-7xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[0.9] mb-8">
+                CONSOLA DE <br />
+                <span className="text-[#E85D04]">INGENIERÍA VILKMET.</span>
+              </h2>
+              
+              <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
+                Configure sus aberturas con precisión milimétrica y obtenga un presupuesto técnico <span className="text-[#1A3A52] font-bold">blindado contra errores constructivos.</span>
               </p>
             </div>
             
