@@ -67,7 +67,7 @@ export function HeroSection() {
           
           <motion.div variants={itemVariants} className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link 
-              href="#cotizador" 
+              href="/#cotizador" 
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "h-16 px-10 bg-[#E85D04] hover:bg-[#F96D0C] text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-2xl shadow-orange-500/20 active:scale-95 transition-all flex items-center"
