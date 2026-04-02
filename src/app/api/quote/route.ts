@@ -27,22 +27,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan datos del cliente o productos" }, { status: 400 });
     }
 
-    // 1. OBTENER PARÁMETROS DEL SISTEMA
-    const params = await prisma.systemParameter.findMany();
-    const getParam = (key: string, defaultValue: number) => {
-      const param = params.find((p: { clave: string; valor: number }) => p.clave === key);
-      return param ? param.valor : defaultValue;
-    };
+    // 1. OBTENER PARÁMETROS DEL SISTEMA (Con Fail-Safe)
+    let profitMargin = 40;
+    let laborMargin = 20;
+    let aluCostPerKg = 8.5;
+    let tipoCambio = 1400;
 
-    const profitMargin = getParam("margen_rentabilidad", 40);
-    const laborMargin = getParam("porcentaje_mano_obra", 20);
-    const aluCostPerKg = getParam("costo_kg_aluar", 8.5);
-    const tipoCambio = getParam("tipo_cambio_blue", 1400);
+    try {
+      const params = await prisma.systemParameter.findMany();
+      const getParam = (key: string, defaultValue: number) => {
+        const param = params.find((p: { clave: string; valor: number }) => p.clave === key);
+        return param ? param.valor : defaultValue;
+      };
+
+      profitMargin = getParam("margen_rentabilidad", 35);
+      laborMargin = getParam("porcentaje_mano_obra", 10);
+      aluCostPerKg = getParam("costo_kg_aluar", 10);
+      tipoCambio = getParam("tipo_cambio_blue", 1425);
+    } catch (dbErr) {
+      console.error("Warning: Could not fetch system parameters, using defaults:", dbErr);
+    }
 
     // 2. PROCESAR CADA ÍTEM Y CALCULAR PRECIOS REALES EN SERVER
     const processedItems = items.map((item) => {
-      const anchoM = item.ancho / 1000;
-      const altoM  = item.alto / 1000;
+      const anchoM = Number(item.ancho) / 1000;
+      const altoM  = Number(item.alto) / 1000;
       const perimetroM = (anchoM + altoM) * 2;
       const areaM2     = anchoM * altoM;
 
@@ -58,7 +67,7 @@ export async function POST(req: NextRequest) {
       const colorMultiplier = (item.color === "negro" || item.color === "anodizado") ? 1.15 : 1.0;
       const costoAluARS = costoAluUSD * tipoCambio * colorMultiplier;
 
-      const costoVidrioUSDm2 = item.vidrio === "dvh" ? 35 : 12;
+      const costoVidrioUSDm2 = item.vidrio === "dvh" ? 40 : 15;
       const costoVidrioARS   = areaM2 * costoVidrioUSDm2 * tipoCambio;
 
       const costoDirecto = costoAluARS + costoVidrioARS;
@@ -71,47 +80,55 @@ export async function POST(req: NextRequest) {
     });
 
     // 3. PERSISTENCIA EN TRANSACCIÓN (Lead -> Quote -> Items)
-    const result = await prisma.$transaction(async (tx) => {
-      const lead = await tx.lead.create({
-        data: {
-          nombre: client.nombre,
-          whatsapp: client.whatsapp,
-          email: client.email || null,
-        }
-      });
-
-      const quote = await tx.quote.create({
-        data: {
-          leadId: lead.id,
-          precioFinal: totalFinanciado,
-          // Guardamos el modo de pago en las notas para referencia del admin
-          notasCliente: `Modo de Pago elegido: ${paymentMode.toUpperCase()}`,
-          items: {
-            create: processedItems.map((pi) => ({
-              tipo: pi.tipologia.includes("puerta") ? "puerta" : "ventana",
-              linea: pi.linea,
-              tipologia: pi.tipologia,
-              ancho: pi.ancho,
-              alto: pi.alto,
-              color: pi.color,
-              acristalamiento: pi.vidrio,
-              subtotal: pi.subtotal
-            }))
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        const lead = await tx.lead.create({
+          data: {
+            nombre: client.nombre,
+            whatsapp: client.whatsapp,
+            email: client.email || null,
           }
-        }
+        });
+
+        const quote = await tx.quote.create({
+          data: {
+            leadId: lead.id,
+            precioFinal: Math.round(Number(totalFinanciado)),
+            notasCliente: `Modo de Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Item`,
+            items: {
+              create: processedItems.map((pi) => ({
+                tipo: pi.tipologia.includes("puerta") ? "puerta" : "ventana",
+                linea: pi.linea,
+                tipologia: pi.tipologia,
+                ancho: Number(pi.ancho),
+                alto: Number(pi.alto),
+                color: pi.color,
+                acristalamiento: pi.vidrio,
+                subtotal: Math.round(Number(pi.subtotal))
+              }))
+            }
+          }
+        });
+
+        return { leadId: lead.id, quoteId: quote.id };
       });
 
-      return { leadId: lead.id, quoteId: quote.id };
-    });
+      return NextResponse.json({ 
+        success: true, 
+        ...result,
+        message: "Proyecto guardado y vinculado al CRM" 
+      }, { status: 200 });
 
-    return NextResponse.json({ 
-      success: true, 
-      ...result,
-      message: "Proyecto guardado y presupuesto generado" 
-    }, { status: 200 });
+    } catch (prismaErr: any) {
+      console.error("CRITICAL: Prisma Transaction Failed:", prismaErr);
+      return NextResponse.json({ 
+        error: "Fallo en la persistencia del CRM", 
+        details: prismaErr?.message || "Check server logs" 
+      }, { status: 500 });
+    }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving project:", error);
-    return NextResponse.json({ error: "Error interno procesando el proyecto" }, { status: 500 });
+    return NextResponse.json({ error: "Error interno del servidor", details: error?.message }, { status: 500 });
   }
 }
