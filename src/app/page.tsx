@@ -40,7 +40,9 @@ export default function Home() {
             </div>
             
             <div className="bg-background rounded-2xl shadow-2xl p-6 lg:p-10 border border-border mt-8">
-              <CotizadorDynamic />
+              <div id="sistema-cotizador" className="scroll-mt-32">
+                <CotizadorDynamic />
+              </div>
             </div>
           </div>
         </section>

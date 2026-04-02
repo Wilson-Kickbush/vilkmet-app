@@ -96,7 +96,7 @@ export function Navbar() {
 
               {/* Botón CTA Naranja (Color de Marca) */}
               <Link
-                href="/#cotizador"
+                href="/#sistema-cotizador"
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "relative hidden sm:flex bg-[#E85D04] hover:bg-[#E85D04]/90 text-white font-black px-8 py-7 rounded-xl overflow-hidden group transition-all duration-300 shadow-xl shadow-orange-950/20"
