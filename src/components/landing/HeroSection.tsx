@@ -74,7 +74,7 @@ export function HeroSection() {
             >
               INICIAR PRESUPUESTO ONLINE <ArrowRight className="ml-3 h-4 w-4" />
             </Link>
-            <Link href="#proyectos" className="text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors group">
+            <Link href="#galeria" className="text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors group">
               VER GALERÍA TÉCNICA <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform ml-2">→</span>
             </Link>
           </motion.div>
