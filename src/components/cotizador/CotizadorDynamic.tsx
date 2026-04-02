@@ -165,7 +165,7 @@ export function CotizadorDynamic() {
             <div className="lg:col-span-12 xl:col-span-7 p-12 lg:p-16 bg-slate-50/50 rounded-[3.5rem] relative overflow-hidden border border-slate-100 flex flex-col justify-between min-h-[700px]">
               <div className="flex items-center gap-3 z-10">
                 <div className="h-3 w-3 bg-[#E85D04] rounded-full animate-pulse"></div>
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-[#1A3A52]/60">Configuración Architectural</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A3A52]/80">Configuración Arquitectónica</h3>
               </div>
               
               <div className="flex-1 flex flex-col justify-center py-6">
@@ -181,15 +181,15 @@ export function CotizadorDynamic() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                 <div className="bg-white/95 p-6 rounded-[2rem] border border-slate-100 shadow-xl">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block mb-2">Perfilería</span>
-                    <p className="text-lg font-black text-[#1A3A52] tracking-tight">{formData.linea}</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2 text-center md:text-left">Perfilería</span>
+                    <p className="text-lg font-black text-[#1A3A52] tracking-tight text-center md:text-left">{formData.linea}</p>
                 </div>
                 <div className="bg-white/95 p-6 rounded-[2rem] border border-slate-100 shadow-xl">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block mb-2">Dimensión</span>
-                    <p className="text-lg font-black text-[#1A3A52] tracking-tight">{formData.ancho} x {formData.alto} mm</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2 text-center md:text-left">Dimensión</span>
+                    <p className="text-lg font-black text-[#1A3A52] tracking-tight text-center md:text-left">{formData.ancho} x {formData.alto} mm</p>
                 </div>
-                <div className="bg-[#1A3A52] p-6 rounded-[2rem] shadow-xl">
-                    <span className="text-[9px] uppercase font-bold text-white/40 block mb-2">Subtotal</span>
+                <div className="bg-[#1A3A52] p-6 rounded-[2rem] shadow-xl text-center md:text-left">
+                    <span className="text-[10px] uppercase font-bold text-white/60 block mb-2">Subtotal</span>
                     <p className="text-lg font-black text-white tracking-tight">${calculateLocalPrice().toLocaleString("es-AR")}</p>
                 </div>
               </div>
@@ -222,7 +222,7 @@ export function CotizadorDynamic() {
                       >
                         <s.icon className="h-6 w-6" />
                       </button>
-                      <span className={`absolute -bottom-8 text-[9px] font-bold uppercase tracking-widest ${step === s.id ? 'text-[#1A3A52]' : 'text-slate-300'}`}>{s.label}</span>
+                      <span className={`absolute -bottom-10 text-[11px] font-black uppercase tracking-widest ${step === s.id ? 'text-[#1A3A52]' : 'text-slate-400'}`}>{s.label}</span>
                     </div>
                   ))}
                 </nav>
