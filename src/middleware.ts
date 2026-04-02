@@ -50,6 +50,11 @@ const SECURITY_HEADERS = {
 };
 
 export async function middleware(request: NextRequest) {
+  // 0. EXCEPCIÓN DE RESCATE: Si es el diagnóstico, pasar directo
+  if (request.nextUrl.pathname.includes("/admin/debug")) {
+    return NextResponse.next();
+  }
+
   // 1. Actualizar sesión de Auth y proteger rutas
   const authResponse = await updateSession(request);
   
