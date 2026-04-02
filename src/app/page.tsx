@@ -23,10 +23,10 @@ export default function Home() {
           
           <div className="container mx-auto px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center mb-12">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="h-[1px] w-12 bg-[#E85D04]" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#E85D04]">Cotizador a Medida</span>
-                <div className="h-[1px] w-12 bg-[#E85D04]" />
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <div className="h-[2px] w-12 bg-[#E85D04]" />
+                <span className="text-xs font-black uppercase tracking-[0.4em] text-[#E85D04]">Cotizador a Medida</span>
+                <div className="h-[2px] w-12 bg-[#E85D04]" />
               </div>
               
               <h2 className="text-4xl md:text-6xl font-heading font-black text-[#1A3A52] tracking-tighter leading-[1.1] mb-6 uppercase">
