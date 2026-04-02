@@ -175,7 +175,7 @@ export function Navbar() {
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 1, type: "spring" }}
-      className="fixed bottom-8 right-8 z-[100] flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_40px_rgba(37,211,102,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(37,211,102,0.6)] transition-all duration-300 group pointer-events-auto"
+      className="fixed bottom-8 right-8 z-[100] flex h-16 w-16 items-center justify-center rounded-full bg-[#E85D04] text-white shadow-[0_10px_40px_rgba(232,93,4,0.4)] hover:scale-110 hover:shadow-[0_15px_50px_rgba(232,93,4,0.6)] transition-all duration-300 group pointer-events-auto"
       aria-label="Contactar por WhatsApp"
     >
       <svg className="h-8 w-8 fill-current" viewBox="0 0 24 24">
