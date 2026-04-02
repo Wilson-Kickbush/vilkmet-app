@@ -18,7 +18,8 @@ import {
   Settings2,
   Layout,
   Layers,
-  ArrowRight
+  ArrowRight,
+  DoorOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -260,8 +261,9 @@ export function CotizadorDynamic() {
                           <h3 className="text-5xl font-heading font-black text-[#1A3A52] tracking-tighter">Tipo de <span className="text-[#E85D04]">Apertura.</span></h3>
                           <div className="grid grid-cols-1 gap-4">
                             {[
-                                { id: "corrediza", label: "Corrediza", desc: "Suavidad milimétrica", icon: Layers },
-                                { id: "abrir", label: "Abrir", desc: "Hermeticidad Total", icon: Layout },
+                                { id: "corrediza", label: "Corrediza (Ventana/Balcón)", desc: "Suavidad milimétrica", icon: Layers },
+                                { id: "abrir", label: "Ventana de Abrir", desc: "Hermeticidad Total", icon: Layout },
+                                { id: "puerta_abrir", label: "Puerta de Abrir", desc: "Ingresos de Alta Gama", icon: DoorOpen },
                                 { id: "fijo", label: "Paño Fijo", desc: "Mínimo Perfil", icon: Maximize2 }
                             ].map((tipo) => (
                               <button 
@@ -272,7 +274,7 @@ export function CotizadorDynamic() {
                                 <tipo.icon className={`h-10 w-10 ${formData.tipologia === tipo.id ? 'text-[#E85D04]' : 'text-slate-300'}`} />
                                 <div className="text-left">
                                   <span className="block text-lg font-black uppercase tracking-tight">{tipo.label}</span>
-                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{tipo.desc}</span>
+                                  <span className="text-[11px] font-black text-slate-500/60 uppercase tracking-widest">{tipo.desc}</span>
                                 </div>
                               </button>
                             ))}
