@@ -17,7 +17,7 @@ export default function Home() {
         <EducationSection />
         <PortfolioSection />
         
-        <section id="cotizador" className="py-24 bg-secondary/50">
+        <section id="cotizador" className="py-24 bg-secondary/50 scroll-mt-24">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center mb-12">
               <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl font-heading">Cotizador Paramétrico Online</h2>
