@@ -47,8 +47,8 @@ export function HeroSection() {
         >
           {/* Headline Monumental y Directo */}
           <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-[5.5rem] tracking-tight leading-[0.95] mb-6 uppercase">
-            ABERTURAS A MEDIDA <br />
-            <span className="text-[#E85D04] text-4xl sm:text-[4.6rem]">PARA INMUEBLES DE CATEGORÍA.</span>
+            ABERTURAS A MEDIDA: <br />
+            <span className="text-[#E85D04] text-4xl sm:text-[4.6rem]">EL DISEÑO, CONFORT Y SILENCIO QUE SU PROYECTO MERECE.</span>
           </motion.h1>
 
           {/* Subheader: Autoridad Técnica */}

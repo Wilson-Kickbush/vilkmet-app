@@ -70,12 +70,34 @@ model SystemParameter {
 // Módulo de Contabilidad: Ingresos y Egresos
 model Transaction {
   id          String   @id @default(uuid())
-  tipo        String   // "ingreso" | "egreso"
-  categoria   String   // "aluminio_ferro" | "aluminio_aluoest" | "vidrios" | "accesorios" | "internet" | "luz" | "alquiler" | "personal" | "comisiones" | "seña" | "pago_final" | "otro"
+  tipo        String   // "INGRESO" | "EGRESO"
+  categoria   String   // "VENTA" | "SEÑA" | "MATERIALES" | "SERVICIOS" | "PERSONAL" | "ALQUILER" | "OTRO"
   descripcion String
   monto       Float
   fecha       DateTime @default(now())
   mes         Int      // 1-12, para filtrado rápido
   anio        Int      // Año
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Módulo de Stock: Inventario de materiales
+model Inventory {
+  id          String   @id @default(uuid())
+  nombre      String
+  tipo        String   // "PROFILE" | "GLASS" | "COMPONENT"
+  cantidad    Float
+  unidad      String   // "metros" | "unidades" | "litros" | "rollos" | "kg"
+  stockMinimo Float
+  proveedor   String?
+  costoUnitario Float?
+  ubicacion   String?
+  notas       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Índices para búsquedas rápidas
+  @@index([tipo])
+  @@index([stockMinimo])
 }
 

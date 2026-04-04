@@ -89,7 +89,7 @@ export default function Home() {
               <div className="space-y-4">
                 <p className="text-white/50 text-xs leading-relaxed">
                   Para su tranquilidad, cada proyecto se formaliza mediante un <span className="text-white/80 font-bold">Contrato de Locación de Obra</span>. 
-                  Otorgamos una <span className="text-white/80 font-bold">Garantía Contractual de 2 años</span> sobre materiales y cerramientos, superando el plazo legal y bajo normativas de Defensa del Consumidor.
+                  Otorgamos una <span className="text-white/80 font-bold">Garantía Contractual de 1 año</span> sobre materiales y cerramientos, superando el plazo legal y bajo normativas de Defensa del Consumidor.
                 </p>
                 <div className="flex gap-3">
                   <div className="bg-white/5 p-2 rounded-lg border border-white/10 text-[10px] uppercase font-bold tracking-tighter">Perfiles Aluar</div>
