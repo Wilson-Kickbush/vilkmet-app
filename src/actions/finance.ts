@@ -207,7 +207,7 @@ export async function updateInventoryQuantity(id: string, nuevaCantidad: number)
 export async function deleteTransaction(id: number) {
   try {
     await prisma.transaction.delete({
-      where: { id }
+      where: { id: String(id) } // <-- ¡AQUÍ ESTÁ LA MAGIA!
     });
 
     // Revalidar la página de finanzas para mostrar los nuevos datos
