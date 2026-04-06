@@ -7,9 +7,10 @@ import InventoryForm from "@/components/admin/InventoryForm";
 import StockActions from "@/components/admin/StockActions";
 
 export default async function FinanzasPage() {
-  let transactions = [];
-  let inventory = [];
-  let error = null;
+  // Corregimos los tipos aquí para evitar el error en el build de Vercel
+  let transactions: any[] = [];
+  let inventory: any[] = [];
+  let error: any = null;
 
   try {
     // Obtener datos reales de la base de datos con manejo de errores
@@ -163,13 +164,11 @@ export default async function FinanzasPage() {
         </TabsList>
 
         <TabsContent value="cashflow" className="mt-6">
-          {/* Formulario de transacción */}
           <TransactionForm />
           
           <div className="p-6 bg-white rounded-lg shadow border">
             <h2 className="text-xl font-bold text-[#1A3A52] mb-6">Últimos Movimientos</h2>
             
-            {/* Tabla de transacciones reales */}
             {transactions.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -215,21 +214,15 @@ export default async function FinanzasPage() {
                 <p className="text-sm text-gray-400 mt-1">Comienza agregando tu primer movimiento</p>
               </div>
             )}
-            
-            <div className="mt-4 text-sm text-gray-500">
-              Mostrando {transactions.length} transacciones
-            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="inventory" className="mt-6">
-          {/* Formulario de inventario */}
           <InventoryForm />
           
           <div className="p-6 bg-white rounded-lg shadow border">
             <h2 className="text-xl font-bold text-[#1A3A52] mb-6">Control de Stock</h2>
             
-            {/* Tabla de inventario real */}
             {inventory.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -298,10 +291,6 @@ export default async function FinanzasPage() {
                 <p className="text-sm text-gray-400 mt-1">Comienza agregando tu primer material</p>
               </div>
             )}
-            
-            <div className="mt-4 text-sm text-gray-500">
-              Mostrando {inventory.length} productos en inventario
-            </div>
           </div>
         </TabsContent>
       </Tabs>
