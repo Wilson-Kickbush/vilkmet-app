@@ -1,51 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, ArrowRight, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-// Datos de ejemplo para el portfolio
-const projects = [
-  {
-    id: 1,
-    title: "Ventanal DVH Premium",
-    location: "Canning, Buenos Aires",
-    category: "Residencial",
-    image: "https://images.unsplash.com/photo-1505691938895-1758d7eaa511?q=80&w=2070&auto=format&fit=crop",
-    description: "Instalación de aberturas Serie Modena con Doble Vidriado Hermético para máxima eficiencia térmica."
-  },
-  {
-    id: 2,
-    title: "Fachada Comercial A40",
-    location: "Puerto Madero, CABA",
-    category: "Comercial",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-    description: "Sistema de alta prestación A40 anodizado natural para locales de alto tránsito."
-  },
-  {
-    id: 3,
-    title: "Puerta Balcón Minimalista",
-    location: "Nordelta, Tigre",
-    category: "Residencial",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
-    description: "Cierre hermético y perfiles ultra delgados para integrar el interior con la terraza."
-  }
-];
+// Definimos la estructura de un proyecto para que TypeScript no de error
+interface ProyectoReal {
+  id: string; // O number, depende de tu base de datos
+  title: string;
+  location: string;
+  category: string;
+  image_url: string; // Esta es la clave que usa Supabase/Prisma
+  description: string;
+}
 
 export function PortfolioSection() {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [projects, setProjects] = useState<ProyectoReal[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // --- EFECTO PARA CARGAR TUS DATOS REALES ---
+  useEffect(() => {
+    const fetchRealProjects = async () => {
+      try {
+        // Esta es la llamada real a tu base de datos
+        const res = await fetch("/api/projects");
+        if (res.ok) {
+          const data = await res.json();
+          // Guardamos tus fotos y datos reales
+          setProjects(data); 
+        }
+      } catch (e) {
+        console.error("Error cargando portfolio real:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRealProjects();
+  }, []);
 
   const selectedProject = projects.find(p => p.id === selectedId);
 
-  // Función para bajar al cotizador suavemente
+  // Función para bajar al cotizador suavemente (LA QUE ARREGLA EL BOTÓN)
   const scrollToCotizador = () => {
     const element = document.getElementById('sistema-cotizador');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // Si está cargando, mostramos un mensaje simple para no romper el diseño
+  if (loading) {
+    return (
+      <section id="galeria" className="py-24 bg-white text-center">
+        <p className="text-gray-500 font-bold">Cargando portfolio real...</p>
+      </section>
+    );
+  }
+
+  // Si no hay proyectos reales, mostramos un aviso (esto no debería pasar si ya tenés datos)
+  if (projects.length === 0) {
+    return (
+      <section id="galeria" className="py-24 bg-white text-center">
+        <p className="text-gray-500 font-bold">No se encontraron proyectos reales cargados.</p>
+      </section>
+    );
+  }
 
   return (
     <section id="galeria" className="py-24 bg-white">
@@ -62,7 +84,7 @@ export function PortfolioSection() {
           
           <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
             <p className="text-sm font-bold text-[#1A3A52]">¿Tienes un proyecto similar?</p>
-            {/* BOTÓN REPARADO */}
+            {/* BOTÓN REPARADO Y BLINDADO */}
             <Button 
               onClick={scrollToCotizador}
               className="bg-[#1A3A52] hover:bg-[#E85D04] text-white font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl transition-all w-full sm:w-auto"
@@ -81,8 +103,9 @@ export function PortfolioSection() {
               className="group relative cursor-pointer overflow-hidden rounded-[2rem] bg-slate-200 aspect-[4/5]"
               whileHover={{ y: -10 }}
             >
+              {/* USAMOS LA URL REAL DE TU BASE DE DATOS */}
               <Image
-                src={project.image}
+                src={project.image_url || '/path/to/default-image.jpg'} // Usamos tu foto real
                 alt={project.title}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -127,15 +150,16 @@ export function PortfolioSection() {
 
                 <div className="grid md:grid-cols-2">
                   <div className="relative h-64 md:h-auto">
+                    {/* USAMOS LA URL REAL DE TU BASE DE DATOS */}
                     <Image
-                      src={selectedProject.image}
+                      src={selectedProject.image_url || '/path/to/default-image.jpg'}
                       alt={selectedProject.title}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="p-8 md:p-12 flex flex-col justify-center">
-                    <span className="text-[#E85D04] font-black uppercase tracking-[0.2em] text-[10px] mb-4 block">Proyecto Finalizado</span>
+                    <span className="text-[#E85D04] font-black uppercase tracking-[0.2em] text-[10px] mb-4 block">Proyecto Finalizado Real</span>
                     <h3 className="text-4xl font-black text-[#1A3A52] uppercase tracking-tighter leading-none mb-6">
                       {selectedProject.title}
                     </h3>
@@ -146,7 +170,7 @@ export function PortfolioSection() {
                     <p className="text-gray-600 leading-relaxed text-lg mb-10">
                       {selectedProject.description}
                     </p>
-                    {/* BOTÓN INTERNO DE LA FOTO REPARADO TAMBIÉN */}
+                    {/* BOTÓN INTERNO REPARADO TAMBIÉN */}
                     <Button 
                       onClick={() => {
                         setSelectedId(null);
