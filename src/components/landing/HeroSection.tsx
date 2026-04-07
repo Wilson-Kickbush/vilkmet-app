@@ -57,21 +57,28 @@ export function HeroSection() {
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link 
-                href="/#sistema-cotizador" 
-                className="group relative flex items-center justify-center gap-4 bg-[#E85D04] hover:bg-[#F96D0C] text-white px-8 sm:px-12 py-6 rounded-2xl font-black uppercase text-xs sm:text-sm tracking-[0.2em] transition-all duration-300 shadow-2xl shadow-orange-500/40 hover:-translate-y-1 active:scale-95"
+              
+              {/* BOTÓN CORREGIDO: Usamos <a> con evento de scroll suave para forzar la bajada */}
+              <a 
+                href="#sistema-cotizador"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('sistema-cotizador')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="group relative flex items-center justify-center gap-4 bg-[#E85D04] hover:bg-[#F96D0C] text-white px-8 sm:px-12 py-6 rounded-2xl font-black uppercase text-xs sm:text-sm tracking-[0.2em] transition-all duration-300 shadow-2xl shadow-orange-500/40 hover:-translate-y-1 active:scale-95 cursor-pointer"
               >
                 <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
                 <Calculator className="h-5 w-5 transition-transform group-hover:scale-110" />
                 <span className="relative">Calcule su Presupuesto en 2 Minutos</span>
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-2" />
-              </Link>
+              </a>
+
             <Link href="#galeria" className="text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors group">
               VER INSTALACIONES REALES <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform ml-2">→</span>
             </Link>
           </motion.div>
 
-          {/* Concrete Benefits (Heath Brothers: Concrete is better than Abstract) */}
+          {/* Concrete Benefits */}
           <motion.div variants={itemVariants} className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors">
                 <Headphones className="h-8 w-8 text-[#E85D04]" />
