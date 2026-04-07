@@ -15,8 +15,34 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "VILKMET - Aberturas de Aluminio y Acero",
-  description: "Aberturas que protegen y embellecen tu espacio. Cotizador de aberturas de aluminio, líneas Herrero, Módena, A40 y más.",
+  metadataBase: new URL('https://vilkmet.com'),
+  title: "Vilkmet | Aberturas de Aluminio de Alta Prestación",
+  description: "Cotizador online de aberturas de aluminio de alta prestación. Instalaciones reales con calidad premium. Líneas Herrero, Módena, A40 y más.",
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: "https://vilkmet.com",
+    title: "Vilkmet | Aberturas de Aluminio de Alta Prestación",
+    description: "Cotizador online de aberturas de aluminio de alta prestación. Instalaciones reales con calidad premium. Líneas Herrero, Módena, A40 y más.",
+    siteName: "Vilkmet",
+    images: [
+      {
+        url: "/projects/obra-real-1.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Instalación real de aberturas de aluminio Vilkmet",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vilkmet | Aberturas de Aluminio de Alta Prestación",
+    description: "Cotizador online de aberturas de aluminio de alta prestación. Instalaciones reales con calidad premium.",
+    images: ["/projects/obra-real-1.jpg"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

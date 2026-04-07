@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
+import Image from "next/image";
+import {
   Upload, 
   Image as ImageIcon, 
   MapPin, 
@@ -391,9 +392,11 @@ export default function PortfolioAdminPage() {
                       <div className="flex gap-4">
                         {/* Imagen */}
                         <div className="flex-shrink-0">
-                          <img
+                          <Image
                             src={project.image_url}
                             alt={project.title}
+                            width={80}
+                            height={80}
                             className="h-20 w-20 object-cover rounded-lg"
                           />
                         </div>
