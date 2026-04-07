@@ -65,16 +65,38 @@ export default function PortfolioAdminPage() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Limpiar preview anterior
-      if (previewUrl) {
-        cleanupImagePreview(previewUrl);
-      }
-      
-      setSelectedFile(file);
-      const url = createImagePreview(file);
-      setPreviewUrl(url);
+    if (!file) return;
+
+    // Limpiar preview anterior
+    if (previewUrl) {
+      cleanupImagePreview(previewUrl);
     }
+
+    // Validación de tipo de archivo
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage({ type: 'error', text: 'Formato de imagen no válido. Solo se aceptan JPG, PNG o WEBP.' });
+      e.target.value = ''; // Resetear input
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    // Validación de tamaño (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+    if (file.size > maxSize) {
+      setMessage({ type: 'error', text: `La imagen excede el tamaño máximo de 5MB. Tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB` });
+      e.target.value = '';
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    // Si pasa validación
+    setSelectedFile(file);
+    const url = createImagePreview(file);
+    setPreviewUrl(url);
+    setMessage(null); // Limpiar mensajes anteriores
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -224,7 +246,7 @@ export default function PortfolioAdminPage() {
                     <input
                       type="file"
                       id="image"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       onChange={handleFileChange}
                       className="hidden"
                     />
@@ -248,7 +270,7 @@ export default function PortfolioAdminPage() {
                           <p className="text-sm text-gray-600">
                             Arrastra una imagen o haz clic para seleccionar
                           </p>
-                          <p className="text-xs text-gray-500">PNG, JPG, WEBP hasta 10MB</p>
+                          <p className="text-xs text-gray-500">PNG, JPG, WEBP hasta 5MB</p>
                           <div className="flex items-center justify-center gap-2 text-xs text-blue-600 mt-2">
                             <Zap className="h-3 w-3" />
                             <span>Optimización automática: 1920px • 95% calidad</span>
