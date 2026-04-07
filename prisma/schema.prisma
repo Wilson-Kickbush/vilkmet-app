@@ -1,30 +1,27 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Lead {
-  id         String   @id @default(uuid())
-  nombre     String
-  whatsapp   String
-  email      String?
-  status     String   @default("NUEVO") // NUEVO | CONTACTADO | PRESUPUESTADO | VENDIDO | PERDIDO
-  adminNotes String?  // Para seguimiento interno de Wilson
-  fechaAlta  DateTime @default(now())
+  id          String   @id @default(uuid())
+  nombre      String
+  whatsapp    String
+  email       String?
+  status      String   @default("NUEVO")
+  adminNotes  String?
+  fechaAlta   DateTime @default(now())
 
-  quotes     Quote[]
+  quotes      Quote[]
 }
 
 model Quote {
   id              String      @id @default(uuid())
   leadId          String
-  // Legacy single-item fields (kept for backward compatibility)
   linea           String      @default("")
   tipologia       String      @default("")
   ancho           Float       @default(0)
@@ -32,21 +29,19 @@ model Quote {
   color           String      @default("")
   acristalamiento String      @default("")
   precioFinal     Float
-  // New fields
-  status          String      @default("nuevo") // "nuevo" | "contactado" | "presupuestado" | "cerrado"
+  status          String      @default("nuevo")
   notasCliente    String?
-  descuento       Float       @default(0)       // Porcentaje de descuento aplicado por el admin
+  descuento       Float       @default(0)
   fechaCreacion   DateTime    @default(now())
 
   lead            Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
   items           QuoteItem[]
 }
 
-// Cada ítem del carrito multi-producto
 model QuoteItem {
   id              String  @id @default(uuid())
   quoteId         String
-  tipo            String  // "ventana" | "puerta"
+  tipo            String
   linea           String
   tipologia       String
   ancho           Float
@@ -59,6 +54,19 @@ model QuoteItem {
   quote           Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 }
 
+// ---> ESTA ES LA TABLA MAGICA QUE FALTABA PARA VER TUS FOTOS <---
+model PortfolioProject {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  title       String
+  location    String
+  description String
+  type        String?
+  image_url   String
+
+  @@map("portfolio_projects") 
+}
+
 model SystemParameter {
   id          String   @id @default(uuid())
   clave       String   @unique
@@ -67,37 +75,33 @@ model SystemParameter {
   fechaUpdate DateTime @updatedAt
 }
 
-// Módulo de Contabilidad: Ingresos y Egresos
 model Transaction {
   id          String   @id @default(uuid())
-  tipo        String   // "INGRESO" | "EGRESO"
-  categoria   String   // "VENTA" | "SEÑA" | "MATERIALES" | "SERVICIOS" | "PERSONAL" | "ALQUILER" | "OTRO"
+  tipo        String
+  categoria   String
   descripcion String
   monto       Float
   fecha       DateTime @default(now())
-  mes         Int      // 1-12, para filtrado rápido
-  anio        Int      // Año
+  mes         Int
+  anio        Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-// Módulo de Stock: Inventario de materiales
 model Inventory {
-  id          String   @id @default(uuid())
-  nombre      String
-  tipo        String   // "PROFILE" | "GLASS" | "COMPONENT"
-  cantidad    Float
-  unidad      String   // "metros" | "unidades" | "litros" | "rollos" | "kg"
-  stockMinimo Float
-  proveedor   String?
+  id            String   @id @default(uuid())
+  nombre        String
+  tipo          String
+  cantidad      Float
+  unidad        String
+  stockMinimo   Float
+  proveedor     String?
   costoUnitario Float?
-  ubicacion   String?
-  notas       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  ubicacion     String?
+  notas         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  // Índices para búsquedas rápidas
   @@index([tipo])
   @@index([stockMinimo])
 }
-
