@@ -6,11 +6,11 @@ import { CheckCircle2 } from "lucide-react";
 export function StatusSelector({ leadId, currentStatus }: { leadId: string, currentStatus: string }) {
   return (
     <form action={async (formData) => { await updateLeadStatus(leadId, formData.get("status") as string); }}>
-      <select 
+      <select
         name="status"
         defaultValue={currentStatus || "NUEVO"}
         onChange={(e) => e.target.form?.requestSubmit()}
-        className="w-full bg-slate-50 border-none px-6 py-3 rounded-xl text-[10px] font-black uppercase text-[#1A3A52] outline-none cursor-pointer hover:bg-slate-100 transition-colors"
+        className="w-full bg-white border border-slate-300 px-4 py-3 rounded-lg text-sm font-semibold text-slate-800 outline-none cursor-pointer hover:border-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
       >
         <option value="NUEVO">NUEVO</option>
         <option value="CONTACTADO">CONTACTADO</option>
@@ -25,7 +25,7 @@ export function StatusSelector({ leadId, currentStatus }: { leadId: string, curr
 export function NotesInput({ leadId, initialNotes }: { leadId: string, initialNotes: string }) {
   return (
     <form action={async (formData) => { await updateLeadNotes(leadId, formData.get("notes") as string); }} className="relative group">
-      <textarea 
+      <textarea
         name="notes"
         defaultValue={initialNotes}
         placeholder="Añadir notas de gestión..."
@@ -34,10 +34,10 @@ export function NotesInput({ leadId, initialNotes }: { leadId: string, initialNo
             e.target.form?.requestSubmit();
           }
         }}
-        className="w-full bg-slate-50 border-none p-4 rounded-xl text-sm text-primary/70 focus:ring-1 ring-[#1A3A52]/10 outline-none resize-none min-h-[80px] transition-all"
+        className="w-full bg-white border border-slate-300 p-4 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none min-h-[80px] transition-all"
       />
-      <div className="absolute bottom-3 right-3 opacity-20 group-hover:opacity-100 transition-opacity">
-         <CheckCircle2 className="w-4 h-4 text-slate-300" />
+      <div className="absolute bottom-3 right-3 opacity-40 group-hover:opacity-100 transition-opacity">
+         <CheckCircle2 className="w-4 h-4 text-slate-400" />
       </div>
     </form>
   );

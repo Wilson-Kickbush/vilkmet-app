@@ -66,30 +66,30 @@ export default async function AdminDashboard() {
 
   if (errorMsg) {
     return (
-      <div className="p-10 bg-red-50 rounded-3xl border border-red-200">
-        <h2 className="text-red-800 font-bold uppercase text-lg leading-none">Consola en Mantenimiento</h2>
+      <div className="p-8 bg-red-50 rounded-2xl border border-red-100">
+        <h2 className="text-red-800 font-semibold text-lg leading-none">Consola en Mantenimiento</h2>
         <p className="text-red-600 text-sm mt-2">{errorMsg}</p>
-        <a href="/admin/debug" className="mt-4 inline-block text-blue-600 underline text-xs">Acceder a Diagnóstico</a>
+        <a href="/admin/debug" className="mt-4 inline-block text-blue-700 underline text-sm">Acceder a Diagnóstico</a>
       </div>
     );
   }
 
   return (
     <div className="space-y-8 pb-20">
-      <div className="relative p-8 rounded-[2rem] bg-[#1A3A52] overflow-hidden shadow-2xl border border-white/10">
+      <div className="relative p-8 rounded-2xl bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 overflow-hidden shadow-2xl border border-blue-600/30">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-white text-center md:text-left">
           <div>
-            <h2 className="text-3xl font-black uppercase tracking-widest leading-none">
-              Embudo <span className="text-[#E85D04]">Estratégico</span>
+            <h2 className="text-2xl font-bold tracking-tight leading-none">
+              Embudo <span className="text-orange-300">Estratégico</span>
             </h2>
-            <p className="opacity-40 text-[9px] font-bold mt-2 uppercase tracking-[0.2em]">VILKMET Elite v1.2</p>
+            <p className="text-sm text-blue-200 mt-2">VILKMET Elite v1.2</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 relative z-10">
-          <StatCard title="Prospectos" value={totalLeads.toString()} icon={<Users className="w-3 h-3 text-white/40" />} />
-          <StatCard title="Pipeline Bruto" value={`$${pipelineValue.toLocaleString("es-AR")}`} icon={<DollarSign className="w-3 h-3 text-[#E85D04]" />} />
-          <StatCard title="Utilidad Proyectada" value={`$${netValue.toLocaleString("es-AR")}`} icon={<TrendingUp className="w-3 h-3 text-green-400" />} highlight />
+          <StatCard title="Prospectos" value={totalLeads.toString()} icon={<Users className="w-5 h-5 text-blue-300" />} />
+          <StatCard title="Pipeline Bruto" value={`$${pipelineValue.toLocaleString("es-AR")}`} icon={<DollarSign className="w-5 h-5 text-orange-300" />} />
+          <StatCard title="Utilidad Proyectada" value={`$${netValue.toLocaleString("es-AR")}`} icon={<TrendingUp className="w-5 h-5 text-emerald-300" />} highlight />
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export default async function AdminDashboard() {
             <LeadManagementCard key={lead.id} lead={lead} />
           ))
         ) : (
-          <div className="col-span-full text-center py-20 bg-white rounded-[3rem] border border-slate-100 italic text-slate-300">
+          <div className="col-span-full text-center py-16 bg-white rounded-2xl border border-slate-200 text-slate-400">
             No hay prospectos activos registrados.
           </div>
         )}
@@ -110,15 +110,17 @@ export default async function AdminDashboard() {
 
 function StatCard({ title, value, icon, highlight = false }: { title: string, value: string, icon: React.ReactNode, highlight?: boolean }) {
   return (
-    <Card className={`${highlight ? "bg-[#E85D04]" : "bg-white/5 border-none"} text-white shadow-xl`}>
-      <CardHeader className="pb-1">
-        <div className="flex items-center gap-2">
-          {icon}
-          <span className={`text-[9px] font-black uppercase tracking-widest ${highlight ? "opacity-100" : "opacity-40"}`}>{title}</span>
+    <Card className={`${highlight ? "bg-gradient-to-br from-orange-500 to-orange-600" : "bg-white/10 backdrop-blur-sm border-white/20"} text-white border shadow-lg`}>
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg ${highlight ? "bg-white/30" : "bg-white/10"}`}>
+            {icon}
+          </div>
+          <span className={`text-xs font-semibold uppercase tracking-wide ${highlight ? "text-white" : "text-blue-100"}`}>{title}</span>
         </div>
       </CardHeader>
       <CardContent>
-        <span className="text-3xl font-black tracking-tight">{value}</span>
+        <span className="text-3xl font-bold tracking-tight">{value}</span>
       </CardContent>
     </Card>
   );
@@ -126,47 +128,67 @@ function StatCard({ title, value, icon, highlight = false }: { title: string, va
 
 function LeadManagementCard({ lead }: { lead: Lead }) {
   const leadIdShort = lead.id.toString().split("-")[0] || "---";
+  
+  // Mapeo de colores para el estado
+  const statusColors: Record<string, string> = {
+    NUEVO: "bg-blue-100 text-blue-800",
+    CONTACTADO: "bg-amber-100 text-amber-800",
+    PRESUPUESTADO: "bg-purple-100 text-purple-800",
+    VENDIDO: "bg-emerald-100 text-emerald-800",
+    PERDIDO: "bg-red-100 text-red-800",
+  };
+  const statusClass = statusColors[lead.status || "NUEVO"] || "bg-slate-100 text-slate-800";
 
   return (
-    <Card className="rounded-[2.5rem] overflow-hidden border-none shadow-xl bg-white p-8 hover:shadow-2xl transition-all duration-300">
+    <Card className="rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 bg-white p-6">
+      {/* Encabezado */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h4 className="text-2xl font-black text-[#1A3A52] uppercase tracking-tight">{lead.nombre || "Sin Nombre"}</h4>
-          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">REF: {leadIdShort}</span>
+          <h4 className="text-xl font-bold text-slate-900">{lead.nombre || "Sin Nombre"}</h4>
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            REF: {leadIdShort} • {new Date(lead.fechaAlta).toLocaleDateString("es-AR")}
+          </span>
         </div>
-        <div className="bg-[#1A3A52] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
+        <div className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-tight ${statusClass}`}>
           {lead.status || "NUEVO"}
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 mb-8">
-        <a 
-          href={`https://wa.me/${lead.whatsapp?.replace(/\D/g, "")}`} 
-          target="_blank" 
-          className="flex items-center gap-2 px-6 py-3 bg-green-50 text-green-600 rounded-xl text-[10px] font-black uppercase border border-green-100 hover:bg-green-100 transition-colors"
+      {/* Acciones */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <a
+          href={`https://wa.me/${lead.whatsapp?.replace(/\D/g, "")}`}
+          target="_blank"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-emerald-200 text-emerald-700 rounded-lg text-sm font-semibold hover:bg-emerald-50 transition-colors"
         >
-          <Phone className="w-3 h-3" /> WhatsApp
+          <Phone className="w-4 h-4" />
+          WhatsApp
         </a>
-        <div className="flex-1">
+        <div className="flex-1 min-w-[200px]">
           <StatusSelector leadId={lead.id} currentStatus={lead.status || ""} />
         </div>
         <form action={async () => { "use server"; await deleteLead(lead.id); }}>
-          <button className="p-3 text-slate-200 hover:text-red-500 hover:bg-red-50 transition-all rounded-xl">
+          <button
+            type="submit"
+            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            aria-label="Eliminar prospecto"
+          >
             <Trash2 className="w-5 h-5" />
           </button>
         </form>
       </div>
 
-      <div className="space-y-4">
+      {/* Cotizaciones */}
+      <div className="space-y-3 mb-6">
+        <h5 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cotizaciones asociadas</h5>
         {(lead.quotes || []).map((quote) => (
-          <div key={quote.id} className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-            <div className="flex justify-between items-center mb-1">
-               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{quote.linea}</span>
-               <span className="text-xs font-bold text-slate-300 uppercase tracking-tighter">Presupuesto</span>
-            </div>
+          <div key={quote.id} className="bg-slate-50/70 p-4 rounded-xl border border-slate-100">
             <div className="flex justify-between items-center">
-              <p className="font-black text-primary uppercase text-sm tracking-tight">{quote.tipologia}</p>
-              <span className="font-black text-[#E85D04] text-xl tracking-tighter">
+              <div>
+                <p className="font-bold text-slate-900 text-sm">{quote.tipologia}</p>
+                <span className="text-xs text-slate-500">{quote.linea} • {quote.ancho}m × {quote.alto}m</span>
+              </div>
+              <span className="font-bold text-blue-700 text-lg">
                 ${(Number(quote.precioFinal) || 0).toLocaleString("es-AR")}
               </span>
             </div>
@@ -174,9 +196,11 @@ function LeadManagementCard({ lead }: { lead: Lead }) {
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-slate-50">
-        <h5 className="text-[9px] font-black uppercase tracking-widest text-slate-300 flex items-center gap-2 mb-4">
-          <MessageSquare className="w-3 h-3" /> Notas de Seguimiento
+      {/* Notas */}
+      <div className="pt-5 border-t border-slate-100">
+        <h5 className="text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2 mb-3">
+          <MessageSquare className="w-4 h-4" />
+          Notas de seguimiento
         </h5>
         <NotesInput leadId={lead.id} initialNotes={lead.adminNotes || ""} />
       </div>
