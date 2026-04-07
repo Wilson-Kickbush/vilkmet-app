@@ -425,7 +425,7 @@ export function CotizadorDynamic() {
             </div>
             
             <div className="flex-1 flex flex-col justify-center py-6 md:py-12 overflow-hidden items-center">
-              <div className="relative group/sim scale-[0.85] sm:scale-100 md:scale-110 lg:scale-[1.3] xl:scale-[1.5] transition-transform duration-1000 origin-center max-w-full">
+              <div className="relative group/sim scale-100 sm:scale-110 md:scale-125 lg:scale-[2.0] xl:scale-[2.8] transition-transform duration-1000 origin-center max-w-full">
                  <SimuladorVisual 
                   tipologia={formData.tipologia as any} 
                   ancho={Number(formData.ancho)} 
