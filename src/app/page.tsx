@@ -1,11 +1,14 @@
-"use client";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { EducationSection } from "@/components/landing/EducationSection";
 import { PortfolioSection } from "@/components/landing/PortfolioSection";
-import { CotizadorDynamic } from "@/components/cotizador/CotizadorDynamic";
+import dynamic from "next/dynamic";
 import { VilkmetLogo } from "@/components/ui/VilkmetLogo";
 import { Mail, Phone, MapPin } from "lucide-react";
+
+const CotizadorDynamic = dynamic(() => import("@/components/cotizador/CotizadorDynamic").then(mod => mod.CotizadorDynamic), {
+  loading: () => <div className="h-96 flex items-center justify-center text-slate-400">Cargando cotizador...</div>
+});
 
 export default function Home() {
   return (
