@@ -48,12 +48,12 @@ export function HeroSection() {
           {/* Headline Monumental y Directo */}
           <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-[5.5rem] tracking-tight leading-[0.95] mb-6 uppercase">
             ABERTURAS A MEDIDA: <br />
-            <span className="text-[#E85D04] text-4xl sm:text-[4.6rem]">EL DISEÑO, CONFORT Y SILENCIO QUE SU PROYECTO MERECE.</span>
+            <span className="text-[#E85D04] text-4xl sm:text-[4.6rem]">EL DISEÑO Y LA TRANQUILIDAD QUE SU PROYECTO MERECE.</span>
           </motion.h1>
 
           {/* Subheader: Autoridad Técnica */}
           <motion.p variants={itemVariants} className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-4xl mx-auto font-medium">
-             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos un <span className="text-white font-black italic">plan exacto de aberturas de aluminio ALUAR certificado</span> para garantizar estética y aislamiento acústico.
+             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos un <span className="text-white font-black italic">plan exacto de aberturas de aluminio ALUAR certificado</span> para garantizar estética impecable y aislamiento acústico total.
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">

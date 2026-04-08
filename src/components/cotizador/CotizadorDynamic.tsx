@@ -148,6 +148,7 @@ export function CotizadorDynamic() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const [params, setParams] = useState<SystemParams>({
     margen_rentabilidad: 40, porcentaje_mano_obra: 10, gastos_administrativos: 5, costo_kg_aluar: 10, tipo_cambio_blue: 1425
@@ -252,6 +253,7 @@ export function CotizadorDynamic() {
         setEarlyQuoteId(data.quoteId);
         localStorage.setItem("vilkmet_earlyLeadId", data.leadId);
         localStorage.setItem("vilkmet_earlyQuoteId", data.quoteId);
+        setError(null); // clear any previous error
       } else {
         const errorText = await res.text();
         console.error("Error saving early lead:", errorText);
@@ -262,9 +264,11 @@ export function CotizadorDynamic() {
           setEarlyLeadId(null);
           setEarlyQuoteId(null);
         }
+        setError("No se pudo guardar la cotización temporal. Reintente más tarde.");
       }
     } catch (error) {
       console.error("Failed to save early lead:", error);
+      setError("Error de conexión. Verifique su internet.");
     }
   };
 
@@ -316,12 +320,15 @@ export function CotizadorDynamic() {
         setEarlyLeadId(null);
         setEarlyQuoteId(null);
         setSuccess(true);
+        setError(null);
       } else {
-        alert("Error en el servidor de cotizaciones");
+        const errorText = await res.text();
+        console.error("Error submitting final quote:", errorText);
+        setError("Error en el servidor de cotizaciones. Intente nuevamente.");
       }
     } catch (error) {
        console.error(error);
-       alert("Error de conexión");
+       setError("Error de conexión. Verifique su internet.");
     } finally { setLoading(false); }
   };
 
@@ -496,6 +503,17 @@ export function CotizadorDynamic() {
   // ---------------------------------------------------------
   return (
     <div id="sistema-cotizador" className="relative group/console max-w-7xl mx-auto pb-10 md:pb-20 px-2 md:px-0">
+      {error && (
+        <div className="mb-6 mx-4 md:mx-8">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <span className="font-bold">Error</span>
+              <button onClick={() => setError(null)} className="text-red-600 hover:text-red-800 text-xl">×</button>
+            </div>
+            <p className="mt-1 text-sm">{error}</p>
+          </div>
+        </div>
+      )}
       <div className="bg-white/90 backdrop-blur-2xl rounded-[2rem] md:rounded-[3rem] border border-slate-200/50 shadow-xl overflow-hidden p-2 md:p-2">
         <div className="grid lg:grid-cols-12 gap-0 overflow-hidden">
           
@@ -506,7 +524,7 @@ export function CotizadorDynamic() {
             </div>
             
             <div className="flex-1 flex flex-col justify-center py-4 md:py-12 items-center">
-              <div className="relative group/sim scale-[1.3] sm:scale-[1.4] md:scale-[1.5] lg:scale-[2.0] xl:scale-[2.8] transition-transform duration-1000 origin-center max-w-full">
+              <div className="relative group/sim scale-[1.5] sm:scale-[1.6] md:scale-[1.7] lg:scale-[2.2] xl:scale-[3.0] transition-transform duration-1000 origin-center max-w-full">
                  <SimuladorVisual 
                   tipologia={formData.tipologia as any} 
                   ancho={Number(formData.ancho)} 

@@ -55,6 +55,29 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Protección básica HTTP Basic Auth para rutas /admin (excepto debug)
+  const ADMIN_USER = process.env.ADMIN_USER;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  if ((request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/_next/action')) && !request.nextUrl.pathname.includes('/admin/debug')) {
+    if (!ADMIN_USER || !ADMIN_PASSWORD) {
+      console.warn('ADMIN_USER or ADMIN_PASSWORD environment variables not set, skipping basic auth');
+    } else {
+      const authHeader = request.headers.get('authorization');
+      if (!authHeader || !authHeader.startsWith('Basic ')) {
+        return new NextResponse('Authentication required', {
+          status: 401,
+          headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
+        });
+      }
+      const base64Credentials = authHeader.split(' ')[1];
+      const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+      const [username, password] = credentials.split(':');
+      if (username !== ADMIN_USER || password !== ADMIN_PASSWORD) {
+        return new NextResponse('Invalid credentials', { status: 401 });
+      }
+    }
+  }
+
   // 1. Actualizar sesión de Auth y proteger rutas
   const authResponse = await updateSession(request);
   
