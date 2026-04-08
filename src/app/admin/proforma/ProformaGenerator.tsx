@@ -192,110 +192,156 @@ export function ProformaGenerator() {
   return (
     <div className="space-y-8">
       {/* Print‑only document (hidden on screen) */}
-      <div className="print-only hidden">
-        <div className="print-container">
-          {/* Header with logo and title */}
-          <div className="print-header">
-            <div className="print-logo">
-              <img src="/logo.png" alt="VILKMET" className="print-logo-image" />
+      <div className="hidden print:block print:w-full print:bg-white print:text-black">
+        <div className="print-container p-8">
+          {/* Header with logo and date */}
+          <div className="flex justify-between items-center border-b-2 border-slate-800 pb-4 mb-8">
+            <div className="flex items-center gap-4">
+              {/* Logo VK - fallback box */}
+              <div className="w-20 h-20 bg-slate-800 flex items-center justify-center text-white text-2xl font-bold">
+                VK
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800">VILKMET - Presupuesto Técnico Oficial</h1>
+                <p className="text-slate-600">Sistemas de Aluminio de Alta Performance</p>
+              </div>
             </div>
-            <div className="print-header-text">
-              <h1 className="print-title">VILKMET - Proforma Oficial</h1>
-              <p className="print-subtitle">Sistemas de Aluminio de Alta Performance</p>
+            <div className="text-right">
+              <p className="text-slate-700 font-medium">Fecha: {new Date().toLocaleDateString('es-AR')}</p>
             </div>
           </div>
 
-          {/* Customer info with bg-slate-50 */}
-          <div className="print-section bg-slate-50 p-4 rounded-lg">
-            <h2 className="print-section-title text-slate-800">Información del Cliente</h2>
-            <p><strong>Nombre:</strong> {customerData.nombre}</p>
-            <p><strong>DNI/CUIT:</strong> {customerData.dniCuit}</p>
-            <p><strong>Dirección de obra:</strong> {customerData.direccion}</p>
-            <p><strong>Teléfono:</strong> {customerData.telefono}</p>
-            <p><strong>Email:</strong> {customerData.email}</p>
+          {/* Customer info */}
+          <div className="bg-slate-50 p-6 rounded-lg mb-8">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">Información del Cliente</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="font-semibold">Nombre:</span>
+                {customerData.nombre ? (
+                  <span className="ml-2">{customerData.nombre}</span>
+                ) : (
+                  <span className="ml-2 border-b border-dashed border-slate-400 text-slate-500">________________</span>
+                )}
+              </div>
+              <div>
+                <span className="font-semibold">DNI/CUIT:</span>
+                {customerData.dniCuit ? (
+                  <span className="ml-2">{customerData.dniCuit}</span>
+                ) : (
+                  <span className="ml-2 border-b border-dashed border-slate-400 text-slate-500">________________</span>
+                )}
+              </div>
+              <div>
+                <span className="font-semibold">Teléfono:</span>
+                {customerData.telefono ? (
+                  <span className="ml-2">{customerData.telefono}</span>
+                ) : (
+                  <span className="ml-2 border-b border-dashed border-slate-400 text-slate-500">________________</span>
+                )}
+              </div>
+              <div>
+                <span className="font-semibold">Email:</span>
+                {customerData.email ? (
+                  <span className="ml-2">{customerData.email}</span>
+                ) : (
+                  <span className="ml-2 border-b border-dashed border-slate-400 text-slate-500">________________</span>
+                )}
+              </div>
+              <div className="col-span-2">
+                <span className="font-semibold">Dirección de obra:</span>
+                {customerData.direccion ? (
+                  <span className="ml-2">{customerData.direccion}</span>
+                ) : (
+                  <span className="ml-2 border-b border-dashed border-slate-400 text-slate-500">________________</span>
+                )}
+              </div>
+            </div>
           </div>
-          
-          {/* Order details */}
-          <div className="print-section">
-            <h2 className="print-section-title text-slate-800">Detalle del Pedido</h2>
-            <table className="print-table">
+
+          {/* Order details table */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">Detalle del Pedido</h2>
+            <table className="w-full text-left border-collapse border border-slate-300">
               <thead>
-                <tr>
-                  <th className="text-left">Descripción</th>
-                  <th className="text-center">Cant.</th>
-                  <th className="text-right">Precio Unit.</th>
-                  <th className="text-right">Subtotal</th>
+                <tr className="bg-slate-100">
+                  <th className="border border-slate-300 p-2">Descripción</th>
+                  <th className="border border-slate-300 p-2 text-center">Cant.</th>
+                  <th className="border border-slate-300 p-2 text-right">Precio Unit.</th>
+                  <th className="border border-slate-300 p-2 text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 {orderItems.map(item => (
                   <tr key={item.id}>
-                    <td>{item.description}</td>
-                    <td className="text-center">{item.quantity}</td>
-                    <td className="text-right">${item.unitPrice.toFixed(2)}</td>
-                    <td className="text-right">${item.subtotal.toFixed(2)}</td>
+                    <td className="border border-slate-300 p-2">{item.description}</td>
+                    <td className="border border-slate-300 p-2 text-center">{item.quantity}</td>
+                    <td className="border border-slate-300 p-2 text-right">${item.unitPrice.toFixed(2)}</td>
+                    <td className="border border-slate-300 p-2 text-right">${item.subtotal.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          
-          {/* Cost summary with styled total */}
-          <div className="print-section bg-slate-50 p-6 rounded-lg">
-            <h2 className="print-section-title text-slate-800">Resumen Financiero</h2>
-            <div className="print-summary-row">
-              <span>Subtotal:</span>
-              <span>${subtotal.toFixed(2)}</span>
+
+          {/* Cost summary */}
+          <div className="bg-slate-50 p-6 rounded-lg mb-8">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">Resumen Financiero</h2>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Instalación / Flete:</span>
+                <span>${instalacionFlete.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <span className="font-bold">Total sin anticipo:</span>
+                <span className="font-bold">${totalSinAnticipo.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Anticipo ({commercialTerms.anticipoPorcentaje}%):</span>
+                <span>${anticipo.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Saldo:</span>
+                <span>${saldo.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between border-t-2 border-slate-800 pt-4 mt-4">
+                <span className="text-slate-800 font-bold text-lg">TOTAL FINAL:</span>
+                <span className="text-orange-600 font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="print-summary-row">
-              <span>Instalación / Flete:</span>
-              <span>${instalacionFlete.toFixed(2)}</span>
-            </div>
-            <div className="print-summary-row border-t pt-2">
-              <span>Total sin anticipo:</span>
-              <span className="font-bold">${totalSinAnticipo.toFixed(2)}</span>
-            </div>
-            <div className="print-summary-row">
-              <span>Anticipo ({commercialTerms.anticipoPorcentaje}%):</span>
-              <span>${anticipo.toFixed(2)}</span>
-            </div>
-            <div className="print-summary-row">
-              <span>Saldo:</span>
-              <span>${saldo.toFixed(2)}</span>
-            </div>
-            <div className="print-summary-row print-total-row">
-              <span className="text-slate-800 font-bold">TOTAL FINAL:</span>
-              <span className="text-orange-600 font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
-            </div>
-            <div className="mt-4 text-sm">
+            <div className="mt-6 text-sm">
               <p><strong>Tiempo de entrega estimado:</strong> {commercialTerms.tiempoEntrega}</p>
               <p><strong>Validez de la oferta:</strong> {commercialTerms.validezOferta}</p>
             </div>
           </div>
-          
+
           {/* Legal text */}
-          <div className="print-section">
-            <h2 className="print-section-title text-slate-800">Condiciones y Garantía</h2>
-            <div className="print-legal-text">
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">Condiciones y Garantía</h2>
+            <div className="whitespace-pre-wrap break-words text-justify bg-slate-50 p-6 rounded-lg border-l-4 border-slate-800">
               {legalText}
             </div>
           </div>
-          
+
           {/* Signatures */}
-          <div className="print-signature">
-            <div>
-              <p>Firma del Cliente</p>
-              <p className="text-sm">Nombre y aclaración</p>
+          <div className="flex justify-between mt-12 pt-8 border-t border-slate-300">
+            <div className="text-center w-1/2">
+              <p className="font-semibold">Firma del Cliente</p>
+              <p className="text-sm text-slate-500">Nombre y aclaración</p>
             </div>
-            <div>
-              <p>Firma VILKMET</p>
-              <p className="text-sm">Responsable de ventas</p>
+            <div className="text-center w-1/2">
+              <p className="font-semibold">Firma VILKMET</p>
+              <p className="text-sm text-slate-500">Responsable de ventas</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Lead selector */}
+      <div className="print:hidden">
+        {/* Lead selector */}
       <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -577,6 +623,7 @@ export function ProformaGenerator() {
           </Button>
         </CardContent>
       </Card>
+      </div>
 
       {/* Print‑only styles (hidden on screen) */}
       <style jsx global>{`
@@ -584,6 +631,10 @@ export function ProformaGenerator() {
           display: none;
         }
         .no-print {
+        }
+        @page {
+          size: A4;
+          margin: 15mm;
         }
         @media print {
           header, aside, nav, .no-print {
@@ -599,6 +650,8 @@ export function ProformaGenerator() {
             background: #fff;
             margin: 0;
             padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
           .print-container {
             width: 210mm;
