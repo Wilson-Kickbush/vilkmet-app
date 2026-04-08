@@ -53,7 +53,7 @@ export function HeroSection() {
 
           {/* Subheader: Autoridad Técnica */}
           <motion.p variants={itemVariants} className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-4xl mx-auto font-medium">
-             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos una <span className="text-white font-black italic">Cotización a medida con aberturas de aluminio ALUAR certificado</span> que garantiza una estética impecable y un excelente aislamiento acústico de su espacio.
+             Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos una <span className="text-white font-black italic">Cotización a medida con aberturas de aluminio ALUAR certificado</span> que garantizan una estética impecable y un excelente aislamiento acústico de su espacio.
           </motion.p>
           
           <motion.div variants={itemVariants} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
