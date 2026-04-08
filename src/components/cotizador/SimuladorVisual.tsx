@@ -26,9 +26,9 @@ export function SimuladorVisual({ tipologia, ancho, alto, colorHex }: SimuladorV
         </span>
       </div>
 
-      <svg 
-        viewBox={`0 0 ${w + 100} ${h + 100}`} 
-        className="w-full h-full max-h-[500px] md:max-h-[600px] transition-all duration-700 ease-in-out drop-shadow-2xl z-10"
+      <svg
+        viewBox={`0 0 ${w + 100} ${h + 100}`}
+        className="w-full h-full max-h-[70vh] md:max-h-[60vh] transition-all duration-700 ease-in-out drop-shadow-2xl z-10"
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>

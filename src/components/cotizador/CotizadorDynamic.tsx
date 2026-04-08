@@ -518,13 +518,13 @@ export function CotizadorDynamic() {
         <div className="grid lg:grid-cols-12 gap-0 overflow-hidden">
           
           <div className="lg:col-span-12 xl:col-span-7 p-4 md:p-10 lg:p-16 bg-slate-100/50 rounded-[1.5rem] md:rounded-[2.5rem] relative overflow-hidden border border-slate-100 flex flex-col justify-between min-h-[400px] md:min-h-[650px]">
-            <div className="flex items-center justify-center md:justify-start gap-3 z-10 mb-4 md:mb-0">
-              <div className="h-3 w-3 bg-[#E85D04] rounded-full animate-pulse shadow-[0_0_15px_rgba(232,93,4,0.5)]"></div>
-              <h3 className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-[#1A3A52]/60">COTIZADOR DIGITAL VILKMET</h3>
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2 z-10">
+              <div className="h-2 w-2 bg-[#E85D04] rounded-full animate-pulse shadow-[0_0_8px_rgba(232,93,4,0.5)]"></div>
+              <h3 className="text-[10px] font-medium uppercase tracking-widest text-slate-400">COTIZADOR DIGITAL VILKMET</h3>
             </div>
             
-            <div className="flex-1 flex flex-col justify-center py-4 md:py-12 items-center">
-              <div className="relative group/sim scale-[1.5] sm:scale-[1.6] md:scale-[1.7] lg:scale-[2.2] xl:scale-[3.0] transition-transform duration-1000 origin-center max-w-full">
+            <div className="flex-1 flex flex-col justify-center py-2 md:py-6 items-center">
+              <div className="relative group/sim scale-[1.3] sm:scale-[1.4] md:scale-[1.5] lg:scale-[2.0] xl:scale-[2.5] transition-transform duration-1000 origin-center max-w-full">
                  <SimuladorVisual 
                   tipologia={formData.tipologia as any} 
                   ancho={Number(formData.ancho)} 
