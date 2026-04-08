@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, CheckCircle2, TrendingDown, DollarSign, Hammer, Percent } from "lucide-react";
+import { Save, CheckCircle2, TrendingDown, DollarSign, Hammer, Percent, Loader2, Info } from "lucide-react";
 
 type ParamProps = {
   clave: string;
@@ -27,7 +27,7 @@ export function ParametrosForm({ params }: { params: any[] }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {defaults.map(def => {
         const found = params.find(p => p.clave === def.clave);
         const val = found ? found.valor : def.defaultVal;
@@ -52,6 +52,33 @@ function ParamItem({ p }: { p: ParamProps }) {
   const [val, setVal] = useState<number>(p.initialValue!);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
+
+  const tooltips = {
+    margen_rentabilidad: "Porcentaje de ganancia que se agrega al costo total del proyecto.",
+    porcentaje_mano_obra: "Porcentaje que representa la mano de obra e instalación dentro del costo total.",
+    gastos_administrativos: "Porcentaje que cubre gastos de estructura, administrativos y directos.",
+    costo_kg_aluar: "Costo por kilogramo del aluminio Aluar en dólares estadounidenses (USD).",
+    tipo_cambio_blue: "Tipo de cambio blue usado para convertir USD a pesos argentinos (ARS).",
+  };
+  const tooltip = tooltips[p.clave as keyof typeof tooltips] || "";
+
+  const validate = (value: number): string => {
+    if (isNaN(value)) return "Valor inválido";
+    if (p.clave.includes('margen') || p.clave.includes('porcentaje') || p.clave.includes('gastos')) {
+      if (value < 0) return "No puede ser negativo";
+      if (value > 500) return "No puede superar el 500%";
+    }
+    if (p.clave.includes('costo_kg_aluar')) {
+      if (value <= 0) return "Debe ser mayor a 0";
+      if (value > 1000) return "Costo improbable ( >1000 USD/kg)";
+    }
+    if (p.clave.includes('tipo_cambio_blue')) {
+      if (value <= 0) return "Debe ser mayor a 0";
+      if (value > 10000) return "Tipo de cambio improbable ( >10000 ARS)";
+    }
+    return "";
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -65,46 +92,62 @@ function ParamItem({ p }: { p: ParamProps }) {
   };
 
   return (
-    <Card className="rounded-[2.5rem] border-none shadow-xl bg-white group hover:shadow-2xl transition-all duration-500">
-      <CardHeader className="pb-4 pt-10 px-8 relative overflow-hidden">
+    <Card className="rounded-2xl border border-slate-200 shadow-sm bg-white group hover:shadow-md transition-all duration-300">
+      <CardHeader className="pb-3 pt-6 px-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-125 transition-transform duration-700">
            <p.icon className="w-16 h-16 text-primary" />
         </div>
-        <CardTitle className="text-xl font-heading font-black text-primary uppercase tracking-tight flex items-center gap-3">
-          <div className="p-2 bg-[#E85D04]/10 rounded-lg">
-             <p.icon className="w-4 h-4 text-[#E85D04]" />
+        <CardTitle className="text-lg font-heading font-semibold text-primary tracking-tight flex items-center gap-3">
+          <div className="p-2 bg-slate-100 rounded-lg">
+             <p.icon className="w-4 h-4 text-slate-600" />
           </div>
           {p.descripcion}
+          <span title={tooltip} className="inline-flex ml-2">
+            <Info className="w-4 h-4 text-slate-400 cursor-help" />
+          </span>
         </CardTitle>
         <div className="mt-2">
-           <span className="text-[9px] font-mono font-black uppercase tracking-widest text-[#1A3A52]/30 bg-[#1A3A52]/5 px-3 py-1 rounded-full">
+           <span className="text-[10px] font-mono font-medium tracking-wide text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
             Key: {p.clave}
            </span>
         </div>
       </CardHeader>
-      <CardContent className="px-8 pb-10 flex gap-4 items-end">
+      <CardContent className="px-6 pb-6 flex gap-3 items-end">
         <div className="flex-1 space-y-3">
-          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pl-2">Valor Estratégico</Label>
+          <Label className="text-xs font-medium text-slate-500 pl-2">Valor</Label>
           <div className="relative">
              <Input 
               type="number" 
               step="0.01"
               value={val} 
-              onChange={(e) => setVal(Number(e.target.value))} 
-              className="h-16 rounded-2xl border-2 border-slate-50 bg-slate-50/50 font-heading font-black text-2xl text-primary px-6 shadow-inner focus:border-[#E85D04]/30 focus:bg-white transition-all outline-none"
+              onChange={(e) => { const newVal = Number(e.target.value); setVal(newVal); setError(validate(newVal)); }}
+              className="h-12 rounded-xl border border-slate-300 bg-white font-medium text-lg text-primary px-4 shadow-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition outline-none"
             />
             {p.clave.includes('porcentaje') || p.clave.includes('margen') || p.clave.includes('gastos') ? (
-              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-[#1A3A52]/10">%</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">%</span>
+            ) : p.clave.includes('costo_kg_aluar') ? (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">USD</span>
+            ) : p.clave.includes('tipo_cambio_blue') ? (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">ARS</span>
             ) : null}
+            {error && (
+              <div className="mt-2 text-xs text-red-600 font-medium">{error}</div>
+            )}
           </div>
         </div>
-        <Button 
-          onClick={handleSave} 
-          disabled={loading} 
-          className={`h-16 px-8 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 ${saved ? "bg-green-600 hover:bg-green-700" : "bg-[#1A3A52] hover:bg-[#2A4A62]"}`}
+        <Button
+          onClick={handleSave}
+          disabled={loading}
+          className={`h-12 px-6 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-[0.98] ${loading ? "bg-blue-400 cursor-not-allowed" : saved ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"} text-white`}
         >
-          {saved ? <CheckCircle2 className="w-5 h-5 mr-3" /> : <Save className="w-5 h-5 mr-3" />}
-          {saved ? "Sincronizado" : "Guardar"}
+          {loading ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : saved ? (
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
+          {loading ? "Guardando..." : saved ? "Sincronizado" : "Guardar"}
         </Button>
       </CardContent>
     </Card>
