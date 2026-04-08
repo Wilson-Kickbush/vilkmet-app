@@ -61,39 +61,44 @@ export async function POST(req: NextRequest) {
     // 3. PERSISTENCIA EN TRANSACCIÓN (Lead -> Quote -> Items)
     try {
       const result = await prisma.$transaction(async (tx) => {
-        let lead;
-        let quote;
-        const isUpdate = leadId && quoteId;
+        let lead: any;
+        let quote: any;
+        let canUpdate = Boolean(leadId && quoteId);
 
-        if (isUpdate) {
+        if (canUpdate) {
           // Verificar que existan y pertenezcan al mismo lead
           const existingLead = await tx.lead.findUnique({ where: { id: leadId } });
           const existingQuote = await tx.quote.findUnique({ where: { id: quoteId } });
-          if (!existingLead || !existingQuote || existingQuote.leadId !== leadId) {
-            throw new Error("Lead o Quote inválidos para actualización");
+          if (existingLead && existingQuote && existingQuote.leadId === leadId) {
+            // Actualizar el lead con los datos finales
+            lead = await tx.lead.update({
+              where: { id: leadId },
+              data: {
+                nombre: client.nombre,
+                whatsapp: client.whatsapp,
+                email: client.email || null,
+                status: "NUEVO", // Cambiar estado a NUEVO
+              }
+            });
+            // Eliminar items anteriores
+            await tx.quoteItem.deleteMany({ where: { quoteId } });
+            // Actualizar la cotización
+            quote = await tx.quote.update({
+              where: { id: quoteId },
+              data: {
+                status: "nuevo",
+                precioFinal: Math.round(Number(totalFinanciado)),
+                notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
+              }
+            });
+          } else {
+            // IDs inválidos, tratar como creación nueva
+            console.warn("Lead o Quote inválidos, creando nuevo lead");
+            canUpdate = false;
           }
-          // Actualizar el lead con los datos finales
-          lead = await tx.lead.update({
-            where: { id: leadId },
-            data: {
-              nombre: client.nombre,
-              whatsapp: client.whatsapp,
-              email: client.email || null,
-              status: "NUEVO", // Cambiar estado a NUEVO
-            }
-          });
-          // Eliminar items anteriores
-          await tx.quoteItem.deleteMany({ where: { quoteId } });
-          // Actualizar la cotización
-          quote = await tx.quote.update({
-            where: { id: quoteId },
-            data: {
-              status: "nuevo",
-              precioFinal: Math.round(Number(totalFinanciado)),
-              notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
-            }
-          });
-        } else {
+        }
+
+        if (!canUpdate) {
           // Crear nuevo lead
           lead = await tx.lead.create({
             data: {
@@ -129,7 +134,7 @@ export async function POST(req: NextRequest) {
           }))
         });
 
-        return { leadId: lead.id, quoteId: quote.id };
+        return { leadId: lead!.id, quoteId: quote!.id };
       });
 
       return NextResponse.json({ 

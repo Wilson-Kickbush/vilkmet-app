@@ -253,7 +253,15 @@ export function CotizadorDynamic() {
         localStorage.setItem("vilkmet_earlyLeadId", data.leadId);
         localStorage.setItem("vilkmet_earlyQuoteId", data.quoteId);
       } else {
-        console.error("Error saving early lead:", await res.text());
+        const errorText = await res.text();
+        console.error("Error saving early lead:", errorText);
+        // Si el error es 400 (IDs corruptos), limpiar localStorage
+        if (res.status === 400) {
+          localStorage.removeItem("vilkmet_earlyLeadId");
+          localStorage.removeItem("vilkmet_earlyQuoteId");
+          setEarlyLeadId(null);
+          setEarlyQuoteId(null);
+        }
       }
     } catch (error) {
       console.error("Failed to save early lead:", error);
@@ -302,8 +310,15 @@ export function CotizadorDynamic() {
           quoteId: earlyQuoteId
         })
       });
-      if (res.ok) setSuccess(true);
-      else alert("Error en el servidor de cotizaciones");
+      if (res.ok) {
+        localStorage.removeItem("vilkmet_earlyLeadId");
+        localStorage.removeItem("vilkmet_earlyQuoteId");
+        setEarlyLeadId(null);
+        setEarlyQuoteId(null);
+        setSuccess(true);
+      } else {
+        alert("Error en el servidor de cotizaciones");
+      }
     } catch (error) {
        console.error(error);
        alert("Error de conexión");

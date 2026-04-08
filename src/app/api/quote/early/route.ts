@@ -41,37 +41,45 @@ export async function POST(req: NextRequest) {
     let finalQuoteId = quoteId;
     let isUpdate = false;
 
-    // Si tenemos leadId y quoteId, actualizar la cotización existente
+    // Si tenemos leadId y quoteId, intentar actualizar la cotización existente
     if (leadId && quoteId) {
-      // Verificar que existan
+      // Verificar que existan y pertenezcan al mismo lead
       const existingLead = await prisma.lead.findUnique({ where: { id: leadId } });
       const existingQuote = await prisma.quote.findUnique({ where: { id: quoteId } });
-      if (!existingLead || !existingQuote || existingQuote.leadId !== leadId) {
-        return NextResponse.json({ error: "Lead o Quote inválidos" }, { status: 400 });
-      }
-      // Eliminar items anteriores
-      await prisma.quoteItem.deleteMany({ where: { quoteId } });
-      // Actualizar la cotización
-      await prisma.quote.update({
-        where: { id: quoteId },
-        data: {
-          precioFinal: Math.round(total),
-          notasCliente: `[EARLY] Pago: ${paymentMode.toUpperCase()} | Actualizado automáticamente`,
-        }
-      });
-      // Actualizar datos del lead si se proporcionó contacto
-      if (contactProvided) {
-        await prisma.lead.update({
-          where: { id: leadId },
+      if (existingLead && existingQuote && existingQuote.leadId === leadId) {
+        // Eliminar items anteriores
+        await prisma.quoteItem.deleteMany({ where: { quoteId } });
+        // Actualizar la cotización
+        await prisma.quote.update({
+          where: { id: quoteId },
           data: {
-            ...(nombre && nombre.trim() !== "" && { nombre: nombre.trim() }),
-            ...(whatsapp && whatsapp.trim() !== "" && { whatsapp: whatsapp.trim() }),
-            status: "PENDIENTE_CONTACTO",
+            precioFinal: Math.round(total),
+            notasCliente: `[EARLY] Pago: ${paymentMode.toUpperCase()} | Actualizado automáticamente`,
           }
         });
+        // Actualizar datos del lead si se proporcionó contacto
+        if (contactProvided) {
+          await prisma.lead.update({
+            where: { id: leadId },
+            data: {
+              ...(nombre && nombre.trim() !== "" && { nombre: nombre.trim() }),
+              ...(whatsapp && whatsapp.trim() !== "" && { whatsapp: whatsapp.trim() }),
+              status: "PENDIENTE_CONTACTO",
+            }
+          });
+        }
+        isUpdate = true;
+      } else {
+        // IDs inválidos, ignorarlos y crear nuevo lead
+        console.warn("Lead o Quote inválidos, creando nuevo lead");
+        // Resetear IDs para que se cree nuevo lead
+        finalLeadId = undefined;
+        finalQuoteId = undefined;
       }
-      isUpdate = true;
-    } else {
+    }
+
+    // Si no es update, crear nuevo lead
+    if (!isUpdate) {
       // Crear nuevo lead con datos temporales o reales
       const lead = await prisma.lead.create({
         data: {
