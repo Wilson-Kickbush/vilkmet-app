@@ -1,30 +1,7 @@
-"use client";
-
 import { ArrowRight, Calculator, Headphones, Home, Scaling } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 export function HeroSection() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.8 }
-    }
-  };
-
   return (
     <section className="relative min-h-[80vh] flex items-center overflow-hidden bg-[#1A3A52] pt-4 pb-16 sm:pt-8 sm:pb-24">
       {/* Background Architectural Effects */}
@@ -39,32 +16,23 @@ export function HeroSection() {
       <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px] bg-[#E85D04]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto px-6 lg:px-8 relative z-10">
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="mx-auto max-w-5xl text-center"
-        >
+        <div className="mx-auto max-w-5xl text-center">
           {/* Headline Monumental y Directo */}
-          <motion.h1 variants={itemVariants} className="text-4xl font-heading font-black text-white md:text-5xl lg:text-6xl tracking-tight leading-[1.1] mb-6 uppercase">
+          <h1 className="text-4xl font-heading font-black text-white md:text-5xl lg:text-6xl tracking-tight leading-[1.1] mb-6 uppercase">
             ABERTURAS A MEDIDA: <br />
             <span className="text-[#E85D04] text-3xl md:text-4xl lg:text-5xl">EL DISEÑO Y LA TRANQUILIDAD QUE SU PROYECTO MERECE.</span>
-          </motion.h1>
+          </h1>
 
           {/* Subheader: Autoridad Técnica */}
-          <motion.p variants={itemVariants} className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-3xl mx-auto font-medium">
+          <p className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-3xl mx-auto font-medium">
              Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos una <span className="text-white font-black italic">Cotización a medida con aberturas de aluminio ALUAR certificado</span> que garantizan una estética impecable y un excelente aislamiento acústico de su espacio.
-          </motion.p>
+          </p>
           
-          <motion.div variants={itemVariants} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
               
-              {/* BOTÓN CORREGIDO: Usamos <a> con evento de scroll suave para forzar la bajada */}
-              <a 
+              {/* BOTÓN CORREGIDO: Usamos <a> con scroll suave nativo (scroll‑smooth en globals.css) */}
+              <a
                 href="#sistema-cotizador"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('sistema-cotizador')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
                 className="group relative flex items-center justify-center gap-4 bg-[#E85D04] hover:bg-[#F96D0C] text-white px-8 sm:px-12 py-6 rounded-2xl font-black uppercase text-xs sm:text-sm tracking-[0.2em] transition-all duration-300 shadow-2xl shadow-orange-500/40 hover:-translate-y-1 active:scale-95 cursor-pointer"
               >
                 <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
@@ -76,10 +44,10 @@ export function HeroSection() {
             <Link href="#galeria" className="text-xs font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors group">
               VER INSTALACIONES REALES <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform ml-2">→</span>
             </Link>
-          </motion.div>
+          </div>
 
           {/* Concrete Benefits */}
-          <motion.div variants={itemVariants} className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+          <div className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl flex flex-col items-center gap-3 group hover:bg-white/10 transition-colors">
                 <Headphones className="h-8 w-8 text-[#E85D04]" />
                 <div className="text-center">
@@ -101,8 +69,8 @@ export function HeroSection() {
                   <p className="text-white/70 text-[11px] font-bold uppercase tracking-tight">Sin errores de cálculo ni demoras</p>
                 </div>
              </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
