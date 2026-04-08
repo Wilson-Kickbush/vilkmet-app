@@ -63,14 +63,12 @@ export async function POST(req: NextRequest) {
       const result = await prisma.$transaction(async (tx) => {
         let lead: any;
         let quote: any;
-        let canUpdate = Boolean(leadId && quoteId);
 
-        if (canUpdate) {
-          // Verificar que existan y pertenezcan al mismo lead
+        // 1. Gestionar el lead (update si existe, create si no)
+        if (leadId) {
           const existingLead = await tx.lead.findUnique({ where: { id: leadId } });
-          const existingQuote = await tx.quote.findUnique({ where: { id: quoteId } });
-          if (existingLead && existingQuote && existingQuote.leadId === leadId) {
-            // Actualizar el lead con los datos finales
+          if (existingLead) {
+            // Actualizar lead existente
             lead = await tx.lead.update({
               where: { id: leadId },
               data: {
@@ -80,26 +78,13 @@ export async function POST(req: NextRequest) {
                 status: "NUEVO", // Cambiar estado a NUEVO
               }
             });
-            // Eliminar items anteriores
-            await tx.quoteItem.deleteMany({ where: { quoteId } });
-            // Actualizar la cotización
-            quote = await tx.quote.update({
-              where: { id: quoteId },
-              data: {
-                status: "nuevo",
-                precioFinal: Math.round(Number(totalFinanciado)),
-                notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
-              }
-            });
           } else {
-            // IDs inválidos, tratar como creación nueva
-            console.warn("Lead o Quote inválidos, creando nuevo lead");
-            canUpdate = false;
+            // LeadId no válido, se creará uno nuevo después
+            console.warn("LeadId no encontrado, se creará nuevo lead");
           }
         }
-
-        if (!canUpdate) {
-          // Crear nuevo lead
+        if (!lead) {
+          // Crear nuevo lead (si no se actualizó uno existente)
           lead = await tx.lead.create({
             data: {
               nombre: client.nombre,
@@ -108,7 +93,30 @@ export async function POST(req: NextRequest) {
               status: "NUEVO",
             }
           });
-          // Crear nueva cotización
+        }
+
+        // 2. Gestionar la cotización (update si existe y pertenece al lead, create si no)
+        if (quoteId) {
+          const existingQuote = await tx.quote.findUnique({ where: { id: quoteId } });
+          if (existingQuote && existingQuote.leadId === lead.id) {
+            // Actualizar cotización existente
+            quote = await tx.quote.update({
+              where: { id: quoteId },
+              data: {
+                status: "nuevo",
+                precioFinal: Math.round(Number(totalFinanciado)),
+                notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
+              }
+            });
+            // Eliminar items anteriores
+            await tx.quoteItem.deleteMany({ where: { quoteId } });
+          } else {
+            // QuoteId no válido, se creará una nueva cotización para el lead
+            console.warn("QuoteId no encontrado o no pertenece al lead, se creará nueva cotización");
+          }
+        }
+        if (!quote) {
+          // Crear nueva cotización para el lead (ya sea existente o nuevo)
           quote = await tx.quote.create({
             data: {
               leadId: lead.id,
@@ -119,7 +127,7 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        // Crear los items (tanto para update como create)
+        // 3. Crear los items de la cotización
         await tx.quoteItem.createMany({
           data: processedItems.map((pi) => ({
             quoteId: quote.id,

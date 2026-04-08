@@ -81,7 +81,7 @@ export function ProformaGenerator() {
   });
 
   // Legal text
-  const [legalText, setLegalText] = useState(`GARANTÍA ALUAR: Todos los perfiles de aluminio utilizados son de marca ALUAR, con certificación de origen y garantía de 10 años contra defectos de fabricación. La garantía no cubre daños por mal uso, instalación incorrecta o desastres naturales.`);
+  const [legalText, setLegalText] = useState(`Para su tranquilidad, cada proyecto se formaliza mediante un Contrato de Locación de Obra. Otorgamos una Garantía Contractual de 1 año sobre materiales y cerramientos, superando el plazo legal y bajo normativas de Defensa del Consumidor. La garantía no cubre daños por mal uso, instalación incorrecta o desastres naturales.`);
 
   // Fetch leads on mount
   useEffect(() => {
@@ -194,13 +194,20 @@ export function ProformaGenerator() {
       {/* Print‑only document (hidden on screen) */}
       <div className="print-only hidden">
         <div className="print-container">
-          <div className="print-logo">
-            <h1>VILKMET</h1>
-            <p className="text-sm">Aberturas de Aluminio ALUAR – Cotización Oficial</p>
+          {/* Header with logo and title */}
+          <div className="print-header">
+            <div className="print-logo">
+              <img src="/logo.png" alt="VILKMET" className="print-logo-image" />
+            </div>
+            <div className="print-header-text">
+              <h1 className="print-title">VILKMET - Proforma Oficial</h1>
+              <p className="print-subtitle">Sistemas de Aluminio de Alta Performance</p>
+            </div>
           </div>
-          
-          <div className="print-section">
-            <h2 className="text-lg font-bold">Cliente</h2>
+
+          {/* Customer info with bg-slate-50 */}
+          <div className="print-section bg-slate-50 p-4 rounded-lg">
+            <h2 className="print-section-title text-slate-800">Información del Cliente</h2>
             <p><strong>Nombre:</strong> {customerData.nombre}</p>
             <p><strong>DNI/CUIT:</strong> {customerData.dniCuit}</p>
             <p><strong>Dirección de obra:</strong> {customerData.direccion}</p>
@@ -208,61 +215,88 @@ export function ProformaGenerator() {
             <p><strong>Email:</strong> {customerData.email}</p>
           </div>
           
+          {/* Order details */}
           <div className="print-section">
-            <h2 className="text-lg font-bold">Detalle del Pedido</h2>
+            <h2 className="print-section-title text-slate-800">Detalle del Pedido</h2>
             <table className="print-table">
               <thead>
                 <tr>
-                  <th>Descripción</th>
-                  <th>Cant.</th>
-                  <th>Precio Unit.</th>
-                  <th>Subtotal</th>
+                  <th className="text-left">Descripción</th>
+                  <th className="text-center">Cant.</th>
+                  <th className="text-right">Precio Unit.</th>
+                  <th className="text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 {orderItems.map(item => (
                   <tr key={item.id}>
                     <td>{item.description}</td>
-                    <td>{item.quantity}</td>
-                    <td>${item.unitPrice.toFixed(2)}</td>
-                    <td>${item.subtotal.toFixed(2)}</td>
+                    <td className="text-center">{item.quantity}</td>
+                    <td className="text-right">${item.unitPrice.toFixed(2)}</td>
+                    <td className="text-right">${item.subtotal.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           
-          <div className="print-section">
-            <h2 className="text-lg font-bold">Resumen de Costos</h2>
-            <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-            <p><strong>Instalación/Flete:</strong> ${instalacionFlete.toFixed(2)}</p>
-            <p><strong>Total sin anticipo:</strong> ${totalSinAnticipo.toFixed(2)}</p>
-            <p><strong>Anticipo ({commercialTerms.anticipoPorcentaje}%):</strong> ${anticipo.toFixed(2)}</p>
-            <p><strong>Saldo:</strong> ${saldo.toFixed(2)}</p>
-            <p><strong>Tiempo de entrega estimado:</strong> {commercialTerms.tiempoEntrega}</p>
-            <p><strong>Validez de la oferta:</strong> {commercialTerms.validezOferta}</p>
+          {/* Cost summary with styled total */}
+          <div className="print-section bg-slate-50 p-6 rounded-lg">
+            <h2 className="print-section-title text-slate-800">Resumen Financiero</h2>
+            <div className="print-summary-row">
+              <span>Subtotal:</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="print-summary-row">
+              <span>Instalación / Flete:</span>
+              <span>${instalacionFlete.toFixed(2)}</span>
+            </div>
+            <div className="print-summary-row border-t pt-2">
+              <span>Total sin anticipo:</span>
+              <span className="font-bold">${totalSinAnticipo.toFixed(2)}</span>
+            </div>
+            <div className="print-summary-row">
+              <span>Anticipo ({commercialTerms.anticipoPorcentaje}%):</span>
+              <span>${anticipo.toFixed(2)}</span>
+            </div>
+            <div className="print-summary-row">
+              <span>Saldo:</span>
+              <span>${saldo.toFixed(2)}</span>
+            </div>
+            <div className="print-summary-row print-total-row">
+              <span className="text-slate-800 font-bold">TOTAL FINAL:</span>
+              <span className="text-orange-600 font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
+            </div>
+            <div className="mt-4 text-sm">
+              <p><strong>Tiempo de entrega estimado:</strong> {commercialTerms.tiempoEntrega}</p>
+              <p><strong>Validez de la oferta:</strong> {commercialTerms.validezOferta}</p>
+            </div>
           </div>
           
+          {/* Legal text */}
           <div className="print-section">
-            <h2 className="text-lg font-bold">Condiciones y Garantía</h2>
-            <p>{legalText}</p>
+            <h2 className="print-section-title text-slate-800">Condiciones y Garantía</h2>
+            <div className="print-legal-text">
+              {legalText}
+            </div>
           </div>
           
+          {/* Signatures */}
           <div className="print-signature">
             <div>
               <p>Firma del Cliente</p>
-              <p>Nombre y aclaración</p>
+              <p className="text-sm">Nombre y aclaración</p>
             </div>
             <div>
               <p>Firma VILKMET</p>
-              <p>Responsable de ventas</p>
+              <p className="text-sm">Responsable de ventas</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Lead selector */}
-      <Card className="no-print">
+      <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
@@ -292,7 +326,7 @@ export function ProformaGenerator() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Leads cargados</span>
-                <span className="text-2xl font-bold text-primary">{leads.length}</span>
+                <span className="text-2xl font-bold text-orange-600">{leads.length}</span>
               </div>
               <Button variant="outline" onClick={() => window.location.reload()} className="w-full">
                 Actualizar lista
@@ -303,8 +337,8 @@ export function ProformaGenerator() {
       </Card>
 
       {/* Customer data */}
-      <Card className="no-print">
-        <CardHeader>
+      <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
+        <CardHeader className="bg-slate-800 text-white rounded-t-xl">
           <CardTitle>Datos del Cliente</CardTitle>
         </CardHeader>
         <CardContent>
@@ -360,7 +394,7 @@ export function ProformaGenerator() {
       </Card>
 
       {/* Order details table */}
-      <Card className="no-print">
+      <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Detalle del Pedido</CardTitle>
           <Button onClick={addOrderItem} variant="outline" size="sm">
@@ -439,7 +473,7 @@ export function ProformaGenerator() {
               </div>
               <div className="flex items-center justify-between gap-8 border-t pt-2">
                 <span className="text-muted-foreground">Total sin anticipo:</span>
-                <span className="text-2xl font-bold text-primary">${totalSinAnticipo.toLocaleString("es-AR", { minimumFractionDigits: 2 })}</span>
+                <span className="text-2xl font-bold text-orange-600">${totalSinAnticipo.toLocaleString("es-AR", { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -447,7 +481,7 @@ export function ProformaGenerator() {
       </Card>
 
       {/* Commercial terms */}
-      <Card className="no-print">
+      <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
         <CardHeader>
           <CardTitle>Condiciones Comerciales</CardTitle>
         </CardHeader>
@@ -509,7 +543,7 @@ export function ProformaGenerator() {
       </Card>
 
       {/* Legal text */}
-      <Card className="no-print">
+      <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
         <CardHeader>
           <CardTitle>Texto Legal / Garantía</CardTitle>
         </CardHeader>
@@ -527,9 +561,9 @@ export function ProformaGenerator() {
       </Card>
 
       {/* Action buttons */}
-      <Card className="no-print">
+      <Card className="no-print border border-slate-200 shadow-md rounded-xl overflow-hidden border-t-4 border-t-slate-800">
         <CardContent className="flex flex-col md:flex-row gap-4 justify-between pt-6">
-          <Button onClick={handlePrint} size="lg" className="flex-1">
+          <Button onClick={handlePrint} size="lg" className="flex-1 bg-orange-600 hover:bg-orange-700 text-white border-0">
             <Printer className="w-5 h-5 mr-2" />
             Imprimir / Guardar PDF
           </Button>
@@ -572,29 +606,89 @@ export function ProformaGenerator() {
             margin: 0 auto;
             padding: 20mm;
             box-sizing: border-box;
+            background-color: white;
           }
-          .print-logo {
-            text-align: center;
-            font-size: 24pt;
-            font-weight: bold;
-            margin-bottom: 20mm;
-            border-bottom: 2pt solid #000;
+          /* Header with logo */
+          .print-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25mm;
+            border-bottom: 2pt solid #1A3A52;
             padding-bottom: 10mm;
           }
+          .print-logo {
+            flex: 0 0 auto;
+          }
+          .print-logo-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+          }
+          .print-header-text {
+            flex: 1;
+            margin-left: 20mm;
+          }
+          .print-title {
+            font-size: 28pt;
+            color: #1A3A52;
+            font-weight: bold;
+            margin-bottom: 4pt;
+          }
+          .print-subtitle {
+            font-size: 14pt;
+            color: #666;
+          }
+          /* Sections */
           .print-section {
             margin-bottom: 10mm;
           }
+          .print-section-title {
+            font-size: 18pt;
+            color: #1A3A52;
+            font-weight: bold;
+            margin-bottom: 6mm;
+          }
+          /* Table */
           .print-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 5mm;
           }
-          .print-table th,
-          .print-table td {
-            border: 1pt solid #000;
-            padding: 4pt;
+          .print-table th {
+            background-color: #f8f9fa;
+            border: 1pt solid #ddd;
+            padding: 6pt;
             text-align: left;
+            font-weight: bold;
+            color: #1A3A52;
           }
+          .print-table td {
+            border: 1pt solid #ddd;
+            padding: 5pt;
+          }
+          /* Summary rows */
+          .print-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4pt;
+          }
+          .print-total-row {
+            margin-top: 10mm;
+            padding-top: 6mm;
+            border-top: 2pt solid #1A3A52;
+            font-size: 16pt;
+          }
+          /* Legal text */
+          .print-legal-text {
+            padding: 6mm;
+            background-color: #f9f9f9;
+            border-left: 4pt solid #1A3A52;
+            border-radius: 3pt;
+            font-size: 11pt;
+            line-height: 1.5;
+          }
+          /* Signatures */
           .print-signature {
             margin-top: 30mm;
             display: flex;
