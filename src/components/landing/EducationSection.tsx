@@ -41,11 +41,11 @@ export function EducationSection() {
           <p className="mt-2 text-3xl font-bold tracking-tight text-primary sm:text-4xl font-heading">
             Sistemas que se adaptan a tu exigencia
           </p>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+          <p className="mt-4 text-lg leading-8 text-muted-foreground">
             Desde la robustez económica hasta el máximo aislamiento termoacústico, desarrollamos cerramientos a la medida de tu confort utilizando <span className="text-primary font-bold italic">perfiles Aluar de primera calidad con certificación oficial.</span>
           </p>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+        <div className="mx-auto mt-12 max-w-2xl sm:mt-16 lg:mt-20 lg:max-w-none">
           <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
             {lineas.map((linea) => (
               <Card key={linea.title} className="flex flex-col border-none shadow-lg hover:shadow-xl transition-shadow bg-background">

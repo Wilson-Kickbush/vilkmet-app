@@ -27,9 +27,10 @@ export function SimuladorVisual({ tipologia, ancho, alto, colorHex }: SimuladorV
       </div>
 
       <svg
-        viewBox={`0 0 ${w + 100} ${h + 100}`}
+        viewBox={`0 0 ${w} ${h}`}
         className="w-full h-full max-h-[70vh] md:max-h-[60vh] transition-all duration-700 ease-in-out drop-shadow-2xl z-10"
         preserveAspectRatio="xMidYMid meet"
+        overflow="visible"
       >
         <defs>
           <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -44,7 +45,7 @@ export function SimuladorVisual({ tipologia, ancho, alto, colorHex }: SimuladorV
           </linearGradient>
         </defs>
 
-        <g transform="translate(50, 50)">
+        <g>
           {/* MARCO EXTERIOR */}
           <rect x="0" y="0" width={w} height={h} fill="url(#metallic)" stroke="#1f2937" strokeWidth="2" />
           

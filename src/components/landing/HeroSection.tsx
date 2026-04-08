@@ -46,13 +46,13 @@ export function HeroSection() {
           className="mx-auto max-w-5xl text-center"
         >
           {/* Headline Monumental y Directo */}
-          <motion.h1 variants={itemVariants} className="text-5xl font-heading font-black text-white sm:text-[5.5rem] tracking-tight leading-[0.95] mb-6 uppercase">
+          <motion.h1 variants={itemVariants} className="text-4xl font-heading font-black text-white md:text-5xl lg:text-6xl tracking-tight leading-[1.1] mb-6 uppercase">
             ABERTURAS A MEDIDA: <br />
-            <span className="text-[#E85D04] text-4xl sm:text-[4.6rem]">EL DISEÑO Y LA TRANQUILIDAD QUE SU PROYECTO MERECE.</span>
+            <span className="text-[#E85D04] text-3xl md:text-4xl lg:text-5xl">EL DISEÑO Y LA TRANQUILIDAD QUE SU PROYECTO MERECE.</span>
           </motion.h1>
 
           {/* Subheader: Autoridad Técnica */}
-          <motion.p variants={itemVariants} className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-4xl mx-auto font-medium">
+          <motion.p variants={itemVariants} className="mt-6 text-xl sm:text-2xl leading-relaxed text-blue-100/80 max-w-3xl mx-auto font-medium">
              Evite los errores de cálculo y las cotizaciones engañosas. Díganos qué medidas necesita y le armaremos una <span className="text-white font-black italic">Cotización a medida con aberturas de aluminio ALUAR certificado</span> que garantizan una estética impecable y un excelente aislamiento acústico de su espacio.
           </motion.p>
           
