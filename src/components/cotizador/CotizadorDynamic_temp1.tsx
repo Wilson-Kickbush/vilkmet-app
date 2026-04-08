@@ -259,7 +259,7 @@ const PresupuestoPDF = ({
           Contacto: +54 9 11 1234-5678 | info@vilkmet.com
         </Text>
         <Text style={styles.footerNote}>
-          Este presupuesto tiene validez por 30 días
+          Este presupuesto tiene validez por 10 días
         </Text>
       </View>
     </Page>

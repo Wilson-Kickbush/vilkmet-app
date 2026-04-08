@@ -134,7 +134,7 @@ const PresupuestoPDF = ({ clientData, projectItems, paymentMode, financingDetail
       <View style={pdfStyles.footer}>
         <Text style={pdfStyles.footerText}>VILKMET - Sistemas de Aluminio de Alta Performance</Text>
         <Text style={pdfStyles.footerText}>WhatsApp: 11-5096-0796 | Email: ventas@vilkmet.com | www.vilkmet.com</Text>
-        <Text style={pdfStyles.footerNote}>Este presupuesto tiene validez por 30 días</Text>
+        <Text style={pdfStyles.footerNote}>Este presupuesto tiene validez por 10 días</Text>
       </View>
     </Page>
   </Document>
@@ -161,6 +161,8 @@ export function CotizadorDynamic() {
   });
 
   const [clientData, setClientData] = useState({ nombre: "", whatsapp: "", email: "" });
+  const [earlyLeadId, setEarlyLeadId] = useState<string | null>(null);
+  const [earlyQuoteId, setEarlyQuoteId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchParams = async () => {
@@ -172,6 +174,14 @@ export function CotizadorDynamic() {
       }
     };
     fetchParams();
+  }, []);
+
+  // Cargar earlyLeadId desde localStorage al montar
+  useEffect(() => {
+    const savedLeadId = localStorage.getItem("vilkmet_earlyLeadId");
+    const savedQuoteId = localStorage.getItem("vilkmet_earlyQuoteId");
+    if (savedLeadId) setEarlyLeadId(savedLeadId);
+    if (savedQuoteId) setEarlyQuoteId(savedQuoteId);
   }, []);
 
   const coloresMap: Record<string, string> = { blanco: "#FFFFFF", negro: "#2D2D2D", anodizado: "#a3a3a3", bronce: "#8B5A2B" };
@@ -212,6 +222,42 @@ export function CotizadorDynamic() {
     }
   };
 
+  const saveEarlyLead = async (items: ProjectItem[]) => {
+    try {
+      const payload = {
+        items: items.map(item => ({
+          linea: item.linea,
+          tipologia: item.tipologia,
+          ancho: item.ancho,
+          alto: item.alto,
+          color: item.color,
+          vidrio: item.vidrio,
+          subtotal: item.subtotal,
+        })),
+        totalFinanciado: items.reduce((acc, item) => acc + item.subtotal, 0),
+        paymentMode,
+        leadId: earlyLeadId,
+        quoteId: earlyQuoteId,
+      };
+      const res = await fetch("/api/quote/early", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEarlyLeadId(data.leadId);
+        setEarlyQuoteId(data.quoteId);
+        localStorage.setItem("vilkmet_earlyLeadId", data.leadId);
+        localStorage.setItem("vilkmet_earlyQuoteId", data.quoteId);
+      } else {
+        console.error("Error saving early lead:", await res.text());
+      }
+    } catch (error) {
+      console.error("Failed to save early lead:", error);
+    }
+  };
+
   const addItemToProject = () => {
     const newItem: ProjectItem = {
       id: Math.random().toString(36).substr(2, 9),
@@ -220,7 +266,9 @@ export function CotizadorDynamic() {
       alto: Number(formData.alto),
       subtotal: calculateLocalPrice()
     };
-    setProjectItems([...projectItems, newItem]);
+    const updatedItems = [...projectItems, newItem];
+    saveEarlyLead(updatedItems);
+    setProjectItems(updatedItems);
     setView("project");
     setStep(1);
   };

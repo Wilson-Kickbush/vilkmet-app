@@ -136,6 +136,8 @@ function LeadManagementCard({ lead }: { lead: Lead }) {
     PRESUPUESTADO: "bg-purple-100 text-purple-800",
     VENDIDO: "bg-emerald-100 text-emerald-800",
     PERDIDO: "bg-red-100 text-red-800",
+    ABANDONADO_PRECOZ: "bg-orange-100 text-orange-800",
+    PENDIENTE_CONTACTO: "bg-yellow-100 text-yellow-800",
   };
   const statusClass = statusColors[lead.status || "NUEVO"] || "bg-slate-100 text-slate-800";
 
