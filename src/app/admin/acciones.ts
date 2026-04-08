@@ -60,3 +60,21 @@ export async function deleteLead(id: string) {
     return { success: false };
   }
 }
+
+export async function cleanOldAbandonedCarts() {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const result = await prisma.lead.deleteMany({
+      where: {
+        status: "ABANDONADO_PRECOZ",
+        fechaAlta: { lt: thirtyDaysAgo }
+      }
+    });
+    revalidatePath("/admin");
+    return { success: true, deletedCount: result.count };
+  } catch (error) {
+    console.error("Error cleaning old abandoned carts", error);
+    return { success: false, error: "Error de base de datos" };
+  }
+}

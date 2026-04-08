@@ -1,10 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { Phone, Users, DollarSign, MessageSquare, TrendingUp, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { deleteLead } from "./acciones";
+import { deleteLead, cleanOldAbandonedCarts } from "./acciones";
 import { StatusSelector, NotesInput } from "./ClientComponents";
 
 // Tipado estricto para evitar fallos de renderizado
+interface QuoteItem {
+  id: string;
+  tipo: string;
+  linea: string;
+  tipologia: string;
+  ancho: number;
+  alto: number;
+  color: string;
+  acristalamiento: string;
+  subtotal: number;
+}
+
 interface Quote {
   id: string;
   linea: string;
@@ -14,6 +26,7 @@ interface Quote {
   alto: number;
   color: string;
   acristalamiento: string;
+  items: QuoteItem[];
 }
 
 interface Lead {
@@ -38,7 +51,7 @@ export default async function AdminDashboard() {
 
   try {
     const rawLeads = await prisma.lead.findMany({
-      include: { quotes: true },
+      include: { quotes: { include: { items: true } } },
       orderBy: { fechaAlta: "desc" }
     });
     
@@ -90,6 +103,23 @@ export default async function AdminDashboard() {
           <StatCard title="Prospectos" value={totalLeads.toString()} icon={<Users className="w-5 h-5 text-blue-300" />} />
           <StatCard title="Pipeline Bruto" value={`$${pipelineValue.toLocaleString("es-AR")}`} icon={<DollarSign className="w-5 h-5 text-orange-300" />} />
           <StatCard title="Utilidad Proyectada" value={`$${netValue.toLocaleString("es-AR")}`} icon={<TrendingUp className="w-5 h-5 text-emerald-300" />} highlight />
+        </div>
+        <div className="mt-8 text-right">
+          <form action={async () => {
+            "use server";
+            const result = await cleanOldAbandonedCarts();
+            if (result.success) {
+              // Revalidación automática por revalidatePath en la acción
+            }
+          }}>
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold rounded-lg border border-white/30 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Limpiar Carritos Viejos (+30 días)
+            </button>
+          </form>
         </div>
       </div>
 
@@ -184,16 +214,28 @@ function LeadManagementCard({ lead }: { lead: Lead }) {
       <div className="space-y-3 mb-6">
         <h5 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cotizaciones asociadas</h5>
         {(lead.quotes || []).map((quote) => (
-          <div key={quote.id} className="bg-slate-50/70 p-4 rounded-xl border border-slate-100">
+          <div key={quote.id} className="bg-slate-50/70 p-4 rounded-xl border border-slate-100 space-y-2">
             <div className="flex justify-between items-center">
-              <div>
-                <p className="font-bold text-slate-900 text-sm">{quote.tipologia}</p>
-                <span className="text-xs text-slate-500">{quote.linea} • {quote.ancho}m × {quote.alto}m</span>
-              </div>
               <span className="font-bold text-blue-700 text-lg">
                 ${(Number(quote.precioFinal) || 0).toLocaleString("es-AR")}
               </span>
             </div>
+            {(quote.items || []).length > 0 ? (
+              <div className="space-y-1">
+                {quote.items.map((item) => {
+                  const tipo = item.tipo === 'puerta' ? 'Puerta' : 'Ventana';
+                  const medidas = `${(item.ancho / 1000).toFixed(2)} × ${(item.alto / 1000).toFixed(2)}m`;
+                  const vidrio = item.acristalamiento === 'dvh' ? 'DVH 4-9-4' : item.acristalamiento.toUpperCase();
+                  return (
+                    <div key={item.id} className="text-xs text-slate-700">
+                      <span className="font-semibold">1x</span> {tipo} {item.tipologia} {item.linea} ({medidas}) - {item.color} - {vidrio}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-xs text-slate-500">No hay detalles de items</div>
+            )}
           </div>
         ))}
       </div>
