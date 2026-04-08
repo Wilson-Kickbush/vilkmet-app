@@ -78,3 +78,53 @@ export async function cleanOldAbandonedCarts() {
     return { success: false, error: "Error de base de datos" };
   }
 }
+
+export async function fetchActiveLeads() {
+  try {
+    const leads = await prisma.lead.findMany({
+      where: {
+        OR: [
+          { status: "NUEVO" },
+          { status: "COTIZADO" },
+          { status: "SEGUIMIENTO" }
+        ]
+      },
+      include: {
+        quotes: {
+          include: {
+            items: true
+          }
+        }
+      },
+      orderBy: {
+        fechaAlta: "desc"
+      }
+    });
+    return { success: true, leads };
+  } catch (error) {
+    console.error("Error fetching leads", error);
+    return { success: false, error: "Error de base de datos" };
+  }
+}
+
+export async function fetchLeadWithQuote(leadId: string) {
+  try {
+    const lead = await prisma.lead.findUnique({
+      where: { id: leadId },
+      include: {
+        quotes: {
+          include: {
+            items: true
+          }
+        }
+      }
+    });
+    if (!lead) {
+      return { success: false, error: "Lead no encontrado" };
+    }
+    return { success: true, lead };
+  } catch (error) {
+    console.error("Error fetching lead", error);
+    return { success: false, error: "Error de base de datos" };
+  }
+}
