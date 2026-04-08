@@ -293,7 +293,14 @@ export function CotizadorDynamic() {
     try {
       const res = await fetch("/api/quote", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: projectItems, client: clientData, paymentMode, totalFinanciado: financingLabel.total })
+        body: JSON.stringify({
+          items: projectItems,
+          client: clientData,
+          paymentMode,
+          totalFinanciado: financingLabel.total,
+          leadId: earlyLeadId,
+          quoteId: earlyQuoteId
+        })
       });
       if (res.ok) setSuccess(true);
       else alert("Error en el servidor de cotizaciones");

@@ -16,11 +16,13 @@ interface CartItem {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { items, client, paymentMode, totalFinanciado } = body as {
+    const { items, client, paymentMode, totalFinanciado, leadId, quoteId } = body as {
       items: CartItem[];
       client: { nombre: string; whatsapp: string; email?: string };
       paymentMode: string;
       totalFinanciado: number;
+      leadId?: string;
+      quoteId?: string;
     };
 
     if (!client?.nombre || !client?.whatsapp || !items || items.length === 0) {
@@ -51,76 +53,80 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. ALGORITMO DE INGENIERÍA VILKMET (Procesador Server-Side)
-    const processedItems = items.map((item) => {
-      const anchoM = Number(item.ancho) / 1000;
-      const altoM  = Number(item.alto) / 1000;
-      const perimetroM = (anchoM + altoM) * 2;
-      const areaM2     = anchoM * altoM;
-
-      // Cálculo de masa por m lineal según línea
-      let kgPorMetro = 1.8;
-      switch (item.linea) {
-        case "Herrero": kgPorMetro = 1.2; break;
-        case "Módena":  kgPorMetro = 1.8; break;
-        case "A40":     kgPorMetro = 2.8; break;
-        case "A40 RPT": kgPorMetro = 3.4; break;
-      }
-
-      // Costo de Materiales
-      const costoAluUSD = perimetroM * kgPorMetro * aluCostPerKg;
-      const colorMultiplier = (item.color === "negro" || item.color === "anodizado") ? 1.15 : 1.0;
-      const costoAluARS = costoAluUSD * tipoCambio * colorMultiplier;
-
-      const costoVidrioUSDm2 = item.vidrio === "dvh" ? 40 : 15;
-      const costoVidrioARS   = areaM2 * costoVidrioUSDm2 * tipoCambio;
-
-      const costoDirecto = costoAluARS + costoVidrioARS;
-      
-      // FÓRMULA MAESTRA: Costo + Mano Obra + Gastos Operativos + Rentabilidad
-      const subtotalBase = costoDirecto * 
-                           (1 + laborMargin / 100) * 
-                           (1 + structureMargin / 100) * 
-                           (1 + profitMargin / 100);
-
-      return {
-        ...item,
-        subtotal: Math.round(subtotalBase)
-      };
-    });
+    const processedItems = items.map((item) => ({
+      ...item,
+      subtotal: Math.round(Number(item.subtotal))
+    }));
 
     // 3. PERSISTENCIA EN TRANSACCIÓN (Lead -> Quote -> Items)
     try {
       const result = await prisma.$transaction(async (tx) => {
-        // Crear el Lead con el nuevo esquema de estados
-        const lead = await tx.lead.create({
-          data: {
-            nombre: client.nombre,
-            whatsapp: client.whatsapp,
-            email: client.email || null,
-            status: "NUEVO", // Estado inicial CRM Elite
-          }
-        });
+        let lead;
+        let quote;
+        const isUpdate = leadId && quoteId;
 
-        // Crear la Cotización vinculada
-        const quote = await tx.quote.create({
-          data: {
-            leadId: lead.id,
-            status: "nuevo",
-            precioFinal: Math.round(Number(totalFinanciado)),
-            notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
-            items: {
-              create: processedItems.map((pi) => ({
-                tipo: pi.tipologia.toLowerCase().includes("puerta") ? "puerta" : "ventana",
-                linea: pi.linea,
-                tipologia: pi.tipologia,
-                ancho: Number(pi.ancho),
-                alto: Number(pi.alto),
-                color: pi.color,
-                acristalamiento: pi.vidrio,
-                subtotal: Math.round(Number(pi.subtotal))
-              }))
-            }
+        if (isUpdate) {
+          // Verificar que existan y pertenezcan al mismo lead
+          const existingLead = await tx.lead.findUnique({ where: { id: leadId } });
+          const existingQuote = await tx.quote.findUnique({ where: { id: quoteId } });
+          if (!existingLead || !existingQuote || existingQuote.leadId !== leadId) {
+            throw new Error("Lead o Quote inválidos para actualización");
           }
+          // Actualizar el lead con los datos finales
+          lead = await tx.lead.update({
+            where: { id: leadId },
+            data: {
+              nombre: client.nombre,
+              whatsapp: client.whatsapp,
+              email: client.email || null,
+              status: "NUEVO", // Cambiar estado a NUEVO
+            }
+          });
+          // Eliminar items anteriores
+          await tx.quoteItem.deleteMany({ where: { quoteId } });
+          // Actualizar la cotización
+          quote = await tx.quote.update({
+            where: { id: quoteId },
+            data: {
+              status: "nuevo",
+              precioFinal: Math.round(Number(totalFinanciado)),
+              notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
+            }
+          });
+        } else {
+          // Crear nuevo lead
+          lead = await tx.lead.create({
+            data: {
+              nombre: client.nombre,
+              whatsapp: client.whatsapp,
+              email: client.email || null,
+              status: "NUEVO",
+            }
+          });
+          // Crear nueva cotización
+          quote = await tx.quote.create({
+            data: {
+              leadId: lead.id,
+              status: "nuevo",
+              precioFinal: Math.round(Number(totalFinanciado)),
+              notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
+            }
+          });
+        }
+
+        // Crear los items (tanto para update como create)
+        await tx.quoteItem.createMany({
+          data: processedItems.map((pi) => ({
+            quoteId: quote.id,
+            tipo: pi.tipologia.toLowerCase().includes("puerta") ? "puerta" : "ventana",
+            linea: pi.linea,
+            tipologia: pi.tipologia,
+            ancho: Number(pi.ancho),
+            alto: Number(pi.alto),
+            color: pi.color,
+            acristalamiento: pi.vidrio,
+            subtotal: Math.round(Number(pi.subtotal))
+          }))
         });
 
         return { leadId: lead.id, quoteId: quote.id };
