@@ -17,12 +17,14 @@ interface CartItem {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { items, totalFinanciado, paymentMode = "contado", leadId, quoteId } = body as {
+    const { items, totalFinanciado, paymentMode = "contado", leadId, quoteId, nombre, whatsapp } = body as {
       items: CartItem[];
       totalFinanciado?: number;
       paymentMode?: string;
       leadId?: string;
       quoteId?: string;
+      nombre?: string;
+      whatsapp?: string;
     };
 
     if (!items || items.length === 0) {
@@ -31,6 +33,9 @@ export async function POST(req: NextRequest) {
 
     // Calcular total si no viene
     const total = totalFinanciado ?? items.reduce((acc, item) => acc + item.subtotal, 0);
+
+    // Determinar si se proporcionaron datos de contacto
+    const contactProvided = (nombre && nombre.trim() !== "") || (whatsapp && whatsapp.trim() !== "");
 
     let finalLeadId = leadId;
     let finalQuoteId = quoteId;
@@ -54,15 +59,26 @@ export async function POST(req: NextRequest) {
           notasCliente: `[EARLY] Pago: ${paymentMode.toUpperCase()} | Actualizado automáticamente`,
         }
       });
+      // Actualizar datos del lead si se proporcionó contacto
+      if (contactProvided) {
+        await prisma.lead.update({
+          where: { id: leadId },
+          data: {
+            ...(nombre && nombre.trim() !== "" && { nombre: nombre.trim() }),
+            ...(whatsapp && whatsapp.trim() !== "" && { whatsapp: whatsapp.trim() }),
+            status: "PENDIENTE_CONTACTO",
+          }
+        });
+      }
       isUpdate = true;
     } else {
-      // Crear nuevo lead con datos temporales
+      // Crear nuevo lead con datos temporales o reales
       const lead = await prisma.lead.create({
         data: {
-          nombre: "COTIZACIÓN TEMPORAL",
-          whatsapp: "0000000000",
+          nombre: nombre && nombre.trim() !== "" ? nombre.trim() : "COTIZACIÓN TEMPORAL",
+          whatsapp: whatsapp && whatsapp.trim() !== "" ? whatsapp.trim() : "0000000000",
           email: null,
-          status: "ABANDONADO_PRECOZ",
+          status: contactProvided ? "PENDIENTE_CONTACTO" : "ABANDONADO_PRECOZ",
         }
       });
       finalLeadId = lead.id;

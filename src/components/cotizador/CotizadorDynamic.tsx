@@ -238,6 +238,8 @@ export function CotizadorDynamic() {
         paymentMode,
         leadId: earlyLeadId,
         quoteId: earlyQuoteId,
+        nombre: clientData.nombre,
+        whatsapp: clientData.whatsapp,
       };
       const res = await fetch("/api/quote/early", {
         method: "POST",
@@ -257,6 +259,15 @@ export function CotizadorDynamic() {
       console.error("Failed to save early lead:", error);
     }
   };
+
+  // Actualizar lead temprano cuando el usuario ingresa nombre o WhatsApp
+  useEffect(() => {
+    if (projectItems.length === 0) return; // No hay items para guardar
+    const timer = setTimeout(() => {
+      saveEarlyLead(projectItems);
+    }, 1000); // Debounce de 1 segundo
+    return () => clearTimeout(timer);
+  }, [clientData.nombre, clientData.whatsapp, projectItems]);
 
   const addItemToProject = () => {
     const newItem: ProjectItem = {

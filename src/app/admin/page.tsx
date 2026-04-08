@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Phone, Users, DollarSign, MessageSquare, TrendingUp, Trash2 } from "lucide-react";
+import { Phone, Users, DollarSign, MessageSquare, TrendingUp, Trash2, Calendar, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { deleteLead, cleanOldAbandonedCarts } from "./acciones";
 import { StatusSelector, NotesInput } from "./ClientComponents";
@@ -47,6 +47,9 @@ export default async function AdminDashboard() {
   let pipelineValue = 0;
   let netValue = 0;
   let totalLeads = 0;
+  let quotesToday = 0;
+  let monthlyAmount = 0;
+  let conversionPercentage = 0;
   let errorMsg: string | null = null;
 
   try {
@@ -72,6 +75,36 @@ export default async function AdminDashboard() {
     }, 0);
 
     netValue = pipelineValue * (1 - (structureMargin / 100));
+
+    // Métricas adicionales
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    const quotesTodayCount = await prisma.quote.count({
+      where: { fechaCreacion: { gte: yesterday } }
+    });
+    quotesToday = quotesTodayCount;
+
+    const monthlyAmountAgg = await prisma.quote.aggregate({
+      where: { fechaCreacion: { gte: firstDayOfMonth } },
+      _sum: { precioFinal: true }
+    });
+    monthlyAmount = monthlyAmountAgg._sum.precioFinal || 0;
+
+    const totalAbandonedLeads = await prisma.lead.count({
+      where: { quotes: { some: { status: 'abandonado_precoz' } } }
+    });
+    const convertedLeads = await prisma.lead.count({
+      where: {
+        AND: [
+          { quotes: { some: { status: 'abandonado_precoz' } } },
+          { quotes: { some: { status: 'nuevo' } } }
+        ]
+      }
+    });
+    conversionPercentage = totalAbandonedLeads > 0
+      ? Math.round((convertedLeads / totalAbandonedLeads) * 100)
+      : 0;
 
   } catch (err: any) {
     errorMsg = err?.message || "Fallo en la lectura de datos";
@@ -104,6 +137,13 @@ export default async function AdminDashboard() {
           <StatCard title="Pipeline Bruto" value={`$${pipelineValue.toLocaleString("es-AR")}`} icon={<DollarSign className="w-5 h-5 text-orange-300" />} />
           <StatCard title="Utilidad Proyectada" value={`$${netValue.toLocaleString("es-AR")}`} icon={<TrendingUp className="w-5 h-5 text-emerald-300" />} highlight />
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 relative z-10">
+          <StatCard title="Hoy" value={quotesToday.toString()} icon={<Calendar className="w-5 h-5 text-blue-300" />} />
+          <StatCard title="Mes actual" value={`$${monthlyAmount.toLocaleString("es-AR")}`} icon={<DollarSign className="w-5 h-5 text-orange-300" />} />
+          <StatCard title="Conversión" value={`${conversionPercentage}%`} icon={<RefreshCw className="w-5 h-5 text-emerald-300" />} />
+        </div>
+
         <div className="mt-8 text-right">
           <form action={async () => {
             "use server";
