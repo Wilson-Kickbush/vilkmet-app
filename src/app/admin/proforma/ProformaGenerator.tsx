@@ -16,6 +16,7 @@ type Lead = {
   whatsapp: string;
   email?: string;
   status: string;
+  fechaAlta: Date;
   quotes: Quote[];
 };
 
@@ -28,6 +29,7 @@ type Quote = {
   color: string;
   acristalamiento: string;
   precioFinal: number;
+  fechaCreacion: Date;
   items: QuoteItem[];
 };
 
@@ -77,7 +79,7 @@ export function ProformaGenerator() {
     instalacionFlete: 0,
     anticipoPorcentaje: 30,
     tiempoEntrega: "15 días hábiles",
-    validezOferta: "30 días",
+    validezOferta: "7 días",
   });
 
   // Legal text
@@ -171,7 +173,20 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
   const totalSinAnticipo = subtotal + instalacionFlete;
   const anticipo = totalSinAnticipo * (commercialTerms.anticipoPorcentaje / 100);
   const saldo = totalSinAnticipo - anticipo;
-  const proformaNumber = selectedLeadId ? `PF-${selectedLeadId.slice(-6).toUpperCase()}` : 'PF-XXXXXX';
+  const selectedLead = selectedLeadId ? leads.find(lead => lead.id === selectedLeadId) : null;
+  let proformaNumber = 'PF-XXXXXX';
+  if (selectedLead) {
+    const date = new Date(selectedLead.fechaAlta);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    proformaNumber = `PF-${year}${month}${day}-${hours}${minutes}`;
+  } else if (selectedLeadId) {
+    // fallback to UUID slice if lead not found in leads array (should not happen)
+    proformaNumber = `PF-${selectedLeadId.slice(-6).toUpperCase()}`;
+  }
 
   // Print functionality
   const handlePrint = () => {
@@ -201,9 +216,7 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
           <div className="flex justify-between items-center border-b-2 border-[#1A3A52] pb-4 mb-8">
             <div className="flex items-center gap-4">
               {/* Logo VK - actual image */}
-              <div className="w-20 h-20 flex items-center justify-center border-2 border-[#1A3A52] bg-white rounded-lg">
-                <span className="text-2xl font-bold text-[#1A3A52] tracking-tighter">VK</span>
-              </div>
+              <img src="/logo-oficial.png" className="h-16 w-auto object-contain" alt="VILKMET Logo" />
               <div>
                 <h1 className="text-3xl font-bold text-[#1A3A52] tracking-tight">VILKMET - Presupuesto Técnico Oficial</h1>
                 <p className="text-[#2D2D2D] font-sans">Sistemas de Aluminio de Alta Performance</p>
@@ -287,58 +300,60 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
             </table>
           </div>
 
-          {/* Cost summary */}
-          <div className="bg-slate-50 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Resumen Financiero</h2>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>${subtotal.toFixed(2)}</span>
+          <div className="print:break-inside-avoid">
+            {/* Cost summary */}
+            <div className="bg-slate-50 p-6 rounded-lg mb-8">
+              <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Resumen Financiero</h2>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Instalación / Flete:</span>
+                  <span>${instalacionFlete.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t pt-2">
+                  <span className="font-bold">Total sin anticipo:</span>
+                  <span className="font-bold">${totalSinAnticipo.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Anticipo ({commercialTerms.anticipoPorcentaje}%):</span>
+                  <span>${anticipo.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Saldo:</span>
+                  <span>${saldo.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t-2 border-[#1A3A52] pt-4 mt-4">
+                  <span className="text-[#1A3A52] font-bold text-lg">TOTAL FINAL:</span>
+                  <span className="text-[#E85D04] font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>Instalación / Flete:</span>
-                <span>${instalacionFlete.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between border-t pt-2">
-                <span className="font-bold">Total sin anticipo:</span>
-                <span className="font-bold">${totalSinAnticipo.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Anticipo ({commercialTerms.anticipoPorcentaje}%):</span>
-                <span>${anticipo.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Saldo:</span>
-                <span>${saldo.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between border-t-2 border-[#1A3A52] pt-4 mt-4">
-                <span className="text-[#1A3A52] font-bold text-lg">TOTAL FINAL:</span>
-                <span className="text-[#E85D04] font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
+              <div className="mt-6 text-sm">
+                <p><strong>Tiempo de entrega estimado:</strong> {commercialTerms.tiempoEntrega}</p>
+                <p><strong>Validez de la oferta:</strong> {commercialTerms.validezOferta}</p>
               </div>
             </div>
-            <div className="mt-6 text-sm">
-              <p><strong>Tiempo de entrega estimado:</strong> {commercialTerms.tiempoEntrega}</p>
-              <p><strong>Validez de la oferta:</strong> {commercialTerms.validezOferta}</p>
-            </div>
-          </div>
 
-          {/* Legal text */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Condiciones y Garantía</h2>
-            <div className="whitespace-pre-wrap break-words text-justify bg-slate-50 p-6 rounded-lg border-l-4 border-[#1A3A52]">
-              {legalText}
+            {/* Legal text */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Condiciones y Garantía</h2>
+              <div className="whitespace-pre-wrap break-words text-justify bg-slate-50 p-6 rounded-lg border-l-4 border-[#1A3A52]">
+                {legalText}
+              </div>
             </div>
-          </div>
 
-          {/* Signatures */}
-          <div className="flex justify-between mt-12 pt-8 border-t border-[#2D2D2D]">
-            <div className="text-center w-1/2">
-              <p className="font-semibold">Firma del Cliente</p>
-              <p className="text-sm text-slate-500">Nombre y aclaración</p>
-            </div>
-            <div className="text-center w-1/2">
-              <p className="font-semibold">Firma VILKMET</p>
-              <p className="text-sm text-slate-500">Responsable de ventas</p>
+            {/* Signatures */}
+            <div className="flex justify-between mt-12 pt-8 border-t border-[#2D2D2D]">
+              <div className="text-center w-1/2">
+                <p className="font-semibold">Firma del Cliente</p>
+                <p className="text-sm text-slate-500">Nombre y aclaración</p>
+              </div>
+              <div className="text-center w-1/2">
+                <p className="font-semibold">Firma VILKMET</p>
+                <p className="text-sm text-slate-500">Responsable de ventas</p>
+              </div>
             </div>
           </div>
         </div>
@@ -673,14 +688,6 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
             margin-bottom: 25mm;
             border-bottom: 2pt solid #1A3A52;
             padding-bottom: 10mm;
-          }
-          .print-logo {
-            flex: 0 0 auto;
-          }
-          .print-logo-image {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
           }
           .print-header-text {
             flex: 1;
