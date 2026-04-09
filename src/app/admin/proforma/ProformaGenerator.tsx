@@ -77,7 +77,7 @@ export function ProformaGenerator() {
   // Commercial terms
   const [commercialTerms, setCommercialTerms] = useState({
     instalacionFlete: 0,
-    anticipoPorcentaje: 30,
+    anticipoPorcentaje: 50,
     tiempoEntrega: "15 días hábiles",
     validezOferta: "7 días",
   });
@@ -213,15 +213,17 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
         <style>{`@page { size: A4; margin: 0; } @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }`}</style>
         <div className="flex-1">
           {/* Header with logo and date */}
-          <div className="flex justify-between items-center border-b-2 border-[#1A3A52] pb-4 mb-8">
-            <div className="flex items-center gap-4">
-              {/* Logo VK - actual image */}
+          <div className="grid grid-cols-3 items-center gap-4 border-b-2 border-[#1A3A52] pb-4 mb-8">
+            {/* Left column: logo */}
+            <div className="flex items-center justify-start">
               <img src="/logo-oficial.png" className="h-16 w-auto object-contain" alt="VILKMET Logo" />
-              <div>
-                <h1 className="text-3xl font-bold text-[#1A3A52] tracking-tight">VILKMET - Presupuesto Técnico Oficial</h1>
-                <p className="text-[#2D2D2D] font-sans">Sistemas de Aluminio de Alta Performance</p>
-              </div>
             </div>
+            {/* Center column: title and subtitle */}
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-[#1A3A52] tracking-tight">VILKMET - Presupuesto Técnico Oficial</h1>
+              <p className="text-[#2D2D2D] font-sans mt-1">Sistemas de Aluminio de Alta Performance</p>
+            </div>
+            {/* Right column: date and proforma number */}
             <div className="text-right">
               <p className="text-[#2D2D2D] font-medium font-sans">Fecha: {new Date().toLocaleDateString('es-AR')}</p>
               <p className="text-[#2D2D2D] font-medium font-sans mt-1">Proforma Nº: {proformaNumber}</p>
