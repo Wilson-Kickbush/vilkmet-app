@@ -81,7 +81,8 @@ export function ProformaGenerator() {
   });
 
   // Legal text
-  const [legalText, setLegalText] = useState(`Para su tranquilidad, cada proyecto se formaliza mediante un Contrato de Locación de Obra. Otorgamos una Garantía Contractual de 1 año sobre materiales y cerramientos, superando el plazo legal y bajo normativas de Defensa del Consumidor. La garantía no cubre daños por mal uso, instalación incorrecta o desastres naturales.`);
+  const [legalText, setLegalText] = useState(`Garantía Extendida: Se otorga una Garantía Contractual de un (1) año sobre materiales y cerramientos, contados a partir de la entrega/instalación. Este plazo amplía la garantía legal mínima, rigiéndose supletoriamente por las normativas de Defensa del Consumidor (Ley 24.240).
+Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o negligente. Instalación realizada por personal ajeno a la empresa. Hechos de fuerza mayor o desastres naturales.`);
 
   // Fetch leads on mount
   useEffect(() => {
@@ -170,6 +171,7 @@ export function ProformaGenerator() {
   const totalSinAnticipo = subtotal + instalacionFlete;
   const anticipo = totalSinAnticipo * (commercialTerms.anticipoPorcentaje / 100);
   const saldo = totalSinAnticipo - anticipo;
+  const proformaNumber = selectedLeadId ? `PF-${selectedLeadId.slice(-6).toUpperCase()}` : 'PF-XXXXXX';
 
   // Print functionality
   const handlePrint = () => {
@@ -192,27 +194,30 @@ export function ProformaGenerator() {
   return (
     <div className="space-y-8">
       {/* Print‑only document (hidden on screen) */}
-      <div className="hidden print:flex print:absolute print:inset-0 print:bg-white print:z-50 print:flex-col print:p-8">
-        <style>{`@media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }`}</style>
+      <div className="hidden print:flex print:absolute print:inset-0 print:bg-white print:z-50 print:flex-col print:p-[15mm]">
+        <style>{`@page { size: A4; margin: 0; } @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }`}</style>
         <div className="flex-1">
           {/* Header with logo and date */}
-          <div className="flex justify-between items-center border-b-2 border-slate-800 pb-4 mb-8">
+          <div className="flex justify-between items-center border-b-2 border-[#1A3A52] pb-4 mb-8">
             <div className="flex items-center gap-4">
               {/* Logo VK - actual image */}
-              <img src="/logo.png" className="w-20 h-20 object-contain" alt="Vilkmet Logo" />
+              <div className="w-20 h-20 flex items-center justify-center border-2 border-[#1A3A52] bg-white rounded-lg">
+                <span className="text-2xl font-bold text-[#1A3A52] tracking-tighter">VK</span>
+              </div>
               <div>
-                <h1 className="text-3xl font-bold text-slate-800">VILKMET - Presupuesto Técnico Oficial</h1>
-                <p className="text-slate-600">Sistemas de Aluminio de Alta Performance</p>
+                <h1 className="text-3xl font-bold text-[#1A3A52] tracking-tight">VILKMET - Presupuesto Técnico Oficial</h1>
+                <p className="text-[#2D2D2D] font-sans">Sistemas de Aluminio de Alta Performance</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-slate-700 font-medium">Fecha: {new Date().toLocaleDateString('es-AR')}</p>
+              <p className="text-[#2D2D2D] font-medium font-sans">Fecha: {new Date().toLocaleDateString('es-AR')}</p>
+              <p className="text-[#2D2D2D] font-medium font-sans mt-1">Proforma Nº: {proformaNumber}</p>
             </div>
           </div>
 
           {/* Customer info */}
           <div className="bg-slate-50 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Información del Cliente</h2>
+            <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Información del Cliente</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <span className="font-semibold">Nombre:</span>
@@ -260,22 +265,22 @@ export function ProformaGenerator() {
           {/* Order details table */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Detalle del Pedido</h2>
-            <table className="w-full text-left border-collapse border border-slate-300">
+            <table className="w-full text-left border-collapse border border-[#1A3A52]">
               <thead>
-                <tr className="bg-slate-100">
-                  <th className="border border-slate-300 p-2">Descripción</th>
-                  <th className="border border-slate-300 p-2 text-center">Cant.</th>
-                  <th className="border border-slate-300 p-2 text-right">Precio Unit.</th>
-                  <th className="border border-slate-300 p-2 text-right">Subtotal</th>
+                <tr className="bg-[#1A3A52] text-white">
+                  <th className="border border-[#1A3A52] p-2">Descripción</th>
+                  <th className="border border-[#1A3A52] p-2 text-center">Cant.</th>
+                  <th className="border border-[#1A3A52] p-2 text-right">Precio Unit.</th>
+                  <th className="border border-[#1A3A52] p-2 text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 {orderItems.map(item => (
                   <tr key={item.id}>
-                    <td className="border border-slate-300 p-2">{item.description}</td>
-                    <td className="border border-slate-300 p-2 text-center">{item.quantity}</td>
-                    <td className="border border-slate-300 p-2 text-right">${item.unitPrice.toFixed(2)}</td>
-                    <td className="border border-slate-300 p-2 text-right">${item.subtotal.toFixed(2)}</td>
+                    <td className="border border-[#1A3A52] p-2">{item.description}</td>
+                    <td className="border border-[#1A3A52] p-2 text-center">{item.quantity}</td>
+                    <td className="border border-[#1A3A52] p-2 text-right">${item.unitPrice.toFixed(2)}</td>
+                    <td className="border border-[#1A3A52] p-2 text-right">${item.subtotal.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -284,7 +289,7 @@ export function ProformaGenerator() {
 
           {/* Cost summary */}
           <div className="bg-slate-50 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Resumen Financiero</h2>
+            <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Resumen Financiero</h2>
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
@@ -306,9 +311,9 @@ export function ProformaGenerator() {
                 <span>Saldo:</span>
                 <span>${saldo.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between border-t-2 border-slate-800 pt-4 mt-4">
-                <span className="text-slate-800 font-bold text-lg">TOTAL FINAL:</span>
-                <span className="text-orange-600 font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
+              <div className="flex justify-between border-t-2 border-[#1A3A52] pt-4 mt-4">
+                <span className="text-[#1A3A52] font-bold text-lg">TOTAL FINAL:</span>
+                <span className="text-[#E85D04] font-bold text-xl">${totalSinAnticipo.toFixed(2)}</span>
               </div>
             </div>
             <div className="mt-6 text-sm">
@@ -319,14 +324,14 @@ export function ProformaGenerator() {
 
           {/* Legal text */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Condiciones y Garantía</h2>
-            <div className="whitespace-pre-wrap break-words text-justify bg-slate-50 p-6 rounded-lg border-l-4 border-slate-800">
+            <h2 className="text-xl font-bold text-[#1A3A52] tracking-tight mb-4">Condiciones y Garantía</h2>
+            <div className="whitespace-pre-wrap break-words text-justify bg-slate-50 p-6 rounded-lg border-l-4 border-[#1A3A52]">
               {legalText}
             </div>
           </div>
 
           {/* Signatures */}
-          <div className="flex justify-between mt-12 pt-8 border-t border-slate-300">
+          <div className="flex justify-between mt-12 pt-8 border-t border-[#2D2D2D]">
             <div className="text-center w-1/2">
               <p className="font-semibold">Firma del Cliente</p>
               <p className="text-sm text-slate-500">Nombre y aclaración</p>
