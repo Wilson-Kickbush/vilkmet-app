@@ -61,82 +61,43 @@ export async function POST(req: NextRequest) {
     // 3. PERSISTENCIA EN TRANSACCIÓN (Lead -> Quote -> Items)
     try {
       const result = await prisma.$transaction(async (tx) => {
-        let lead: any;
-        let quote: any;
-
-        // 1. Gestionar el lead (update si existe, create si no)
-        if (leadId) {
-          const existingLead = await tx.lead.findUnique({ where: { id: leadId } });
-          if (existingLead) {
-            // Actualizar lead existente
-            lead = await tx.lead.update({
-              where: { id: leadId },
-              data: {
-                nombre: client.nombre,
-                whatsapp: client.whatsapp,
-                email: client.email || null,
-                status: "NUEVO",
-              }
-            });
-          }
-        }
-        if (!lead) {
-          // Crear nuevo lead (si no se actualizó uno existente)
-          lead = await tx.lead.create({
-            data: {
-              nombre: client.nombre,
-              whatsapp: client.whatsapp,
-              email: client.email || null,
-              status: "NUEVO",
-            }
-          });
-        }
-
-        // 2. Gestionar la cotización (update si existe y pertenece al lead, create si no)
-        if (quoteId) {
-          const existingQuote = await tx.quote.findUnique({ where: { id: quoteId } });
-          if (existingQuote && existingQuote.leadId === lead.id) {
-            // Actualizar cotización existente
-            quote = await tx.quote.update({
-              where: { id: quoteId },
-              data: {
+        // Crear lead, cotización e items en una única operación atómica
+        const lead = await tx.lead.create({
+          data: {
+            nombre: client.nombre,
+            whatsapp: client.whatsapp,
+            email: client.email || null,
+            status: "NUEVO",
+            quotes: {
+              create: {
                 status: "nuevo",
                 precioFinal: Math.round(Number(totalFinanciado)),
                 notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
+                items: {
+                  create: processedItems.map((pi) => ({
+                    tipo: pi.tipologia.toLowerCase().includes("puerta") ? "puerta" : "ventana",
+                    linea: pi.linea,
+                    tipologia: pi.tipologia,
+                    ancho: Number(pi.ancho),
+                    alto: Number(pi.alto),
+                    color: pi.color,
+                    acristalamiento: pi.vidrio,
+                    subtotal: Math.round(Number(pi.subtotal))
+                  }))
+                }
               }
-            });
-            // Eliminar items anteriores
-            await tx.quoteItem.deleteMany({ where: { quoteId } });
-          }
-        }
-        if (!quote) {
-          // Crear nueva cotización para el lead (ya sea existente o nuevo)
-          quote = await tx.quote.create({
-            data: {
-              leadId: lead.id,
-              status: "nuevo",
-              precioFinal: Math.round(Number(totalFinanciado)),
-              notasCliente: `Pago: ${paymentMode.toUpperCase()} | Proyecto Multi-Elemento | Gastos Estructura: ${structureMargin}% Incluido`,
             }
-          });
-        }
-
-        // 3. Crear los items de la cotización
-        await tx.quoteItem.createMany({
-          data: processedItems.map((pi) => ({
-            quoteId: quote.id,
-            tipo: pi.tipologia.toLowerCase().includes("puerta") ? "puerta" : "ventana",
-            linea: pi.linea,
-            tipologia: pi.tipologia,
-            ancho: Number(pi.ancho),
-            alto: Number(pi.alto),
-            color: pi.color,
-            acristalamiento: pi.vidrio,
-            subtotal: Math.round(Number(pi.subtotal))
-          }))
+          },
+          include: {
+            quotes: {
+              include: {
+                items: true
+              }
+            }
+          }
         });
-
-        return { leadId: lead!.id, quoteId: quote!.id };
+        const quote = lead.quotes[0];
+        return { leadId: lead.id, quoteId: quote.id };
       });
 
       return NextResponse.json({ 

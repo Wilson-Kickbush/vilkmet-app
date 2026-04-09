@@ -162,8 +162,6 @@ export function CotizadorDynamic() {
   });
 
   const [clientData, setClientData] = useState({ nombre: "", whatsapp: "", email: "" });
-  const [earlyLeadId, setEarlyLeadId] = useState<string | null>(null);
-  const [earlyQuoteId, setEarlyQuoteId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchParams = async () => {
@@ -177,13 +175,6 @@ export function CotizadorDynamic() {
     fetchParams();
   }, []);
 
-  // Cargar earlyLeadId desde localStorage al montar
-  useEffect(() => {
-    const savedLeadId = localStorage.getItem("vilkmet_earlyLeadId");
-    const savedQuoteId = localStorage.getItem("vilkmet_earlyQuoteId");
-    if (savedLeadId) setEarlyLeadId(savedLeadId);
-    if (savedQuoteId) setEarlyQuoteId(savedQuoteId);
-  }, []);
 
   const coloresMap: Record<string, string> = { blanco: "#FFFFFF", negro: "#2D2D2D", anodizado: "#a3a3a3", bronce: "#8B5A2B" };
 
@@ -223,63 +214,7 @@ export function CotizadorDynamic() {
     }
   };
 
-  const saveEarlyLead = async (items: ProjectItem[]) => {
-    try {
-      const payload = {
-        items: items.map(item => ({
-          linea: item.linea,
-          tipologia: item.tipologia,
-          ancho: item.ancho,
-          alto: item.alto,
-          color: item.color,
-          vidrio: item.vidrio,
-          subtotal: item.subtotal,
-        })),
-        totalFinanciado: items.reduce((acc, item) => acc + item.subtotal, 0),
-        paymentMode,
-        leadId: earlyLeadId,
-        quoteId: earlyQuoteId,
-        nombre: clientData.nombre,
-        whatsapp: clientData.whatsapp,
-      };
-      const res = await fetch("/api/quote/early", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEarlyLeadId(data.leadId);
-        setEarlyQuoteId(data.quoteId);
-        localStorage.setItem("vilkmet_earlyLeadId", data.leadId);
-        localStorage.setItem("vilkmet_earlyQuoteId", data.quoteId);
-        setError(null); // clear any previous error
-      } else {
-        const errorText = await res.text();
-        console.error("Error saving early lead:", errorText);
-        // Si el error es 400 (IDs corruptos), limpiar localStorage
-        if (res.status === 400) {
-          localStorage.removeItem("vilkmet_earlyLeadId");
-          localStorage.removeItem("vilkmet_earlyQuoteId");
-          setEarlyLeadId(null);
-          setEarlyQuoteId(null);
-        }
-        setError("No se pudo guardar la cotización temporal. Reintente más tarde.");
-      }
-    } catch (error) {
-      console.error("Failed to save early lead:", error);
-      setError("Error de conexión. Verifique su internet.");
-    }
-  };
 
-  // Actualizar lead temprano cuando el usuario ingresa nombre o WhatsApp
-  useEffect(() => {
-    if (projectItems.length === 0) return; // No hay items para guardar
-    const timer = setTimeout(() => {
-      saveEarlyLead(projectItems);
-    }, 1000); // Debounce de 1 segundo
-    return () => clearTimeout(timer);
-  }, [clientData.nombre, clientData.whatsapp, projectItems]);
 
   const addItemToProject = () => {
     const newItem: ProjectItem = {
@@ -290,7 +225,6 @@ export function CotizadorDynamic() {
       subtotal: calculateLocalPrice()
     };
     const updatedItems = [...projectItems, newItem];
-    saveEarlyLead(updatedItems);
     setProjectItems(updatedItems);
     setView("project");
     setStep(1);
@@ -303,9 +237,6 @@ export function CotizadorDynamic() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Blindada: leer IDs desde localStorage como respaldo
-      const leadId = earlyLeadId || localStorage.getItem("vilkmet_earlyLeadId");
-      const quoteId = earlyQuoteId || localStorage.getItem("vilkmet_earlyQuoteId");
       const res = await fetch("/api/quote", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -313,15 +244,11 @@ export function CotizadorDynamic() {
           client: clientData,
           paymentMode,
           totalFinanciado: financingLabel.total,
-          leadId: leadId,
-          quoteId: quoteId
         })
       });
       if (res.ok) {
         localStorage.removeItem("vilkmet_earlyLeadId");
         localStorage.removeItem("vilkmet_earlyQuoteId");
-        setEarlyLeadId(null);
-        setEarlyQuoteId(null);
         setSuccess(true);
         setError(null);
       } else {
