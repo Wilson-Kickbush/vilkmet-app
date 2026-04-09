@@ -75,12 +75,9 @@ export async function POST(req: NextRequest) {
                 nombre: client.nombre,
                 whatsapp: client.whatsapp,
                 email: client.email || null,
-                status: "NUEVO", // Cambiar estado a NUEVO
+                status: "NUEVO",
               }
             });
-          } else {
-            // LeadId no válido, se creará uno nuevo después
-            console.warn("LeadId no encontrado, se creará nuevo lead");
           }
         }
         if (!lead) {
@@ -110,9 +107,6 @@ export async function POST(req: NextRequest) {
             });
             // Eliminar items anteriores
             await tx.quoteItem.deleteMany({ where: { quoteId } });
-          } else {
-            // QuoteId no válido, se creará una nueva cotización para el lead
-            console.warn("QuoteId no encontrado o no pertenece al lead, se creará nueva cotización");
           }
         }
         if (!quote) {
