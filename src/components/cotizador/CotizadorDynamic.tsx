@@ -303,6 +303,9 @@ export function CotizadorDynamic() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Blindada: leer IDs desde localStorage como respaldo
+      const leadId = earlyLeadId || localStorage.getItem("vilkmet_earlyLeadId");
+      const quoteId = earlyQuoteId || localStorage.getItem("vilkmet_earlyQuoteId");
       const res = await fetch("/api/quote", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -310,8 +313,8 @@ export function CotizadorDynamic() {
           client: clientData,
           paymentMode,
           totalFinanciado: financingLabel.total,
-          leadId: earlyLeadId,
-          quoteId: earlyQuoteId
+          leadId: leadId,
+          quoteId: quoteId
         })
       });
       if (res.ok) {
@@ -524,7 +527,7 @@ export function CotizadorDynamic() {
             </div>
             
             <div className="flex-1 flex flex-col justify-center py-2 md:py-6 items-center">
-              <div className="relative group/sim max-w-full">
+              <div className="relative group/sim w-full h-full flex items-center justify-center">
                  <SimuladorVisual 
                   tipologia={formData.tipologia as any} 
                   ancho={Number(formData.ancho)} 

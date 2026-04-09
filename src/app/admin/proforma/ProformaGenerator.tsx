@@ -192,15 +192,14 @@ export function ProformaGenerator() {
   return (
     <div className="space-y-8">
       {/* Print‑only document (hidden on screen) */}
-      <div className="hidden print:block print:w-full print:bg-white print:text-black">
-        <div className="print-container p-8">
+      <div className="hidden print:flex print:absolute print:inset-0 print:bg-white print:z-50 print:flex-col print:p-8">
+        <style>{`@media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }`}</style>
+        <div className="flex-1">
           {/* Header with logo and date */}
           <div className="flex justify-between items-center border-b-2 border-slate-800 pb-4 mb-8">
             <div className="flex items-center gap-4">
-              {/* Logo VK - fallback box */}
-              <div className="w-20 h-20 bg-slate-800 flex items-center justify-center text-white text-2xl font-bold">
-                VK
-              </div>
+              {/* Logo VK - actual image */}
+              <img src="/logo.png" className="w-20 h-20 object-contain" alt="Vilkmet Logo" />
               <div>
                 <h1 className="text-3xl font-bold text-slate-800">VILKMET - Presupuesto Técnico Oficial</h1>
                 <p className="text-slate-600">Sistemas de Aluminio de Alta Performance</p>

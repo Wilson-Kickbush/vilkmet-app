@@ -18,7 +18,7 @@ export function SimuladorVisual({ tipologia, ancho, alto, colorHex }: SimuladorV
   const zocaloBottom = Math.max(30, w * 0.05);
 
   return (
-    <div className="w-full bg-slate-50 border rounded-lg p-6 shadow-sm flex items-center justify-center relative overflow-hidden group">
+    <div className="w-full h-full flex-1 bg-slate-50 border rounded-lg p-6 shadow-sm flex items-center justify-center relative overflow-hidden group">
       {/* Marca de Agua V|K Isotipo */}
       <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
         <span className="font-heading font-black text-[25vw] text-primary tracking-tighter mix-blend-multiply">
@@ -28,7 +28,7 @@ export function SimuladorVisual({ tipologia, ancho, alto, colorHex }: SimuladorV
 
       <svg
         viewBox={`0 0 ${w} ${h}`}
-        className="w-full h-full max-h-[70vh] md:max-h-[60vh] transition-all duration-700 ease-in-out drop-shadow-2xl z-10"
+        className="w-full h-full max-h-[60vh] transition-all duration-700 ease-in-out drop-shadow-2xl z-10"
         preserveAspectRatio="xMidYMid meet"
         overflow="visible"
       >
