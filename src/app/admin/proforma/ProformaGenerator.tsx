@@ -220,7 +220,7 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
             </div>
             {/* Center column: title and subtitle */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-[#1A3A52] tracking-tight">VILKMET - Presupuesto Técnico Oficial</h1>
+              <h1 className="text-2xl font-bold text-[#1A3A52] tracking-tight">VILKMET Presupuesto Técnico Oficial</h1>
               <p className="text-[#2D2D2D] font-sans mt-1">Sistemas de Aluminio de Alta Performance</p>
             </div>
             {/* Right column: date and proforma number */}
