@@ -346,30 +346,42 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
               </div>
             </div>
 
-            {/* Signatures & Footer - keep together */}
-            <div className="print:break-inside-avoid">
-              {/* Signatures */}
-              <div className="flex justify-between px-12 mt-32">
+            {/* BLOQUE FINAL: FIRMAS Y CONTACTO (Agrupado e irrompible) */}
+            <div className="mt-12 print:mt-8 print:break-inside-avoid">
+              
+              {/* Contenedor de Firmas (SIN bordes superiores) */}
+              <div className="flex justify-between px-16 pt-8">
+                
+                {/* Columna Firma Cliente */}
                 <div className="flex flex-col items-center">
-                  <div className="w-64 border-t-2 border-[#1A3A52] mb-2"></div>
-                  <span className="font-bold text-[#1A3A52]">Firma del Cliente</span>
-                  <span className="text-sm text-[#2D2D2D]">Nombre y aclaración</span>
+                  <div className="w-64 border-t-2 border-[#1A3A52] pt-2 text-center">
+                    <span className="font-bold text-[#1A3A52] block">Firma del Cliente</span>
+                    <span className="text-sm text-[#2D2D2D] block">Nombre y aclaración</span>
+                  </div>
                 </div>
+
+                {/* Columna Firma VILKMET */}
                 <div className="flex flex-col items-center">
-                  <div className="w-64 border-t-2 border-[#1A3A52] mb-2"></div>
-                  <span className="font-bold text-[#1A3A52]">Firma VILKMET</span>
-                  <span className="text-sm text-[#2D2D2D]">Responsable de ventas</span>
+                  <div className="w-64 border-t-2 border-[#1A3A52] pt-2 text-center">
+                    <span className="font-bold text-[#1A3A52] block">Firma VILKMET</span>
+                    <span className="text-sm text-[#2D2D2D] block">Responsable de ventas</span>
+                  </div>
+                </div>
+                
+              </div>
+
+              {/* Pie de Página Corporativo (Totalmente limpio de íconos) */}
+              <div className="mt-16 pt-6 flex flex-col items-center justify-center text-sm text-[#2D2D2D] print:text-black">
+                <div className="flex items-center gap-4">
+                  <span className="font-medium">ventas@vilkmet.com</span>
+                  <span>|</span>
+                  <span className="font-medium">11-5096-0796</span>
+                </div>
+                <div className="mt-2">
+                  <span>Cosquín 963, Ingeniero Budge, Buenos Aires</span>
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="mt-16 pt-6 flex flex-wrap justify-center items-center gap-4 text-sm text-[#2D2D2D]">
-                <span className="font-medium">ventas@vilkmet.com</span>
-                <span>|</span>
-                <span className="font-medium">11-5096-0796</span>
-                <span>|</span>
-                <span>Cosquín 963, Ingeniero Budge, Buenos Aires</span>
-              </div>
             </div>
           </div>
         </div>
