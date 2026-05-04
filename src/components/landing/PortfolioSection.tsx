@@ -105,9 +105,10 @@ export function PortfolioSection() {
             >
               {/* USAMOS LA URL REAL DE TU BASE DE DATOS */}
               <Image
-                src={project.image_url || '/path/to/default-image.jpg'} // Usamos tu foto real
+                src={project.image_url || '/projects/obra-real-1.jpg'}
                 alt={project.title}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1A3A52] via-transparent to-transparent opacity-80" />
@@ -152,9 +153,10 @@ export function PortfolioSection() {
                   <div className="relative h-64 md:h-auto">
                     {/* USAMOS LA URL REAL DE TU BASE DE DATOS */}
                     <Image
-                      src={selectedProject.image_url || '/path/to/default-image.jpg'}
+                      src={selectedProject.image_url || '/projects/obra-real-1.jpg'}
                       alt={selectedProject.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                   </div>

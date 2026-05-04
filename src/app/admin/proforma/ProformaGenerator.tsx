@@ -216,7 +216,7 @@ Exclusiones: La garantía no cubre vicios o daños derivados de: Uso indebido o 
           <div className="grid grid-cols-3 items-center gap-4 border-b-2 border-[#1A3A52] pb-4 mb-8">
             {/* Left column: logo */}
             <div className="flex items-center justify-start">
-              <img src="/logo-oficial.png" className="h-16 w-auto object-contain" alt="VILKMET Logo" />
+              <img src="/logo.png" className="h-16 w-auto object-contain" alt="VILKMET Logo" />
             </div>
             {/* Center column: title and subtitle */}
             <div className="text-center">

@@ -2,60 +2,49 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { supabase, portfolioApi, PortfolioProject } from "@/lib/supabase";
-import { optimizeImageForPortfolio, createImagePreview, cleanupImagePreview } from "@/utils/imageOptimizer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import {
-  Upload, 
-  Image as ImageIcon, 
-  MapPin, 
-  Type, 
-  FileText, 
-  Trash2, 
+  Image as ImageIcon,
+  MapPin,
+  Type,
+  FileText,
+  Trash2,
   Loader2,
   Plus,
   Eye,
   CheckCircle,
   AlertCircle,
-  Camera,
-  Zap
+  Link,
+  Info
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function PortfolioAdminPage() {
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  // Estado del formulario
   const [formData, setFormData] = useState({
     title: "",
     location: "",
     description: "",
     type: "",
+    image_url: "",
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Cargar proyectos al montar el componente
   useEffect(() => {
     loadProjects();
-    return () => {
-      // Limpiar preview URL al desmontar
-      if (previewUrl) {
-        cleanupImagePreview(previewUrl);
-      }
-    };
   }, []);
 
   const loadProjects = async () => {
     setLoading(true);
     const { data, error } = await portfolioApi.getProjects();
-    
+
     if (error) {
       setMessage({ type: 'error', text: `Error al cargar proyectos: ${error.message}` });
     } else if (data) {
@@ -64,106 +53,42 @@ export default function PortfolioAdminPage() {
     setLoading(false);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Limpiar preview anterior
-    if (previewUrl) {
-      cleanupImagePreview(previewUrl);
-    }
-
-    // Validación de tipo de archivo
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setMessage({ type: 'error', text: 'Formato de imagen no válido. Solo se aceptan JPG, PNG o WEBP.' });
-      e.target.value = ''; // Resetear input
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      return;
-    }
-
-    // Validación de tamaño (5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-    if (file.size > maxSize) {
-      setMessage({ type: 'error', text: `La imagen excede el tamaño máximo de 5MB. Tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB` });
-      e.target.value = '';
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      return;
-    }
-
-    // Si pasa validación
-    setSelectedFile(file);
-    const url = createImagePreview(file);
-    setPreviewUrl(url);
-    setMessage(null); // Limpiar mensajes anteriores
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedFile) {
-      setMessage({ type: 'error', text: 'Por favor, selecciona una imagen' });
+
+    if (!formData.title || !formData.location || !formData.image_url) {
+      setMessage({ type: 'error', text: 'Por favor, completa título, ubicación y ruta de la imagen.' });
       return;
     }
 
-    setUploading(true);
+    setSaving(true);
     setMessage(null);
 
-    try {
-      // 1. OPTIMIZAR IMAGEN ANTES DE SUBIR (NUEVO)
-      setMessage({ type: 'success', text: 'Optimizando imagen para máxima nitidez...' });
-      const optimizedFile = await optimizeImageForPortfolio(selectedFile);
-      
-      // 2. Subir imagen optimizada al storage
-      setMessage({ type: 'success', text: 'Subiendo imagen optimizada...' });
-      const { data: uploadData, error: uploadError } = await portfolioApi.uploadImage(optimizedFile);
-      
-      if (uploadError) throw new Error(`Error al subir imagen: ${uploadError.message}`);
-      
-      // 3. Obtener URL pública
-      const imageUrl = portfolioApi.getImageUrl(uploadData.path);
-      
-      // 4. Crear proyecto en la base de datos
-      const projectData = {
-        title: formData.title,
-        location: formData.location,
-        description: formData.description,
-        type: formData.type,
-        image_url: imageUrl,
-      };
+    const { error: createError } = await portfolioApi.createProject({
+      title: formData.title,
+      location: formData.location,
+      description: formData.description,
+      type: formData.type,
+      image_url: formData.image_url,
+    });
 
-      setMessage({ type: 'success', text: 'Guardando proyecto en la base de datos...' });
-      const { error: createError } = await portfolioApi.createProject(projectData);
-      
-      if (createError) throw new Error(`Error al crear proyecto: ${createError.message}`);
-
-      // 5. Limpiar formulario y recargar proyectos
-      setFormData({ title: "", location: "", description: "", type: "" });
-      setSelectedFile(null);
-      if (previewUrl) {
-        cleanupImagePreview(previewUrl);
-        setPreviewUrl(null);
-      }
-      setMessage({ type: 'success', text: '¡Proyecto creado exitosamente con imagen optimizada en alta definición!' });
-      
-      // Recargar lista de proyectos
+    if (createError) {
+      setMessage({ type: 'error', text: `Error al crear proyecto: ${createError.message}` });
+    } else {
+      setFormData({ title: "", location: "", description: "", type: "", image_url: "" });
+      setMessage({ type: 'success', text: '¡Proyecto creado exitosamente!' });
       await loadProjects();
-      
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message });
-    } finally {
-      setUploading(false);
     }
+
+    setSaving(false);
   };
 
-  const handleDelete = async (id: string, imageUrl: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar este proyecto?')) return;
 
     setLoading(true);
-    const { error } = await portfolioApi.deleteProject(id, imageUrl);
-    
+    const { error } = await portfolioApi.deleteProject(id);
+
     if (error) {
       setMessage({ type: 'error', text: `Error al eliminar: ${error.message}` });
     } else {
@@ -188,15 +113,13 @@ export default function PortfolioAdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Portfolio</h1>
           <p className="text-gray-600 mt-2">
-            Sube y gestiona los proyectos de instalaciones reales de VILKMET
+            Gestiona los proyectos de instalaciones reales de VILKMET
           </p>
         </div>
 
-        {/* Mensajes de estado */}
         {message && (
           <Alert className={`mb-6 ${message.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             {message.type === 'success' ? (
@@ -221,65 +144,49 @@ export default function PortfolioAdminPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Input de imagen */}
+                {/* Ruta de la imagen */}
                 <div className="space-y-2">
-                  <Label htmlFor="image" className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    Imagen del Proyecto
+                  <Label htmlFor="image_url" className="flex items-center gap-2">
+                    <Link className="h-4 w-4" />
+                    Ruta de la Imagen
                   </Label>
-                  
-                  {/* Consejos para mejores fotos */}
+
                   <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
-                      <Camera className="h-4 w-4" />
-                      Consejos para máxima nitidez:
+                      <Info className="h-4 w-4" />
+                      Instrucciones para subir imágenes
                     </h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• Usa luz natural o iluminación uniforme</li>
-                      <li>• Enfoca bien la abertura completa</li>
-                      <li>• Toma la foto desde ángulo frontal</li>
-                      <li>• Formato recomendado: JPG alta calidad</li>
-                      <li>• Tamaño ideal: 1920px o más de ancho</li>
+                      <li>Guarda la foto en la carpeta <code className="bg-blue-100 px-1 rounded">public/projects/</code> del código</li>
+                      <li>Escribe aquí la ruta: <code className="bg-blue-100 px-1 rounded">/projects/nombre-de-la-foto.jpg</code></li>
+                      <li>Formatos recomendados: JPG o WEBP, máximo 1920px de ancho</li>
+                      <li>Ejemplo: <code className="bg-blue-100 px-1 rounded">/projects/ventana-modena.jpg</code></li>
                     </ul>
                   </div>
-                  
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <input
-                      type="file"
-                      id="image"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <label htmlFor="image" className="cursor-pointer">
-                      {previewUrl ? (
-                        <div className="space-y-2">
-                          <img 
-                            src={previewUrl} 
-                            alt="Preview" 
-                            className="mx-auto h-40 object-cover rounded-lg"
-                          />
-                          <p className="text-sm text-gray-600">Haz clic para cambiar la imagen</p>
-                          <div className="flex items-center justify-center gap-2 text-xs text-blue-600">
-                            <Zap className="h-3 w-3" />
-                            <span>Esta imagen será optimizada automáticamente</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Upload className="h-12 w-12 text-gray-400 mx-auto" />
-                          <p className="text-sm text-gray-600">
-                            Arrastra una imagen o haz clic para seleccionar
-                          </p>
-                          <p className="text-xs text-gray-500">PNG, JPG, WEBP hasta 5MB</p>
-                          <div className="flex items-center justify-center gap-2 text-xs text-blue-600 mt-2">
-                            <Zap className="h-3 w-3" />
-                            <span>Optimización automática: 1920px • 95% calidad</span>
-                          </div>
-                        </div>
-                      )}
-                    </label>
-                  </div>
+
+                  <Input
+                    id="image_url"
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                    placeholder="/projects/nombre-de-la-foto.jpg"
+                    required
+                  />
+
+                  {formData.image_url && (
+                    <div className="mt-3 border rounded-lg p-2 bg-gray-50">
+                      <p className="text-xs text-gray-500 mb-2">Vista previa:</p>
+                      <Image
+                        src={formData.image_url}
+                        alt="Preview"
+                        width={400}
+                        height={250}
+                        className="w-full h-40 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Título */}
@@ -291,7 +198,7 @@ export default function PortfolioAdminPage() {
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Ej: Puerta Balcón Serie Premium"
                     required
                   />
@@ -306,7 +213,7 @@ export default function PortfolioAdminPage() {
                   <Input
                     id="location"
                     value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     placeholder="Ej: Lomas de Zamora, Buenos Aires"
                     required
                   />
@@ -318,7 +225,7 @@ export default function PortfolioAdminPage() {
                   <select
                     id="type"
                     value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3A52] focus:border-transparent"
                     required
                   >
@@ -338,7 +245,7 @@ export default function PortfolioAdminPage() {
                   <textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Describe el proyecto, características técnicas, etc."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A3A52] focus:border-transparent min-h-[100px]"
                     required
@@ -348,18 +255,18 @@ export default function PortfolioAdminPage() {
                 {/* Botón de envío */}
                 <Button
                   type="submit"
-                  disabled={uploading || !selectedFile}
+                  disabled={saving}
                   className="w-full bg-[#1A3A52] hover:bg-[#112738]"
                 >
-                  {uploading ? (
+                  {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Optimizando y subiendo...
+                      Guardando...
                     </>
                   ) : (
                     <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Subir Proyecto Optimizado
+                      <Plus className="mr-2 h-4 w-4" />
+                      Crear Proyecto
                     </>
                   )}
                 </Button>
@@ -380,13 +287,13 @@ export default function PortfolioAdminPage() {
               ) : projects.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <ImageIcon className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-                  <p>No hay proyectos aún. ¡Comienza subiendo el primero!</p>
+                  <p>No hay proyectos aún. ¡Comienza creando el primero!</p>
                 </div>
               ) : (
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                   {projects.map((project) => (
-                    <div 
-                      key={project.id} 
+                    <div
+                      key={project.id}
                       className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex gap-4">
@@ -400,7 +307,7 @@ export default function PortfolioAdminPage() {
                             className="h-20 w-20 object-cover rounded-lg"
                           />
                         </div>
-                        
+
                         {/* Información */}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-gray-900 truncate">
@@ -419,7 +326,7 @@ export default function PortfolioAdminPage() {
                             {project.description}
                           </p>
                         </div>
-                        
+
                         {/* Acciones */}
                         <div className="flex flex-col gap-2">
                           <Button
@@ -434,7 +341,7 @@ export default function PortfolioAdminPage() {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDelete(project.id, project.image_url)}
+                            onClick={() => handleDelete(project.id)}
                             className="flex items-center gap-1"
                           >
                             <Trash2 className="h-3 w-3" />
@@ -450,14 +357,10 @@ export default function PortfolioAdminPage() {
           </Card>
         </div>
 
-        {/* Información del bucket */}
+        {/* Información de la base de datos */}
         <Card className="mt-8">
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <h4 className="font-semibold text-gray-700">Bucket de Storage</h4>
-                <p className="text-gray-600">portfolio-images</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <h4 className="font-semibold text-gray-700">Tabla de Base de Datos</h4>
                 <p className="text-gray-600">portfolio_projects</p>
@@ -469,8 +372,8 @@ export default function PortfolioAdminPage() {
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex items-center gap-2 text-sm text-blue-600">
-                <Zap className="h-4 w-4" />
-                <span>Todas las imágenes se optimizan automáticamente a 1920px con 95% de calidad</span>
+                <Info className="h-4 w-4" />
+                <span>Recuerda que para subir nuevas obras, debes guardar la foto en la carpeta <code className="bg-blue-50 px-1 rounded">public/projects</code> del código con el mismo nombre que escribas aquí.</span>
               </div>
             </div>
           </CardContent>
